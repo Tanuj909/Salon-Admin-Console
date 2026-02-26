@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
+import SuperAdminSidebar from "./SuperAdminSidebar";
 import Topbar from "./Topbar";
 
-const AdminLayout = () => {
+const SuperAdminLayout = () => {
   return (
     <div className="flex h-screen">
       
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Super Admin Sidebar */}
+      <SuperAdminSidebar />
 
       {/* Right Side */}
       <div className="flex flex-col flex-1">
@@ -16,7 +16,7 @@ const AdminLayout = () => {
         <Topbar />
 
         {/* Page Content */}
-        <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+        <div className="flex-1 p-6 bg-slate-50 overflow-auto">
           <Outlet />
         </div>
 
@@ -25,4 +25,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default SuperAdminLayout;

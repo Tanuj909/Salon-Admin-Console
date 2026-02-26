@@ -2,7 +2,6 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
-    SEND_OTP: "/auth/send-otp",
   },
 
   USERS: {
@@ -11,6 +10,25 @@ export const API_ENDPOINTS = {
   },
 
   SALONS: {
-    GET_ALL: "/salons",
+    GET_ALL: "/businesses",
+    GET_PENDING: "/businesses/pending",
+    GET_VERIFIED: "/businesses/verified",
+    GET_BY_ID: (id) => `/businesses/${id}`,
+    GET_MY_BUSINESS: "/businesses/my-business",
+    VERIFY: (id) => `/businesses/${id}/verify`,
+  },
+
+  CATEGORIES: {
+    BASE: "/categories",
+  },
+
+  SERVICES: {
+    BASE: "/services",
+    GET_BY_BUSINESS: (businessId) => `/services/business/${businessId}`,
+  },
+
+  STAFF: {
+    BASE: "/staff",
+    GET_BY_BUSINESS: (businessId) => `/staff/business/${businessId}`,
   },
 };
