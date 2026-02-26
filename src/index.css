@@ -1,8 +1,37 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --bg: #F5F4F2;
+    --card: #FFFFFF;
+    --border: #E2DDD8;
+    --border-focus: #B5A58A;
+    --text-primary: #1C1A18;
+    --text-secondary: #6B6560;
+    --text-muted: #9E9790;
+    --gold: #B5A58A;
+    --gold-dark: #9E9080;
+    --gold-light: #F0EBE3;
+    --error: #C0392B;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900;
+    @apply bg-[#F5F4F2] text-[#1C1A18];
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(181,165,138,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(181,165,138,0.04) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
   }
 }
 
@@ -19,5 +48,9 @@
 }
 
 .font-display {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.font-sans-alt {
+  font-family: 'DM Sans', sans-serif;
 }
