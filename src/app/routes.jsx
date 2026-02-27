@@ -12,6 +12,7 @@ import Categories from "@/features/categories/pages/Categories";
 import MyAdminSalon from "@/features/salons/pages/MyAdminSalon";
 import Services from "@/features/services/pages/Services";
 import Staff from "@/features/staff/pages/Staff";
+import Admins from "@/features/users/pages/Admins";
 
 const AppRoutes = () => {
   return (
@@ -31,6 +32,7 @@ const AppRoutes = () => {
             <Route path="/super-admin/verified-salons" element={<VerifiedSalons />} />
             <Route path="/super-admin/salons/:id" element={<SalonDetails />} />
             <Route path="/super-admin/categories" element={<Categories />} />
+            <Route path="/super-admin/admins" element={<Admins />} />
             {/* Add more super admin routes here */}
           </Route>
         </Route>

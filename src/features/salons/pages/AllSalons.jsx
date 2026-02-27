@@ -39,131 +39,119 @@ const AllSalons = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
-      case 'VERIFIED': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case 'PENDING': return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'REJECTED': return 'bg-rose-50 text-rose-700 border-rose-100';
-      default: return 'bg-slate-50 text-slate-700 border-slate-100';
+      case 'VERIFIED': return <span className="status-badge verified">Verified</span>;
+      case 'PENDING': return <span className="status-badge pending">Pending</span>;
+      case 'REJECTED': return <span className="status-badge rejected">Rejected</span>;
+      default: return <span className="status-badge">{status}</span>;
     }
   };
 
-  if (loading && salons.length === 0) return <div className="p-8 text-center text-slate-500">Loading salons...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (error) return <div className="admin-content text-center text-red-500 py-12">{error}</div>;
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 font-display">All Salons</h1>
-          <p className="text-slate-500 mt-1">Manage and monitor all registered businesses ({totalElements})</p>
-        </div>
-        <button 
-          onClick={() => {
-            if (currentPage === 0) fetchAllSalons();
-            else setCurrentPage(0);
-          }}
-          className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-600"
-        >
-          🔄
-        </button>
+    <div className="page active">
+      <div className="admin-page-header">
+        <h1>All Salons</h1>
+        <p>Complete directory of all registered businesses.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+      <div className="admin-toolbar">
+        <div className="admin-toolbar-left">
+          <div className="admin-search-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search all salons..." />
+          </div>
+          <select className="admin-filter-select">
+            <option>All Status</option>
+            <option>Verified</option>
+            <option>Pending</option>
+            <option>Suspended</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <div className="table-wrap">
+          <table className="admin-table">
             <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Salon</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Rating</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              <tr>
+                <th>Salon Name</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Rating</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {salons.map((salon) => (
-                <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 font-bold shrink-0">
-                        {salon.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-slate-900">{salon.name}</div>
-                        <div className="text-xs text-slate-500 line-clamp-1">{salon.description}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-slate-600">{salon.city}</div>
-                    <div className="text-xs text-slate-400">{salon.country}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full border ${getStatusColor(salon.verificationStatus)}`}>
-                      {salon.verificationStatus}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm font-medium text-slate-700">
-                      <span>⭐</span> {salon.averageRating.toFixed(1)}
-                    </div>
-                    <div className="text-[10px] text-slate-400">({salon.totalReviews} reviews)</div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button 
-                      onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
-                      className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
-                    >
-                      View Details
-                    </button>
-                  </td>
+            <tbody>
+              {loading && salons.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-12 text-slate-400">Loading salons...</td>
                 </tr>
-              ))}
+              ) : salons.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-12 text-slate-400">No salons found.</td>
+                </tr>
+              ) : (
+                salons.map((salon) => (
+                  <tr key={salon.id}>
+                    <td><strong>{salon.name}</strong></td>
+                    <td className="td-muted">{salon.city}</td>
+                    <td>{getStatusBadge(salon.verificationStatus)}</td>
+                    <td className="td-muted">
+                      <div className="flex items-center gap-1">
+                        <span>⭐</span> {salon.averageRating.toFixed(1)}
+                      </div>
+                    </td>
+                    <td>
+                      <button 
+                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                        onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Pagination UI */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-8">
-          <div className="text-sm text-slate-500">
-            Showing {currentPage * pageSize + 1} to {Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 0}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"
-            >
-              Previous
-            </button>
-            <div className="flex gap-1">
+        
+        {totalPages > 1 && (
+          <div className="admin-pagination">
+            <span className="page-info">
+              Showing {currentPage * pageSize + 1} to {Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
+            </span>
+            <div className="page-btns">
+              <button 
+                className="page-btn" 
+                disabled={currentPage === 0}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                ‹
+              </button>
               {[...Array(totalPages)].map((_, i) => (
-                <button
+                <button 
                   key={i}
-                  onClick={() => setCurrentPage(i)}
-                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
-                    currentPage === i 
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
+                  className={`page-btn ${currentPage === i ? 'active' : ''}`}
+                  onClick={() => handlePageChange(i)}
                 >
                   {i + 1}
                 </button>
               ))}
+              <button 
+                className="page-btn" 
+                disabled={currentPage === totalPages - 1}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                ›
+              </button>
             </div>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages - 1}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 disabled:opacity-50 hover:bg-slate-50 transition-colors"
-            >
-              Next
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

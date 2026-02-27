@@ -25,6 +25,14 @@ const Services = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [popularOnly, setPopularOnly] = useState(false);
+
 
   useEffect(() => {
     fetchMyBusinessAndServices();
@@ -43,6 +51,7 @@ const Services = () => {
       const data = await getServicesByBusinessApi(bId, currentPage, 10);
       setServices(data.content || []);
       setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
     } catch (err) {
       console.error("Error fetching services", err);
     } finally {
@@ -84,248 +93,673 @@ const Services = () => {
     }
   };
 
+
+  const filteredServices = services.filter(service => {
+    const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          service.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !categoryFilter || service.category === categoryFilter;
+    const matchesStatus = !statusFilter || (statusFilter === "active" ? service.isActive : !service.isActive);
+    const matchesPopular = !popularOnly || service.isPopular;
+    return matchesSearch && matchesCategory && matchesStatus && matchesPopular;
+  });
+
+
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Salon Services</h1>
-          <p className="text-slate-500 font-medium">Create and manage your menu of expert beauty treatments</p>
-        </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center gap-2"
-        >
-          <span>✨</span> Add New Service
-        </button>
-      </div>
+    <div className="page active" style={{ minHeight: '100vh', padding: '0' }}>
+      <style>
+        {`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700&display=swap');
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {loading && services.length === 0 ? (
-          <div className="col-span-full text-center py-20 text-slate-400 font-bold italic animate-pulse">
-            LOADING YOUR SERVICE MENU...
+        .services-container {
+          font-family: 'DM Sans', sans-serif;
+          color: #374151;
+          padding: 32px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .services-container *, .services-container *::before, .services-container *::after { 
+            box-sizing: border-box; 
+        }
+
+        .page-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          margin-bottom: 24px;
+        }
+
+        .page-header-left h1 {
+          font-family: 'Syne', sans-serif;
+          font-size: 22px;
+          font-weight: 700;
+          color: #111827;
+          letter-spacing: -0.3px;
+          margin: 0;
+        }
+
+        .page-header-left p {
+          font-size: 13.5px;
+          color: #6B7280;
+          margin-top: 4px;
+        }
+
+        .btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          background: #1B3F6E;
+          color: white;
+          border: none;
+          padding: 9px 20px;
+          border-radius: 7px;
+          font-size: 13.5px;
+          font-weight: 500;
+          font-family: 'DM Sans', sans-serif;
+          cursor: pointer;
+          transition: background 0.15s;
+          white-space: nowrap;
+        }
+        .btn-primary:hover { background: #152f55; }
+
+        /* Removed stats bar styles */
+
+        .filter-bar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+
+        .search-wrap {
+          position: relative;
+          flex: 1;
+          min-width: 200px;
+          max-width: 320px;
+        }
+
+        .search-wrap svg {
+          position: absolute;
+          left: 11px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #9CA3AF;
+          pointer-events: none;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 8px 12px 8px 34px;
+          border: 1px solid #E5E7EB;
+          border-radius: 7px;
+          font-size: 13.5px;
+          font-family: 'DM Sans', sans-serif;
+          color: #111827;
+          background: #FFFFFF;
+          outline: none;
+          transition: border-color 0.15s;
+        }
+
+        .search-input:focus { border-color: #1B3F6E; }
+        .search-input::placeholder { color: #9CA3AF; }
+
+        .filter-select {
+          padding: 8px 14px;
+          border: 1px solid #E5E7EB;
+          border-radius: 7px;
+          font-size: 13px;
+          font-family: 'DM Sans', sans-serif;
+          color: #374151;
+          background: #FFFFFF;
+          outline: none;
+          cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+          padding-right: 30px;
+          transition: border-color 0.15s;
+        }
+        .filter-select:focus { border-color: #1B3F6E; }
+
+        .toggle-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          border: 1px solid #E5E7EB;
+          border-radius: 7px;
+          font-size: 13px;
+          font-family: 'DM Sans', sans-serif;
+          color: #6B7280;
+          background: #FFFFFF;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+          user-select: none;
+        }
+        .toggle-pill:hover { border-color: #1B3F6E; color: #1B3F6E; }
+        .toggle-pill.on {
+          background: #EFF4FB;
+          border-color: #BFDBFE;
+          color: #1B3F6E;
+          font-weight: 500;
+        }
+
+        .table-container {
+          background: #FFFFFF;
+          border: 1px solid #E5E7EB;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        thead tr {
+          background: #F9FAFB;
+          border-bottom: 1px solid #E5E7EB;
+        }
+
+        thead th {
+          padding: 11px 16px;
+          text-align: left;
+          font-size: 11.5px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          color: #6B7280;
+          white-space: nowrap;
+        }
+
+        tbody tr {
+          border-bottom: 1px solid #F3F4F6;
+          transition: background 0.12s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #F8FAFC; }
+
+        tbody td {
+          padding: 14px 16px;
+          vertical-align: middle;
+          font-size: 13.5px;
+          color: #374151;
+        }
+
+        .svc-image {
+          width: 58px; height: 58px;
+          border-radius: 8px;
+          object-fit: cover;
+          border: 1px solid #E5E7EB;
+          background: #F9FAFB;
+          display: block;
+        }
+
+        .img-placeholder {
+          width: 58px; height: 58px;
+          border-radius: 8px;
+          border: 1px solid #E5E7EB;
+          background: #F9FAFB;
+          display: flex; align-items: center; justify-content: center;
+          color: #9CA3AF;
+        }
+
+        .svc-name {
+          font-weight: 600;
+          font-size: 14px;
+          color: #111827;
+          margin-bottom: 3px;
+        }
+
+        .svc-desc {
+          font-size: 12px;
+          color: #6B7280;
+          max-width: 220px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px 10px;
+          border-radius: 20px;
+          font-size: 11.5px;
+          font-weight: 500;
+        }
+
+        .badge-gray {
+          background: #F3F4F6;
+          color: #374151;
+          border: 1px solid #E5E7EB;
+        }
+
+        .badge-green {
+          background: #ECFDF5;
+          color: #065F46;
+          border: 1px solid #A7F3D0;
+        }
+
+        .badge-amber {
+          background: #FFFBEB;
+          color: #92400E;
+          border: 1px solid #FCD34D;
+        }
+
+        .badge-popular {
+          background: #FEFCE8;
+          color: #854D0E;
+          border: 1px solid #FDE68A;
+        }
+
+        .badge-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: currentColor;
+        }
+
+        .status-badges { display: flex; flex-direction: column; gap: 5px; }
+
+        .price-original {
+          font-size: 12px;
+          color: #9CA3AF;
+          text-decoration: line-through;
+          display: block;
+        }
+
+        .price-main {
+          font-size: 15px;
+          font-weight: 600;
+          color: #111827;
+        }
+
+        .price-label {
+          font-size: 11px;
+          color: #6B7280;
+          margin-top: 2px;
+        }
+
+        .staff-zero {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 13px;
+          color: #92400E;
+        }
+
+        .action-wrap { position: relative; }
+
+        .btn-update {
+          background: #EFF4FB;
+          color: #1B3F6E;
+          border: 1px solid #BFDBFE;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .btn-update:hover { background: #DCE7F5; }
+
+        .pagination-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 20px;
+          border-top: 1px solid #E5E7EB;
+          background: #FFFFFF;
+          border-radius: 0 0 10px 10px;
+        }
+
+        .pagination-info {
+          font-size: 13px;
+          color: #6B7280;
+        }
+
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .page-btn {
+          width: 32px; height: 32px;
+          border-radius: 6px;
+          border: 1px solid #E5E7EB;
+          background: #FFFFFF;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 13px;
+          color: #6B7280;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+
+        .page-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.45;
+        }
+
+        .page-btn.current {
+          background: #1B3F6E;
+          border-color: #1B3F6E;
+          color: white;
+          cursor: default;
+          opacity: 1;
+        }
+
+        .empty-row td {
+          text-align: center;
+          padding: 48px 0;
+          color: #6B7280;
+          font-size: 13.5px;
+        }
+        `}
+      </style>
+
+      <main className="services-container">
+        {/* ── Page Header ── */}
+        <div className="page-header">
+          <div className="page-header-left">
+            <h1>Services — Desert Pearl Beauty Lounge</h1>
+            <p>Manage all services offered by this business &nbsp;·&nbsp; Business ID: {businessId || '...'} &nbsp;·&nbsp; Dubai</p>
           </div>
-        ) : services.length === 0 ? (
-          <div className="col-span-full text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center">
-            <span className="text-6xl mb-4">📭</span>
-            <p className="text-slate-400 font-black uppercase text-sm tracking-widest">No services added yet</p>
-            <button 
-                onClick={() => setIsModalOpen(true)}
-                className="mt-4 text-indigo-600 font-bold hover:underline"
-            >
-                Start by adding your first service
-            </button>
+          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New Service
+          </button>
+        </div>
+
+        {/* ── Filter Bar ── */}
+        <div className="filter-bar">
+          <div className="search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input 
+              className="search-input" 
+              type="text" 
+              placeholder="Search services…" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        ) : (
-          services.map((service) => (
-            <div key={service.id} className="bg-white rounded-[2rem] shadow-sm border border-slate-100 group overflow-hidden hover:shadow-xl transition-all duration-500">
-                <div className="h-48 bg-slate-50 relative">
-                    {service.imageUrl ? (
-                        <img src={service.imageUrl} alt={service.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-200 text-4xl font-black">
-                            {service.name.charAt(0)}
+          <select 
+            className="filter-select" 
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {[...new Set(services.map(s => s.category))].map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <select 
+            className="filter-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <div 
+            className={`toggle-pill ${popularOnly ? 'on' : ''}`}
+            onClick={() => setPopularOnly(!popularOnly)}
+          >
+            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Popular Only
+          </div>
+        </div>
+
+        {/* ── Table ── */}
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style={{ width: '74px' }}>Image</th>
+                <th>Service Name</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Pricing</th>
+                <th>Status</th>
+                <th>Bookings</th>
+                <th>Staff</th>
+                <th style={{ width: '100px' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr className="empty-row">
+                  <td colSpan="9">Loading services...</td>
+                </tr>
+              ) : filteredServices.length === 0 ? (
+                <tr className="empty-row">
+                  <td colSpan="9">No services match your filters.</td>
+                </tr>
+              ) : (
+                filteredServices.map(service => (
+                  <tr key={service.id}>
+                    <td>
+                      {service.imageUrl ? (
+                        <img className="svc-image" src={service.imageUrl} alt={service.name} />
+                      ) : (
+                        <div className="img-placeholder">
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
-                    )}
-                    <div className="absolute top-4 left-4 flex gap-2">
+                      )}
+                    </td>
+                    <td>
+                      <div className="svc-name">{service.name}</div>
+                      <div className="svc-desc">{service.description}</div>
+                    </td>
+                    <td>
+                      <span className="badge badge-gray">{service.category}</span>
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap', color: '#111827', fontWeight: '500' }}>
+                      {service.durationMinutes} min
+                    </td>
+                    <td>
+                      {service.discountedPrice < service.price && (
+                        <span className="price-original">₹{service.price.toFixed(2)}</span>
+                      )}
+                      <span className="price-main">₹{service.effectivePrice.toFixed(2)}</span>
+                      <div className="price-label">Effective: ₹{service.effectivePrice.toFixed(2)}</div>
+                    </td>
+                    <td>
+                      <div className="status-badges">
+                        {service.isActive
+                          ? <span className="badge badge-green"><span className="badge-dot"></span>Active</span>
+                          : <span className="badge badge-gray"><span className="badge-dot"></span>Inactive</span>
+                        }
                         {service.isPopular && (
-                            <span className="bg-amber-400 text-amber-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
-                                🔥 Popular
-                            </span>
+                          <span className="badge badge-popular">⭐ Popular</span>
                         )}
-                        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm ${
-                            service.isActive ? 'bg-emerald-500 text-white' : 'bg-slate-400 text-white'
-                        }`}>
-                            {service.isActive ? 'Active' : 'Private'}
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: '500', color: '#111827' }}>{service.totalBookings || 0}</td>
+                    <td>
+                      {(service.staffCount || 0) === 0 ? (
+                        <span className="staff-zero">
+                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          0 Staff
                         </span>
-                    </div>
-                </div>
-                
-                <div className="p-8">
-                    <div className="flex justify-between items-start mb-3">
-                        <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest bg-indigo-50 px-2 py-0.5 rounded-md">
-                            {service.category}
-                        </span>
-                        <span className="text-slate-400 text-xs font-bold uppercase tracking-tighter">
-                            ⏱️ {service.durationMinutes} Min
-                        </span>
-                    </div>
-                    <h3 className="text-xl font-black text-slate-900 mb-2 truncate group-hover:text-indigo-600 transition-colors uppercase leading-none">
-                        {service.name}
-                    </h3>
-                    <p className="text-slate-500 text-sm mb-6 line-clamp-2 h-10 leading-relaxed">
-                        {service.description}
-                    </p>
-                    
-                    <div className="flex items-end justify-between pt-6 border-t border-slate-50">
-                        <div>
-                            {service.discountedPrice < service.price && (
-                                <p className="text-slate-400 line-through text-xs font-bold mb-0.5">₹{service.price}</p>
-                            )}
-                            <p className="text-3xl font-black text-slate-900 leading-none">₹{service.effectivePrice}</p>
-                        </div>
-                        <button className="p-3 bg-slate-50 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-slate-400">
-                            ⚙️
-                        </button>
-                    </div>
-                </div>
+                      ) : (
+                        <span style={{ fontWeight: '500', color: '#111827' }}>{service.staffCount} Staff</span>
+                      )}
+                    </td>
+                    <td>
+                      <button className="btn-update" onClick={() => console.log('Update', service.id)}>
+                        Update
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination-bar">
+              <span className="pagination-info">
+                Showing page {currentPage + 1} of {totalPages}
+              </span>
+              <div className="pagination-controls">
+                <button 
+                  className="page-btn"
+                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                  disabled={currentPage === 0}
+                >
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div className="page-btn current">{currentPage + 1}</div>
+                <button 
+                  className="page-btn"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
             </div>
-          ))
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-12 bg-white px-8 py-4 rounded-2xl w-fit mx-auto border border-slate-100 shadow-sm">
-          <button
-            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-            disabled={currentPage === 0}
-            className="p-2 disabled:opacity-30 hover:bg-slate-50 rounded-lg transition-colors"
-          >
-            ⬅️ Prev
-          </button>
-          <span className="font-black text-slate-900 text-sm">
-            {currentPage + 1} / {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-            disabled={currentPage === totalPages - 1}
-            className="p-2 disabled:opacity-30 hover:bg-slate-50 rounded-lg transition-colors"
-          >
-            Next ➡️
-          </button>
+          )}
         </div>
-      )}
+      </main>
 
-      {/* Modal - Create Service */}
+      {/* Modal - Create Service (Keep original modal look or slightly modernise it? User mock didn't show modal, so I'll keep the existing one but styled better) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div className="bg-indigo-600 p-10 text-white relative">
-                <div className="absolute top-10 right-10 text-indigo-400 text-6xl opacity-20 font-black select-none uppercase tracking-tighter">NEW</div>
-                <h2 className="text-3xl font-black leading-none mb-2">ADD SERVICE</h2>
-                <p className="text-indigo-100 font-bold text-xs uppercase tracking-widest opacity-80">Expand your business menu</p>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1001] flex items-center justify-center p-4" onClick={() => setIsModalOpen(false)}>
+          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-[#1B3F6E] p-8 text-white relative">
+                <h2 className="text-2xl font-bold leading-none mb-2">ADD NEW SERVICE</h2>
+                <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Expand your business menu</p>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-10 space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="p-8 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Service Title</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
                         <input
                             type="text"
                             name="name"
                             value={form.name}
                             onChange={handleChange}
                             required
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-bold text-slate-900"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
                             placeholder="e.g. Hair Cut & Styling"
                         />
                     </div>
                     
                     <div className="col-span-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Service Description</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description</label>
                         <textarea
                             name="description"
                             value={form.description}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-medium text-slate-900 h-24"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all h-20 text-sm"
                             placeholder="Detail what makes this service special..."
                         />
                     </div>
                     
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Category</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
                         <input
                             type="text"
                             name="category"
                             value={form.category}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-bold text-slate-900"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
                         />
                     </div>
                     
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Duration (Minutes)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
                         <input
                             type="number"
                             name="durationMinutes"
                             value={form.durationMinutes}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-bold text-slate-900"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
                         />
                     </div>
                     
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Standard Price (₹)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
                         <input
                             type="number"
                             name="price"
                             value={form.price}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-bold text-slate-900"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
                         />
                     </div>
                     
                     <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Offer Price (₹)</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
                         <input
                             type="number"
                             name="discountedPrice"
                             value={form.discountedPrice}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-bold text-slate-900 text-indigo-600"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
                         />
                     </div>
                     
                     <div className="col-span-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Cover Image URL</label>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
                         <input
                             type="url"
                             name="imageUrl"
                             value={form.imageUrl}
                             onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-indigo-200 outline-none p-4 rounded-2xl transition-all font-medium text-slate-900"
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
                             placeholder="https://..."
                         />
                     </div>
                 </div>
                 
-                <div className="flex gap-10 py-2">
-                    <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="flex gap-6 py-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
                             name="isActive"
                             checked={form.isActive}
                             onChange={handleChange}
-                            className="w-5 h-5 accent-indigo-600"
+                            className="w-4 h-4 accent-[#1B3F6E]"
                         />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-900 transition-colors">Visible to Public</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer group">
+                    <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
                             name="isPopular"
                             checked={form.isPopular}
                             onChange={handleChange}
-                            className="w-5 h-5 accent-amber-500"
+                            className="w-4 h-4 accent-amber-500"
                         />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-500 transition-colors">Trending Label</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
                     </label>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-3 pt-4">
                     <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="flex-1 bg-slate-100 text-slate-500 py-4 rounded-[1.5rem] font-black uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
+                        className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
                     >
-                        Discard
+                        Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="flex-1 bg-slate-900 text-white py-4 rounded-[1.5rem] font-black uppercase text-xs tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 disabled:opacity-50"
+                        className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
                     >
-                        {submitting ? "Saving..." : "Create Service"}
+                        {submitting ? "Saving..." : "Create"}
                     </button>
                 </div>
             </form>

@@ -1,24 +1,46 @@
 import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
 import SuperAdminSidebar from "./SuperAdminSidebar";
 import Topbar from "./Topbar";
 
 const SuperAdminLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div className="flex h-screen">
+    <div className="layout">
       
       {/* Super Admin Sidebar */}
-      <SuperAdminSidebar />
+      <SuperAdminSidebar 
+        collapsed={collapsed} 
+        setCollapsed={setCollapsed} 
+        mobileOpen={mobileOpen} 
+        setMobileOpen={setMobileOpen} 
+      />
 
       {/* Right Side */}
-      <div className="flex flex-col flex-1">
+      <div className="main">
 
         {/* Topbar */}
-        <Topbar />
+        <Topbar onMenuClick={() => setMobileOpen(true)} isMobile={isMobile} />
 
         {/* Page Content */}
-        <div className="flex-1 p-6 bg-slate-50 overflow-auto">
+        <main className="admin-content">
           <Outlet />
-        </div>
+        </main>
 
       </div>
     </div>
