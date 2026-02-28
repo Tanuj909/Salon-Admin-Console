@@ -12,3 +12,8 @@ export const createServiceApi = async (serviceData) => {
   const response = await axiosInstance.post(API_ENDPOINTS.SERVICES.BASE, serviceData);
   return response.data;
 };
+
+export const updateServiceApi = async (serviceId, serviceData) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.SERVICES.UPDATE_BY_ID(serviceId), serviceData);
+  return response.data;
+};

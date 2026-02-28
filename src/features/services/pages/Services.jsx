@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getServicesByBusinessApi, createServiceApi } from "../services/serviceService";
+import { getServicesByBusinessApi, createServiceApi, updateServiceApi } from "../services/serviceService";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
 
 const Services = () => {
@@ -21,6 +21,20 @@ const Services = () => {
     isPopular: false
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Update service state
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [updateForm, setUpdateForm] = useState({
+    name: "",
+    price: 0,
+    discountedPrice: 0,
+    durationMinutes: 30,
+    category: "Salon",
+    imageUrl: "",
+    isPopular: false
+  });
+  const [updating, setUpdating] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
@@ -90,6 +104,46 @@ const Services = () => {
       alert("Failed to create service");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Open update modal pre-filled with selected service data
+  const openUpdateModal = (service) => {
+    setEditingService(service);
+    setUpdateForm({
+      name: service.name || "",
+      price: service.price || 0,
+      discountedPrice: service.discountedPrice || 0,
+      durationMinutes: service.durationMinutes || 30,
+      category: service.category || "Salon",
+      imageUrl: service.imageUrl || "",
+      isPopular: service.isPopular || false
+    });
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setUpdateForm({
+      ...updateForm,
+      [name]: type === "checkbox" ? checked : (type === "number" ? parseFloat(value) : value)
+    });
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingService) return;
+    try {
+      setUpdating(true);
+      await updateServiceApi(editingService.id, updateForm);
+      setIsUpdateModalOpen(false);
+      setEditingService(null);
+      fetchMyBusinessAndServices();
+    } catch (err) {
+      console.error("Error updating service", err);
+      alert("Failed to update service");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -593,7 +647,7 @@ const Services = () => {
                       )}
                     </td>
                     <td>
-                      <button className="btn-update" onClick={() => console.log('Update', service.id)}>
+                      <button className="btn-update" onClick={() => openUpdateModal(service)}>
                         Update
                       </button>
                     </td>
@@ -760,6 +814,121 @@ const Services = () => {
                         className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
                     >
                         {submitting ? "Saving..." : "Create"}
+                    </button>
+                </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Update Service */}
+      {isUpdateModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1001] flex items-center justify-center p-4" onClick={() => setIsUpdateModalOpen(false)}>
+          <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-[#1B3F6E] p-8 text-white relative">
+                <h2 className="text-2xl font-bold leading-none mb-2">UPDATE SERVICE</h2>
+                <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Edit service details</p>
+            </div>
+            
+            <form onSubmit={handleUpdateSubmit} className="p-8 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={updateForm.name}
+                            onChange={handleUpdateChange}
+                            required
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                            placeholder="e.g. Premium Hair Cut & Styling"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
+                        <input
+                            type="text"
+                            name="category"
+                            value={updateForm.category}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
+                        <input
+                            type="number"
+                            name="durationMinutes"
+                            value={updateForm.durationMinutes}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={updateForm.price}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
+                        <input
+                            type="number"
+                            name="discountedPrice"
+                            value={updateForm.discountedPrice}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
+                        />
+                    </div>
+                    
+                    <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
+                        <input
+                            type="url"
+                            name="imageUrl"
+                            value={updateForm.imageUrl}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
+                            placeholder="https://..."
+                        />
+                    </div>
+                </div>
+                
+                <div className="flex gap-6 py-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="isPopular"
+                            checked={updateForm.isPopular}
+                            onChange={handleUpdateChange}
+                            className="w-4 h-4 accent-amber-500"
+                        />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
+                    </label>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                    <button
+                        type="button"
+                        onClick={() => setIsUpdateModalOpen(false)}
+                        className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={updating}
+                        className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
+                    >
+                        {updating ? "Updating..." : "Update Service"}
                     </button>
                 </div>
             </form>

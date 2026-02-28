@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
   SERVICES: {
     BASE: "/services",
     GET_BY_BUSINESS: (businessId) => `/services/business/${businessId}`,
+    UPDATE_BY_ID: (id) => `/services/${id}`,
   },
 
   STAFF: {
