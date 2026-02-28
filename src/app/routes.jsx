@@ -14,6 +14,7 @@ import Services from "@/features/services/pages/Services";
 import Staff from "@/features/staff/pages/Staff";
 import Admins from "@/features/users/pages/Admins";
 import SalonReviews from "@/features/reviews/pages/SalonReviews";
+import Bookings from "@/features/bookings/pages/Bookings";
 
 const AppRoutes = () => {
   return (
@@ -46,6 +47,7 @@ const AppRoutes = () => {
             <Route path="/admin/services" element={<Services />} />
             <Route path="/admin/staff" element={<Staff />} />
             <Route path="/admin/reviews" element={<SalonReviews />} />
+            <Route path="/admin/bookings" element={<Bookings />} />
             {/* Add more admin routes here */}
           </Route>
         </Route>

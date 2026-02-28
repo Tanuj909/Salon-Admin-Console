@@ -36,6 +36,7 @@ export const API_ENDPOINTS = {
   STAFF: {
     BASE: "/staff",
     GET_BY_BUSINESS: (businessId) => `/staff/business/${businessId}`,
+    GET_BY_SERVICE: (serviceId) => `/staff/service/${serviceId}`,
     GET_BY_ID: (id) => `/staff/${id}`,
     UPDATE_BY_ID: (id) => `/staff/${id}`,
     DELETE_BY_ID: (id) => `/staff/${id}`,
@@ -52,5 +53,11 @@ export const API_ENDPOINTS = {
     ADD: (businessId) => `/business-holidays/business/${businessId}`,
     UPDATE_BY_ID: (id) => `/business-holidays/${id}`,
     DELETE_BY_ID: (id) => `/business-holidays/${id}`,
+  },
+  BOOKINGS: {
+    GET_BY_BUSINESS: (businessId) => `/bookings/business/${businessId}`,
+    ACCEPT: (bookingId, staffId) => `/bookings/${bookingId}/accept?staffId=${staffId}`,
+    REJECT: (bookingId) => `/bookings/${bookingId}/reject`,
+    RESCHEDULE: (bookingId) => `/bookings/${bookingId}/reschedule`,
   },
 };

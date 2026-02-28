@@ -8,6 +8,11 @@ export const getStaffByBusinessApi = async (businessId, page = 0, size = 10) => 
   return response.data;
 };
 
+export const getStaffByServiceApi = async (serviceId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_BY_SERVICE(serviceId));
+  return response.data;
+};
+
 export const getStaffByIdApi = async (staffId) => {
   const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_BY_ID(staffId));
   return response.data;
