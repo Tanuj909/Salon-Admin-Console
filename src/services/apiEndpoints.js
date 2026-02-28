@@ -15,6 +15,10 @@ export const API_ENDPOINTS = {
     GET_VERIFIED: "/businesses/verified",
     GET_BY_ID: (id) => `/businesses/${id}`,
     GET_MY_BUSINESS: "/businesses/my-business",
+    UPDATE_MY_BUSINESS: "/businesses/my-business",
+    UPLOAD_BANNER: "/businesses/banner",
+    UPLOAD_IMAGES: "/businesses/images",
+    DELETE_IMAGE: "/businesses/images",
     VERIFY: (id) => `/businesses/${id}/verify`,
   },
 
@@ -37,5 +41,16 @@ export const API_ENDPOINTS = {
     DELETE_BY_ID: (id) => `/staff/${id}`,
     ASSIGN_SERVICES: (id) => `/staff/${id}/services`,
     REMOVE_SERVICES: (id) => `/staff/${id}/services`,
+  },
+  REVIEWS: {
+    GET_BY_BUSINESS: (businessId) => `/reviews/business/${businessId}`,
+    UPDATE_BY_ID: (id) => `/reviews/${id}`,
+    DELETE_BY_ID: (id) => `/reviews/${id}`,
+  },
+  HOLIDAYS: {
+    GET_BY_BUSINESS: (businessId) => `/business-holidays/business/${businessId}`,
+    ADD: (businessId) => `/business-holidays/business/${businessId}`,
+    UPDATE_BY_ID: (id) => `/business-holidays/${id}`,
+    DELETE_BY_ID: (id) => `/business-holidays/${id}`,
   },
 };

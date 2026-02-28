@@ -31,6 +31,42 @@ export const getMyBusinessApi = async () => {
   return response.data;
 };
 
+export const updateMyBusinessApi = async (data) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.SALONS.UPDATE_MY_BUSINESS, data);
+  return response.data;
+};
+
+export const uploadBannerApi = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await axiosInstance.post(API_ENDPOINTS.SALONS.UPLOAD_BANNER, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+export const uploadSalonImagesApi = async (files) => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+  const response = await axiosInstance.post(API_ENDPOINTS.SALONS.UPLOAD_IMAGES, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+export const deleteSalonImageApi = async (imageUrl) => {
+  const response = await axiosInstance.delete(API_ENDPOINTS.SALONS.DELETE_IMAGE, {
+    params: { imageUrl },
+  });
+  return response.data;
+};
+
 export const verifySalonApi = async (id, status) => {
   const response = await axiosInstance.put(API_ENDPOINTS.SALONS.VERIFY(id), null, {
     params: { status },

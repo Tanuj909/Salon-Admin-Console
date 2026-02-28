@@ -13,6 +13,7 @@ import MyAdminSalon from "@/features/salons/pages/MyAdminSalon";
 import Services from "@/features/services/pages/Services";
 import Staff from "@/features/staff/pages/Staff";
 import Admins from "@/features/users/pages/Admins";
+import SalonReviews from "@/features/reviews/pages/SalonReviews";
 
 const AppRoutes = () => {
   return (
@@ -20,7 +21,7 @@ const AppRoutes = () => {
       <Routes>
         {/* Root redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-        
+
         <Route path="/login" element={<Login />} />
 
         {/* Super Admin Routes */}
@@ -44,6 +45,7 @@ const AppRoutes = () => {
             <Route path="/admin/my-salon" element={<MyAdminSalon />} />
             <Route path="/admin/services" element={<Services />} />
             <Route path="/admin/staff" element={<Staff />} />
+            <Route path="/admin/reviews" element={<SalonReviews />} />
             {/* Add more admin routes here */}
           </Route>
         </Route>
