@@ -8,7 +8,34 @@ export const getStaffByBusinessApi = async (businessId, page = 0, size = 10) => 
   return response.data;
 };
 
+export const getStaffByIdApi = async (staffId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_BY_ID(staffId));
+  return response.data;
+};
+
 export const createStaffApi = async (staffData) => {
   const response = await axiosInstance.post(API_ENDPOINTS.STAFF.BASE, staffData);
+  return response.data;
+};
+
+export const updateStaffApi = async (staffId, staffData) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.STAFF.UPDATE_BY_ID(staffId), staffData);
+  return response.data;
+};
+
+export const deleteStaffApi = async (staffId) => {
+  const response = await axiosInstance.delete(API_ENDPOINTS.STAFF.DELETE_BY_ID(staffId));
+  return response.data;
+};
+
+export const assignServicesToStaffApi = async (staffId, serviceIds) => {
+  const response = await axiosInstance.post(API_ENDPOINTS.STAFF.ASSIGN_SERVICES(staffId), serviceIds);
+  return response.data;
+};
+
+export const removeServicesFromStaffApi = async (staffId, serviceIds) => {
+  const response = await axiosInstance.delete(API_ENDPOINTS.STAFF.REMOVE_SERVICES(staffId), {
+    data: serviceIds
+  });
   return response.data;
 };

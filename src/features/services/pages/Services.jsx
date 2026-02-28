@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getServicesByBusinessApi, createServiceApi, updateServiceApi } from "../services/serviceService";
+import { getServicesByBusinessApi, createServiceApi, updateServiceApi, deleteServiceApi } from "../services/serviceService";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
 
 const Services = () => {
@@ -35,6 +35,12 @@ const Services = () => {
     isPopular: false
   });
   const [updating, setUpdating] = useState(false);
+
+  // Delete service state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingServiceId, setDeletingServiceId] = useState(null);
+  const [deletingServiceName, setDeletingServiceName] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
@@ -144,6 +150,30 @@ const Services = () => {
       alert("Failed to update service");
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Delete service
+  const openDeleteModal = (service) => {
+    setDeletingServiceId(service.id);
+    setDeletingServiceName(service.name);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteService = async () => {
+    if (!deletingServiceId) return;
+    try {
+      setDeleting(true);
+      await deleteServiceApi(deletingServiceId);
+      setIsDeleteModalOpen(false);
+      setDeletingServiceId(null);
+      setDeletingServiceName("");
+      fetchMyBusinessAndServices();
+    } catch (err) {
+      console.error("Error deleting service", err);
+      alert("Failed to delete service");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -462,6 +492,114 @@ const Services = () => {
         }
         .btn-update:hover { background: #DCE7F5; }
 
+        .btn-delete {
+          background: #FEF2F2;
+          color: #DC2626;
+          border: 1px solid #FECACA;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          margin-left: 6px;
+        }
+        .btn-delete:hover { background: #FEE2E2; }
+
+        .action-buttons {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .delete-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(8px);
+          z-index: 1002;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+
+        .delete-modal {
+          background: #FFFFFF;
+          width: 100%;
+          max-width: 420px;
+          border-radius: 20px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          overflow: hidden;
+          text-align: center;
+        }
+
+        .delete-modal-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: #FEF2F2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px;
+        }
+
+        .delete-modal-body {
+          padding: 32px 32px 24px;
+        }
+
+        .delete-modal-body h3 {
+          font-family: 'Syne', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          margin: 0 0 8px;
+        }
+
+        .delete-modal-body p {
+          font-size: 13.5px;
+          color: #6B7280;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        .delete-modal-body .service-name-highlight {
+          font-weight: 600;
+          color: #DC2626;
+        }
+
+        .delete-modal-actions {
+          display: flex;
+          gap: 10px;
+          padding: 0 32px 28px;
+        }
+
+        .delete-modal-actions button {
+          flex: 1;
+          padding: 11px 16px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 600;
+          font-family: 'DM Sans', sans-serif;
+          cursor: pointer;
+          transition: all 0.15s;
+          border: none;
+        }
+
+        .btn-cancel-delete {
+          background: #F3F4F6;
+          color: #6B7280;
+        }
+        .btn-cancel-delete:hover { background: #E5E7EB; }
+
+        .btn-confirm-delete {
+          background: #DC2626;
+          color: white;
+        }
+        .btn-confirm-delete:hover { background: #B91C1C; }
+        .btn-confirm-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .pagination-bar {
           display: flex;
           align-items: center;
@@ -647,9 +785,14 @@ const Services = () => {
                       )}
                     </td>
                     <td>
-                      <button className="btn-update" onClick={() => openUpdateModal(service)}>
-                        Update
-                      </button>
+                      <div className="action-buttons">
+                        <button className="btn-update" onClick={() => openUpdateModal(service)}>
+                          Update
+                        </button>
+                        <button className="btn-delete" onClick={() => openDeleteModal(service)}>
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -932,6 +1075,32 @@ const Services = () => {
                     </button>
                 </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Delete Confirmation */}
+      {isDeleteModalOpen && (
+        <div className="delete-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="delete-modal" onClick={e => e.stopPropagation()}>
+            <div className="delete-modal-body">
+              <div className="delete-modal-icon">
+                <svg width="28" height="28" fill="none" stroke="#DC2626" strokeWidth="2" viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <line x1="10" y1="11" x2="10" y2="17"/>
+                  <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+              </div>
+              <h3>Delete Service</h3>
+              <p>Are you sure you want to delete <span className="service-name-highlight">{deletingServiceName}</span>? This action cannot be undone.</p>
+            </div>
+            <div className="delete-modal-actions">
+              <button className="btn-cancel-delete" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
+              <button className="btn-confirm-delete" disabled={deleting} onClick={handleDeleteService}>
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

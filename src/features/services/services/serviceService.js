@@ -17,3 +17,8 @@ export const updateServiceApi = async (serviceId, serviceData) => {
   const response = await axiosInstance.put(API_ENDPOINTS.SERVICES.UPDATE_BY_ID(serviceId), serviceData);
   return response.data;
 };
+
+export const deleteServiceApi = async (serviceId) => {
+  const response = await axiosInstance.delete(API_ENDPOINTS.SERVICES.DELETE_BY_ID(serviceId));
+  return response.data;
+};
