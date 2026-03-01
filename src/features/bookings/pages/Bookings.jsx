@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
-import { getBookingsByBusinessApi, acceptBookingApi, rejectBookingApi, rescheduleBookingApi } from "../services/bookingService";
+import { getBookingsByBusinessApi, acceptBookingApi, rejectBookingApi, rescheduleBookingApi } from "@/features/bookings/services/bookingService";
 import { getStaffByServiceApi } from "@/features/staff/services/staffService";
 
 const Bookings = () => {
@@ -40,7 +40,7 @@ const Bookings = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("");
-  const [sortOrder, setSortOrder] = useState("desc"); // desc or asc
+  const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
     fetchMyBusinessAndBookings();
@@ -71,17 +71,14 @@ const Bookings = () => {
   const handleOpenAcceptModal = async (booking) => {
     setSelectedBooking(booking);
     setIsAcceptModalOpen(true);
-    setSelectedStaffId(""); // Reset previously selected staff
+    setSelectedStaffId("");
     setStaffLoading(true);
     setEligibleStaff([]);
 
     try {
-      // Assuming the booking has at least one service, we fetch staff based on the first service.
-      // Adjust this logic if staff selection needs to handle multiple services differently.
       if (booking.services && booking.services.length > 0) {
         const serviceId = booking.services[0].id;
         const staffList = await getStaffByServiceApi(serviceId);
-        // Filter to show only available staff visually, or just list them
         setEligibleStaff(staffList);
       }
     } catch (error) {
@@ -99,7 +96,7 @@ const Bookings = () => {
     try {
       await acceptBookingApi(selectedBooking.id, selectedStaffId);
       setIsAcceptModalOpen(false);
-      fetchMyBusinessAndBookings(); // Refresh the list
+      fetchMyBusinessAndBookings();
     } catch (error) {
       console.error("Error accepting booking:", error);
       alert("Failed to accept booking. Please try again.");
@@ -201,644 +198,200 @@ const Bookings = () => {
     return matchesSearch && matchesStatus && matchesPayment;
   });
 
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'CONFIRMED': return 'badge-green';
-      case 'PENDING': return 'badge-amber';
-      case 'CANCELLED': return 'badge-red';
-      case 'COMPLETED': return 'badge-blue';
-      case 'RESCHEDULED': return 'badge-blue'; // Added for rescheduled status
-      default: return 'badge-gray';
-    }
-  };
-
-  const getPaymentBadgeClass = (status) => {
-    switch (status) {
-      case 'PAID': return 'badge-green';
-      case 'PENDING': return 'badge-amber';
-      case 'FAILED': return 'badge-red';
-      default: return 'badge-gray';
-    }
-  };
-
   return (
-    <div className="page active" style={{ minHeight: '100vh', padding: '0' }}>
-      <style>
-        {`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700&display=swap');
-
-        .bookings-container {
-          font-family: 'Jost', sans-serif;
-          color: #1C1C1C;
-          padding: 4rem;
-          width: 100%;
-          margin: 0 auto;
-          background: #F7F3EE;
-          min-height: 100vh;
-        }
-
-        .bookings-container *, .bookings-container *::before, .bookings-container *::after { 
-            box-sizing: border-box; 
-        }
-
-        .page-header {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          margin-bottom: 24px;
-        }
-
-        .page-header-left h1 {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 2.5rem;
-          font-style: italic;
-          font-weight: 400;
-          color: #1C1C1C;
-          margin: 0;
-        }
-
-        .page-header-left p {
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: #7a7065;
-          margin-top: 0.5rem;
-        }
-
-        .filter-bar {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
-          flex-wrap: wrap;
-        }
-
-        .search-wrap {
-          position: relative;
-          flex: 1;
-          min-width: 200px;
-          max-width: 320px;
-        }
-
-        .search-wrap svg {
-          position: absolute;
-          left: 11px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #9CA3AF;
-          pointer-events: none;
-        }
-
-        .search-input {
-          width: 100%;
-          padding: 8px 12px 8px 34px;
-          border: 1px solid #E5E7EB;
-          border-radius: 7px;
-          font-size: 13.5px;
-          font-family: 'DM Sans', sans-serif;
-          color: #111827;
-          background: #FFFFFF;
-          outline: none;
-          transition: border-color 0.15s;
-        }
-
-        .search-input:focus { border-color: #C8A951; }
-        .search-input::placeholder { color: #9CA3AF; }
-
-        .filter-select {
-          padding: 8px 14px;
-          border: 1px solid #E5E7EB;
-          border-radius: 7px;
-          font-size: 13px;
-          font-family: 'DM Sans', sans-serif;
-          color: #374151;
-          background: #FFFFFF;
-          outline: none;
-          cursor: pointer;
-          appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 10px center;
-          padding-right: 30px;
-          transition: border-color 0.15s;
-        }
-        .filter-select:focus { border-color: #C8A951; }
-
-        .table-container {
-          background: #FDFAF6;
-          border: 1px solid rgba(200, 169, 81, 0.1);
-          border-radius: 40px;
-          overflow: hidden;
-          box-shadow: 0 10px 40px -15px rgba(200, 169, 81, 0.1);
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
-        thead tr {
-          background: #F9FAFB;
-          border-bottom: 1px solid #E5E7EB;
-        }
-
-        thead th {
-          padding: 16px 20px;
-          text-align: left;
-          font-size: 10px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.2em;
-          color: #7a7065;
-          white-space: nowrap;
-        }
-
-        tbody tr {
-          border-bottom: 1px solid #F3F4F6;
-          transition: background 0.12s;
-        }
-
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: #F8FAFC; }
-
-        tbody td {
-          padding: 14px 16px;
-          vertical-align: middle;
-          font-size: 13.5px;
-          color: #374151;
-        }
-
-        .booking-id {
-          font-weight: 600;
-          font-size: 14px;
-          color: #111827;
-          margin-bottom: 3px;
-        }
-
-        .customer-info {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .customer-avatar {
-          width: 32px; height: 32px;
-          border-radius: 50%;
-          background: #F3F4F6;
-          color: #6B7280;
-          display: flex; align-items: center; justify-content: center;
-          font-weight: 600;
-          font-size: 13px;
-        }
-
-        .customer-name {
-          font-weight: 500;
-          color: #111827;
-        }
-
-        .customer-email {
-          font-size: 12px;
-          color: #6B7280;
-        }
-
-        .service-list {
-          font-size: 13px;
-          color: #4B5563;
-          max-width: 200px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 10px;
-          border-radius: 20px;
-          font-size: 11.5px;
-          font-weight: 500;
-          text-transform: capitalize;
-        }
-
-        .badge-gray {
-          background: #F3F4F6;
-          color: #374151;
-          border: 1px solid #E5E7EB;
-        }
-
-        .badge-green {
-          background: #ECFDF5;
-          color: #065F46;
-          border: 1px solid #A7F3D0;
-        }
-
-        .badge-amber {
-          background: #FFFBEB;
-          color: #92400E;
-          border: 1px solid #FCD34D;
-        }
-
-        .badge-red {
-          background: #FEF2F2;
-          color: #991B1B;
-          border: 1px solid #FECACA;
-        }
-
-        .badge-blue {
-          background: #EFF6FF;
-          color: #1E40AF;
-          border: 1px solid #BFDBFE;
-        }
-
-        .price-main {
-          font-size: 14px;
-          font-weight: 600;
-          color: #111827;
-        }
-
-        .pagination-bar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 14px 20px;
-          border-top: 1px solid #E5E7EB;
-          background: #FFFFFF;
-          border-radius: 0 0 10px 10px;
-        }
-
-        .pagination-info {
-          font-size: 13px;
-          color: #6B7280;
-        }
-
-        .pagination-controls {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .page-btn {
-          width: 32px; height: 32px;
-          border-radius: 6px;
-          border: 1px solid #E5E7EB;
-          background: #FFFFFF;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 13px;
-          color: #6B7280;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-
-        .page-btn:disabled {
-          cursor: not-allowed;
-          opacity: 0.45;
-        }
-
-        .page-btn.current {
-          background: #1B3F6E;
-          border-color: #1B3F6E;
-          color: white;
-          cursor: default;
-          opacity: 1;
-        }
-
-        .empty-row td {
-          text-align: center;
-          padding: 48px 0;
-          color: #6B7280;
-          font-size: 13.5px;
-        }
-
-        .btn-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          background: #C8A951;
-          color: #1C1C1C;
-          border: none;
-          padding: 8px 16px;
-          border-radius: 100px;
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          font-family: 'Jost', sans-serif;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          white-space: nowrap;
-        }
-        .btn-primary:hover { background: #B69843; box-shadow: 0 10px 20px -5px rgba(200, 169, 81, 0.4); transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.6);
-          backdrop-filter: blur(8px);
-          z-index: 1002;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 16px;
-        }
-
-        .modal {
-          background: #FFFFFF;
-          width: 100%;
-          max-width: 460px;
-          border-radius: 16px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-          overflow: hidden;
-        }
-
-        .modal-header {
-          padding: 20px 24px;
-          border-bottom: 1px solid #E5E7EB;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .modal-header h3 {
-          font-family: 'Syne', sans-serif;
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0;
-        }
-
-        .modal-close {
-          background: none;
-          border: none;
-          color: #9CA3AF;
-          cursor: pointer;
-          padding: 4px;
-          display: flex;
-          transition: color 0.15s;
-        }
-        .modal-close:hover { color: #374151; }
-
-        .modal-body {
-          padding: 24px;
-        }
-
-        .modal-form-group {
-          margin-bottom: 20px;
-        }
-        .modal-form-group:last-child { margin-bottom: 0; }
-
-        .modal-label {
-          display: block;
-          font-size: 13px;
-          font-weight: 600;
-          color: #374151;
-          margin-bottom: 8px;
-        }
-
-        .modal-input, .modal-select {
-          width: 100%;
-          padding: 10px 14px;
-          border: 1px solid #D1D5DB;
-          border-radius: 8px;
-          font-size: 14px;
-          font-family: 'DM Sans', sans-serif;
-          color: #111827;
-          background: #FFFFFF;
-          outline: none;
-          transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        .modal-input:focus, .modal-select:focus {
-          border-color: #1B3F6E;
-          box-shadow: 0 0 0 3px rgba(27, 63, 110, 0.1);
-        }
-
-        .modal-textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-
-        .modal-footer {
-          padding: 16px 24px;
-          border-top: 1px solid #E5E7EB;
-          background: #F9FAFB;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 12px;
-        }
-
-        .btn-secondary {
-          background: #FFFFFF;
-          color: #374151;
-          border: 1px solid #D1D5DB;
-          padding: 9px 18px;
-          border-radius: 8px;
-          font-size: 13.5px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-        .btn-secondary:hover { background: #F3F4F6; }
-
-        .btn-submit {
-          background: #1B3F6E;
-          color: white;
-          border: none;
-          padding: 9px 18px;
-          border-radius: 8px;
-          font-size: 13.5px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background 0.15s;
-        }
-        .btn-submit:hover { background: #152f55; }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .btn-danger {
-          background: #DC2626;
-        }
-        .btn-danger:hover { background: #B91C1C; }
-
-        .staff-summary {
-          margin-top: 12px;
-          padding: 12px;
-          background: #F3F4F6;
-          border-radius: 8px;
-          font-size: 12.5px;
-          color: #4B5563;
-        }
-        `}
-      </style>
-
-      <main className="bookings-container">
-        {/* ── Page Header ── */}
-        <div className="page-header">
-          <div className="page-header-left">
-            <h1>Business Bookings</h1>
-            <p>Manage and view all appointments &nbsp;·&nbsp; Business ID: {businessId || '...'} &nbsp;·&nbsp; Total: {totalElements}</p>
+    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
+      <main className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+          <div>
+            <h1 className="font-display text-4xl italic text-black-deep mb-2">Business Bookings</h1>
+            <div className="flex items-center gap-3 text-sm text-secondary font-medium tracking-wide uppercase">
+              <span>Business ID: {businessId || 'N/A'}</span>
+              <span className="w-1 h-1 rounded-full bg-gold/50"></span>
+              <span>Total: {totalElements}</span>
+            </div>
           </div>
         </div>
 
-        {/* ── Filter Bar ── */}
-        <div className="filter-bar">
-          <div className="search-wrap">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        {/* Filter Bar */}
+        <div className="bg-white/80 backdrop-blur-xl border border-gold/10 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-4 items-center">
+          <div className="relative flex-1 min-w-[250px]">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input
-              className="search-input"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep placeholder:text-slate-400"
               type="text"
               placeholder="Search by ID or custom name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
           <select
-            className="filter-select"
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none min-w-[150px] cursor-pointer"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
           >
             <option value="">All Statuses</option>
             <option value="CONFIRMED">Confirmed</option>
             <option value="PENDING">Pending</option>
             <option value="COMPLETED">Completed</option>
             <option value="CANCELLED">Cancelled</option>
-            <option value="RESCHEDULED">Rescheduled</option> {/* Added for rescheduled status */}
+            <option value="RESCHEDULED">Rescheduled</option>
           </select>
+
           <select
-            className="filter-select"
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none min-w-[150px] cursor-pointer"
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
+            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
           >
             <option value="">All Payments</option>
             <option value="PAID">Paid</option>
             <option value="PENDING">Pending</option>
             <option value="FAILED">Failed</option>
           </select>
+
           <select
-            className="filter-select"
+            className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none min-w-[150px] cursor-pointer"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
+            style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 0.5rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em`, paddingRight: `2.5rem` }}
           >
             <option value="desc">Newest First</option>
             <option value="asc">Oldest First</option>
           </select>
         </div>
 
-        {/* ── Table ── */}
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Booking ID & Date</th>
-                <th>Customer</th>
-                <th>Services</th>
-                <th>Staff</th>
-                <th>Total</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr className="empty-row">
-                  <td colSpan="8">Loading bookings...</td> {/* Changed colspan to 8 */}
+        {/* Table Container */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-[#FDFBF7] border-b border-gold/10">
+                <tr>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Booking ID & Date</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Customer</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Services</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Staff</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Total</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Payment</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px]">Status</th>
+                  <th className="px-6 py-4 font-bold text-secondary uppercase tracking-widest text-[10px] text-right">Actions</th>
                 </tr>
-              ) : filteredBookings.length === 0 ? (
-                <tr className="empty-row">
-                  <td colSpan="8">No bookings found for the selected filters.</td> {/* Changed colspan to 8 */}
-                </tr>
-              ) : (
-                filteredBookings.map(booking => (
-                  <tr key={booking.id}>
-                    <td>
-                      <div className="booking-id">{booking.bookingNumber}</div>
-                      <div style={{ fontSize: '12px', color: '#6B7280' }}>
-                        {formatDate(booking.bookingDate, booking.startTime)}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="customer-info">
-                        <div className="customer-avatar">
-                          {booking.customer?.firstName?.charAt(0) || '?'}
-                        </div>
-                        <div>
-                          <div className="customer-name">{booking.customer?.firstName} {booking.customer?.lastName}</div>
-                          <div className="customer-email">{booking.customer?.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="service-list" title={booking.services?.map(s => s.name).join(', ')}>
-                        {booking.services?.length > 0
-                          ? booking.services[0].name + (booking.services.length > 1 ? ` (+${booking.services.length - 1})` : '')
-                          : 'No services'}
-                      </div>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: '500', color: '#374151' }}>
-                        {booking.staff ? `${booking.staff.firstName} ${booking.staff.lastName}` : 'Unassigned'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="price-main">₹{booking.finalAmount?.toFixed(2) || '0.00'}</span>
-                    </td>
-                    <td>
-                      <span className={`badge ${getPaymentBadgeClass(booking.paymentStatus)}`}>
-                        {booking.paymentStatus || 'UNKNOWN'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${getStatusBadgeClass(booking.status)}`}>
-                        {booking.status || 'UNKNOWN'}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {booking.status === 'PENDING' && (
-                          <>
-                            <button
-                              className="btn-primary"
-                              onClick={() => handleOpenAcceptModal(booking)}
-                            >
-                              Accept
-                            </button>
-                            <button
-                              className="btn-secondary"
-                              style={{ padding: '7px 14px', fontSize: '12.5px', color: '#DC2626', borderColor: '#FCA5A5', background: '#FEF2F2' }}
-                              onClick={() => handleOpenRejectModal(booking)}
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                        {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && (
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '7px 14px', fontSize: '12.5px' }}
-                            onClick={() => handleOpenRescheduleModal(booking)}
-                          >
-                            Reschedule
-                          </button>
-                        )}
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {loading ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-12 text-center text-secondary">Loading bookings...</td>
+                  </tr>
+                ) : filteredBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-12 text-center text-secondary">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <svg className="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                        <span>No bookings found for the selected filters.</span>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredBookings.map(booking => (
+                    <tr key={booking.id} className="hover:bg-gold/5 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-black-deep tracking-wide">{booking.bookingNumber}</div>
+                        <div className="text-[11px] text-secondary mt-1">
+                          {formatDate(booking.bookingDate, booking.startTime)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold/20 to-gold/40 text-black-deep flex items-center justify-center font-bold text-xs uppercase">
+                            {booking.customer?.firstName?.charAt(0) || '?'}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-black-deep">{booking.customer?.firstName} {booking.customer?.lastName}</div>
+                            <div className="text-[11px] text-secondary">{booking.customer?.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600" title={booking.services?.map(s => s.name).join(', ')}>
+                          {booking.services?.length > 0
+                            ? booking.services[0].name + (booking.services.length > 1 ? ` (+${booking.services.length - 1})` : '')
+                            : 'No services'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-semibold text-black-deep text-sm">
+                          {booking.staff ? `${booking.staff.firstName} ${booking.staff.lastName}` : <span className="text-secondary italic">Unassigned</span>}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-bold text-black-deep">₹{booking.finalAmount?.toFixed(2) || '0.00'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${booking.paymentStatus === 'PAID' ? 'bg-green-50 text-green-700 border border-green-200' :
+                          booking.paymentStatus === 'PENDING' ? 'bg-orange-50 text-orange-700 border border-orange-200' :
+                            booking.paymentStatus === 'FAILED' ? 'bg-red-50 text-red-700 border border-red-200' :
+                              'bg-slate-50 text-slate-700 border border-slate-200'
+                          }`}>
+                          {booking.paymentStatus || 'UNKNOWN'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${booking.status === 'CONFIRMED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                          booking.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
+                            booking.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border border-green-200' :
+                              booking.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                booking.status === 'RESCHEDULED' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
+                                  'bg-slate-50 text-slate-700 border border-slate-200'
+                          }`}>
+                          {booking.status || 'UNKNOWN'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {booking.status === 'PENDING' && (
+                            <>
+                              <button
+                                className="px-3 py-1.5 bg-gold text-white rounded font-bold uppercase tracking-wider text-[10px] hover:bg-gold/80 transition-colors"
+                                onClick={() => handleOpenAcceptModal(booking)}
+                              >
+                                Accept
+                              </button>
+                              <button
+                                className="px-3 py-1.5 bg-red-50 text-red-700 rounded font-bold uppercase tracking-wider text-[10px] border border-red-200 hover:bg-red-100 transition-colors"
+                                onClick={() => handleOpenRejectModal(booking)}
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && (
+                            <button
+                              className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded font-bold uppercase tracking-wider text-[10px] border border-slate-200 hover:bg-slate-100 transition-colors"
+                              onClick={() => handleOpenRescheduleModal(booking)}
+                            >
+                              Reschedule
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-          {/* ── Pagination ── */}
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="pagination-bar">
-              <div className="pagination-info">
+            <div className="px-6 py-4 border-t border-gold/10 bg-[#FDFBF7] flex items-center justify-between">
+              <div className="text-secondary text-sm font-medium">
                 Showing page {currentPage + 1} of {totalPages}
               </div>
-              <div className="pagination-controls">
+              <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                 <button
-                  className="page-btn"
+                  className="px-3 py-2 text-slate-400 hover:text-black-deep hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:hover:bg-white disabled:cursor-not-allowed"
                   onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
                   disabled={currentPage === 0}
                 >
@@ -848,7 +401,9 @@ const Bookings = () => {
                 {[...Array(totalPages)].map((_, idx) => (
                   <button
                     key={idx}
-                    className={`page-btn ${currentPage === idx ? 'current' : ''}`}
+                    className={`px-4 py-2 text-sm font-medium border-l border-slate-200 transition-colors
+                      ${currentPage === idx ? 'bg-gold/10 text-gold' : 'text-slate-600 hover:bg-slate-50'}
+                    `}
                     onClick={() => setCurrentPage(idx)}
                   >
                     {idx + 1}
@@ -856,7 +411,7 @@ const Bookings = () => {
                 ))}
 
                 <button
-                  className="page-btn"
+                  className="px-3 py-2 border-l border-slate-200 text-slate-400 hover:text-black-deep hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:hover:bg-white disabled:cursor-not-allowed"
                   onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
                   disabled={currentPage === totalPages - 1}
                 >
@@ -867,14 +422,15 @@ const Bookings = () => {
           )}
         </div>
       </main>
-      {/* ── Accept Booking Modal ── */}
+
+      {/* Accept Booking Modal */}
       {isAcceptModalOpen && (
-        <div className="modal-overlay" onClick={() => !isAccepting && setIsAcceptModalOpen(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Accept Booking</h3>
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isAccepting && setIsAcceptModalOpen(false)}>
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <h3 className="font-display text-2xl italic text-black-deep">Accept Booking</h3>
               <button
-                className="modal-close"
+                className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
                 onClick={() => setIsAcceptModalOpen(false)}
                 disabled={isAccepting}
               >
@@ -883,23 +439,27 @@ const Bookings = () => {
             </div>
 
             <form onSubmit={handleAcceptBooking}>
-              <div className="modal-body">
-                <div className="modal-form-group">
-                  <label className="modal-label">Assign Staff Member</label>
-                  <div style={{ marginBottom: '8px', fontSize: '12px', color: '#6B7280' }}>
-                    Required Service: <span style={{ fontWeight: 600, color: '#374151' }}>{selectedBooking?.services?.[0]?.name || 'N/A'}</span>
+              <div className="px-6 py-6 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Assign Staff Member</label>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm">
+                    <span className="text-secondary mr-2">Required Service:</span>
+                    <span className="font-bold text-black-deep">{selectedBooking?.services?.[0]?.name || 'N/A'}</span>
                   </div>
+
                   {staffLoading ? (
-                    <div style={{ padding: '12px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                    <div className="py-4 text-center text-secondary text-sm flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
                       Loading available staff...
                     </div>
                   ) : (
                     <select
-                      className="modal-select"
+                      className="w-full mt-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none cursor-pointer"
                       value={selectedStaffId}
                       onChange={(e) => setSelectedStaffId(e.target.value)}
                       required
                       disabled={isAccepting || eligibleStaff.length === 0}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 1rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.2em 1.2em`, paddingRight: `2.5rem` }}
                     >
                       <option value="" disabled>Select a staff member</option>
                       {eligibleStaff.map(staff => (
@@ -911,23 +471,24 @@ const Bookings = () => {
                   )}
 
                   {!staffLoading && eligibleStaff.length === 0 && (
-                    <div style={{ marginTop: '8px', color: '#DC2626', fontSize: '12.5px' }}>
+                    <div className="text-red-500 text-xs mt-2 bg-red-50 p-3 rounded-lg border border-red-100 flex items-start gap-2">
+                      <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       No staff members setup for this service.
                     </div>
                   )}
 
                   {selectedStaffId && (
-                    <div className="staff-summary">
+                    <div className="mt-4 p-4 bg-gold/5 border border-gold/10 rounded-xl">
                       {(() => {
                         const staff = eligibleStaff.find(s => s.id.toString() === selectedStaffId.toString());
                         if (!staff) return null;
                         return (
                           <>
-                            <div style={{ fontWeight: 600 }}>{staff.userFullName}</div>
-                            <div style={{ marginTop: '2px' }}>{staff.bio || 'No bio available'}</div>
-                            <div style={{ marginTop: '4px', display: 'flex', gap: '12px' }}>
-                              <span>⭐ {staff.averageRating || 'New'}</span>
-                              <span>Bookings: {staff.totalBookings || 0}</span>
+                            <div className="font-bold text-black-deep text-base">{staff.userFullName}</div>
+                            <div className="text-sm text-secondary mt-1">{staff.bio || 'No bio available'}</div>
+                            <div className="mt-3 flex gap-4 text-xs font-medium">
+                              <span className="flex items-center gap-1"><span className="text-gold">★</span> {staff.averageRating || 'New'}</span>
+                              <span className="flex items-center gap-1 text-slate-500">Bookings: {staff.totalBookings || 0}</span>
                             </div>
                           </>
                         );
@@ -936,10 +497,10 @@ const Bookings = () => {
                   )}
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
                   onClick={() => setIsAcceptModalOpen(false)}
                   disabled={isAccepting}
                 >
@@ -947,9 +508,10 @@ const Bookings = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn-submit"
+                  className="px-5 py-2.5 text-sm font-bold text-white bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={isAccepting || !selectedStaffId}
                 >
+                  {isAccepting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
                   {isAccepting ? 'Accepting...' : 'Confirm & Accept'}
                 </button>
               </div>
@@ -958,14 +520,14 @@ const Bookings = () => {
         </div>
       )}
 
-      {/* ── Reject Booking Modal ── */}
+      {/* Reject Booking Modal */}
       {isRejectModalOpen && (
-        <div className="modal-overlay" onClick={() => !isRejecting && setIsRejectModalOpen(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Reject Booking</h3>
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isRejecting && setIsRejectModalOpen(false)}>
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <h3 className="font-display text-2xl italic text-black-deep">Reject Booking</h3>
               <button
-                className="modal-close"
+                className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
                 onClick={() => setIsRejectModalOpen(false)}
                 disabled={isRejecting}
               >
@@ -974,11 +536,11 @@ const Bookings = () => {
             </div>
 
             <form onSubmit={handleRejectBooking}>
-              <div className="modal-body">
-                <div className="modal-form-group">
-                  <label className="modal-label">Rejection Reason</label>
+              <div className="px-6 py-6 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Rejection Reason</label>
                   <textarea
-                    className="modal-input modal-textarea"
+                    className="w-full mt-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all text-black-deep placeholder:text-slate-400 resize-none h-28"
                     placeholder="e.g. Staff not available, out of operational hours..."
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
@@ -987,10 +549,10 @@ const Bookings = () => {
                   />
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
                   onClick={() => setIsRejectModalOpen(false)}
                   disabled={isRejecting}
                 >
@@ -998,9 +560,10 @@ const Bookings = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn-submit btn-danger"
+                  className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={isRejecting || !rejectReason.trim()}
                 >
+                  {isRejecting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
                   {isRejecting ? 'Rejecting...' : 'Reject Booking'}
                 </button>
               </div>
@@ -1009,14 +572,14 @@ const Bookings = () => {
         </div>
       )}
 
-      {/* ── Reschedule Booking Modal ── */}
+      {/* Reschedule Booking Modal */}
       {isRescheduleModalOpen && (
-        <div className="modal-overlay" onClick={() => !isRescheduling && setIsRescheduleModalOpen(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Reschedule Booking</h3>
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isRescheduling && setIsRescheduleModalOpen(false)}>
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <h3 className="font-display text-2xl italic text-black-deep">Reschedule Booking</h3>
               <button
-                className="modal-close"
+                className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
                 onClick={() => setIsRescheduleModalOpen(false)}
                 disabled={isRescheduling}
               >
@@ -1025,12 +588,12 @@ const Bookings = () => {
             </div>
 
             <form onSubmit={handleRescheduleBooking}>
-              <div className="modal-body">
-                <div className="modal-form-group">
-                  <label className="modal-label">Reason for Rescheduling</label>
+              <div className="px-6 py-6 space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Reason for Rescheduling</label>
                   <input
                     type="text"
-                    className="modal-input"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep placeholder:text-slate-400"
                     placeholder="e.g. Staff unavailable, Client request..."
                     value={rescheduleData.reason}
                     onChange={(e) => setRescheduleData({ ...rescheduleData, reason: e.target.value })}
@@ -1039,19 +602,21 @@ const Bookings = () => {
                   />
                 </div>
 
-                <div className="modal-form-group">
-                  <label className="modal-label">Select Alternative Staff</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Alternative Staff</label>
                   {staffLoading ? (
-                    <div style={{ padding: '8px', color: '#6B7280', fontSize: '13px' }}>
+                    <div className="py-3 text-secondary text-sm flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
                       Loading available staff...
                     </div>
                   ) : (
                     <select
-                      className="modal-select"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none cursor-pointer"
                       value={rescheduleData.alternativeStaffId}
                       onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeStaffId: e.target.value })}
                       required
                       disabled={isRescheduling || eligibleStaff.length === 0}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 1rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.2em 1.2em`, paddingRight: `2.5rem` }}
                     >
                       <option value="" disabled>Select new staff member</option>
                       {eligibleStaff.map(staff => (
@@ -1063,12 +628,12 @@ const Bookings = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div className="modal-form-group">
-                    <label className="modal-label">Alternative Date</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Alternative Date</label>
                     <input
                       type="date"
-                      className="modal-input"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
                       value={rescheduleData.alternativeDate}
                       onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeDate: e.target.value })}
                       required
@@ -1076,11 +641,11 @@ const Bookings = () => {
                     />
                   </div>
 
-                  <div className="modal-form-group">
-                    <label className="modal-label">Alternative Time</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Alternative Time</label>
                     <input
                       type="time"
-                      className="modal-input"
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
                       value={rescheduleData.alternativeStartTime}
                       onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeStartTime: e.target.value })}
                       required
@@ -1089,10 +654,10 @@ const Bookings = () => {
                   </div>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
                   onClick={() => setIsRescheduleModalOpen(false)}
                   disabled={isRescheduling}
                 >
@@ -1100,7 +665,7 @@ const Bookings = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn-submit"
+                  className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   disabled={
                     isRescheduling ||
                     !rescheduleData.reason ||
@@ -1109,6 +674,7 @@ const Bookings = () => {
                     !rescheduleData.alternativeStartTime
                   }
                 >
+                  {isRescheduling && <div className="w-4 h-4 border-2 border-black-deep/30 border-t-black-deep rounded-full animate-spin"></div>}
                   {isRescheduling ? 'Rescheduling...' : 'Reschedule'}
                 </button>
               </div>

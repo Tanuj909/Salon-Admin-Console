@@ -73,20 +73,6 @@
   --color-secondary: #7a7065;
 
   --shadow-luxe: 0 20px 50px -20px rgba(200, 169, 81, 0.15);
-  
-  /* Add animation keyframes if needed */
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-zoom-in: zoom-in 0.3s ease-out;
-  
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes zoom-in {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
 }
 
 @layer base {
@@ -99,6 +85,22 @@
     --text-secondary: #7a7065;
     --accent: #C8A951;
     --error: #ef4444;
+
+    /* Admin CSS variables */
+    --sidebar-w: 280px;
+    --sidebar-collapsed-w: 80px;
+    --topbar-h: 80px;
+    --color-bg: #F7F3EE;
+    --color-surface: #FDFAF6;
+    --color-sidebar: #1C1C1C;
+    --color-sidebar-hover: #262626;
+    --color-sidebar-active: #C8A951;
+    --color-sidebar-text: #F7F3EE;
+    --color-sidebar-muted: #7a7065;
+    --color-border: rgba(200, 169, 81, 0.1);
+    --color-border-light: rgba(200, 169, 81, 0.05);
+    --radius: 40px;
+    --radius-sm: 16px;
   }
 
   body {
@@ -141,11 +143,6 @@
     backdrop-filter: blur(8px);
     background: color-mix(in srgb, white 10%, transparent);
     border: 1px solid color-mix(in srgb, white 20%, transparent);
-  }
-  
-  /* Add any missing utility classes */
-  .animate-in {
-    animation: fade-in 0.3s ease-out, zoom-in 0.3s ease-out;
   }
   
   .scrollbar-hide {

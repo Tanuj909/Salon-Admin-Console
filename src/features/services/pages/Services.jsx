@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getServicesByBusinessApi, createServiceApi, updateServiceApi, deleteServiceApi } from "../services/serviceService";
+import { getServicesByBusinessApi, createServiceApi, updateServiceApi, deleteServiceApi } from "@/features/services/services/serviceService";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
 
 const Services = () => {
@@ -189,7 +189,7 @@ const Services = () => {
 
 
   return (
-    <div className="page active" style={{ minHeight: '100vh', padding: '0' }}>
+    <div className="page active w-full font-jost font-light">
       <style>
         {`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700&display=swap');
@@ -197,11 +197,11 @@ const Services = () => {
         .services-container {
           font-family: 'Jost', sans-serif;
           color: #1C1C1C;
-          padding: 4rem;
+          padding: 1rem 1rem 3rem 1rem;
           width: 100%;
+          max-width: 1024px;
           margin: 0 auto;
-          background: #F7F3EE;
-          min-height: 100vh;
+          background: transparent;
         }
 
         .services-container *, .services-container *::before, .services-container *::after { 
@@ -667,7 +667,7 @@ const Services = () => {
         `}
       </style>
 
-      <main className="services-container">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* ── Page Header ── */}
         <div className="page-header">
           <div className="page-header-left">

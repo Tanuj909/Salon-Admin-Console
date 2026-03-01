@@ -53,48 +53,107 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
 
   return (
     <>
-      <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`} id="sidebar">
-        <div className="sidebar-logo p-8 flex items-center gap-4">
-          <div className="logo-icon w-12 h-12 rounded-2xl bg-gold flex items-center justify-center text-black-deep shadow-luxe flex-shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-black-deep text-white border-r border-white/5 transition-all duration-300 ease-in-out font-jost
+          ${collapsed ? 'w-20' : 'w-72'} 
+          ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        id="sidebar"
+      >
+        {/* LOGO AREA */}
+        <div className={`flex items-center gap-4 p-6 border-b border-white/5 h-24 shrink-0 transition-all ${collapsed ? 'justify-center border-b-transparent' : 'justify-start'}`}>
+          <div className="w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-black-deep shadow-[0_4px_20px_-5px_rgba(200,169,81,0.5)] flex-shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
           </div>
-          <div className="logo-text overflow-hidden transition-all duration-300">
-            <div className="logo-title font-display text-xl text-white italic">Salon Luxe</div>
-            <div className="logo-subtitle text-[10px] uppercase tracking-widest text-secondary font-bold">{role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin Console'}</div>
-          </div>
+
+          {!collapsed && (
+            <div className="flex flex-col justify-center overflow-hidden whitespace-nowrap opacity-100 transition-opacity duration-300">
+              <div className="font-display text-xl leading-tight italic tracking-wide">Salon Luxe</div>
+              <div className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin Console'}</div>
+            </div>
+          )}
         </div>
 
-        <nav className="sidebar-nav">
+        {/* NAVIGATION AREA */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-6 space-y-8">
           {menuSections.map((section, sIdx) => (
-            <div key={sIdx}>
-              <div className="nav-section-label" style={sIdx > 0 ? { marginTop: '8px' } : {}}>{section.label}</div>
-              {section.items.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                  data-label={item.label}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                  {item.badge && <span className="nav-badge">{item.badge}</span>}
-                </Link>
-              ))}
+            <div key={sIdx} className="px-4">
+              {!collapsed && (
+                <div className="text-[10px] font-bold tracking-[0.15em] uppercase text-white/40 mb-3 px-3">
+                  {section.label}
+                </div>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive = location.pathname.includes(item.path);
+
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`group relative flex items-center ${collapsed ? 'justify-center py-3 px-0' : 'gap-3 px-4 py-3'} rounded-xl transition-all duration-300 
+                        ${isActive ? 'bg-gold/10 text-gold font-medium' : 'text-white/60 hover:text-white hover:bg-white/5'}
+                      `}
+                      title={collapsed ? item.label : ""}
+                    >
+                      {/* Active Indicator Bar */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gold rounded-r-md"></div>
+                      )}
+
+                      {/* Icon */}
+                      <span className={`flex-shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-white'}`}>
+                        {item.icon}
+                      </span>
+
+                      {/* Label */}
+                      {!collapsed && (
+                        <span className="flex-1 text-sm whitespace-nowrap tracking-wide">{item.label}</span>
+                      )}
+
+                      {/* Badge */}
+                      {!collapsed && item.badge && (
+                        <span className="flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-gold/20 text-gold text-[10px] font-bold">
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {/* Collapsed Badge Dot */}
+                      {collapsed && item.badge && (
+                        <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-gold border border-black-deep"></span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </nav>
 
-        <div className="sidebar-footer p-6 border-t border-white/5">
-          <div className="collapse-btn flex items-center gap-4 p-3 rounded-2xl hover:bg-white/5 transition-all text-secondary hover:text-white cursor-pointer" onClick={() => setCollapsed(!collapsed)}>
-            <svg className={`transition-transform duration-500 ${collapsed ? 'rotate-180' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6" /></svg>
-            <span className="text-sm font-medium uppercase tracking-widest text-[10px]">{collapsed ? "" : "Collapse Menu"}</span>
-          </div>
+        {/* FOOTER COLLAPSE TOGGLE */}
+        <div className="p-4 border-t border-white/5 shrink-0">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={`w-full flex items-center ${collapsed ? 'justify-center' : 'justify-start px-4'} gap-3 py-3 rounded-xl hover:bg-white/5 text-white/50 hover:text-white transition-all cursor-pointer`}
+          >
+            <svg
+              className={`transition-transform duration-500 flex-shrink-0 ${collapsed ? 'rotate-180' : ''}`}
+              width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <polyline points="15,18 9,12 15,6" />
+            </svg>
+
+            {!collapsed && (
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] whitespace-nowrap">Collapse Menu</span>
+            )}
+          </button>
         </div>
       </aside>
 
+      {/* MOBILE OVERLAY */}
       <div
-        className={`mobile-overlay ${mobileOpen ? 'active' : ''}`}
+        className={`fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${mobileOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
         onClick={() => setMobileOpen(false)}
       ></div>
     </>
