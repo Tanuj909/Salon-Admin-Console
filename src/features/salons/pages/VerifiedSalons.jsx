@@ -14,6 +14,9 @@ const VerifiedSalons = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize] = useState(10);
 
+  // Filters state
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     fetchVerifiedSalons();
   }, [currentPage]);
@@ -39,6 +42,14 @@ const VerifiedSalons = () => {
     }
   };
 
+  const filteredSalons = salons.filter((salon) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      salon.name.toLowerCase().includes(query) ||
+      (salon.city && salon.city.toLowerCase().includes(query))
+    );
+  });
+
   if (error) return (
     <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center">
       <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm">
@@ -63,18 +74,9 @@ const VerifiedSalons = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
+          <div className="px-6 py-4 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-end items-center relative overflow-hidden">
             <div className="absolute -left-4 -top-4 text-green-500/5 pointer-events-none">
               <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-            </div>
-            <div className="relative z-10 w-full sm:w-auto">
-              <select className="w-full sm:w-48 appearance-none bg-white border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl font-medium text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-colors cursor-pointer shadow-sm">
-                <option>All Cities</option>
-                <option>Dubai</option>
-                <option>Mumbai</option>
-                <option>Riyadh</option>
-                <option>Delhi</option>
-              </select>
             </div>
             <div className="relative z-10 w-full sm:w-64 group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-gold transition-colors">
@@ -83,6 +85,8 @@ const VerifiedSalons = () => {
               <input
                 type="text"
                 placeholder="Search verified salons..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-slate-200 text-black-deep py-2.5 pl-9 pr-4 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 shadow-sm"
               />
             </div>
@@ -109,18 +113,18 @@ const VerifiedSalons = () => {
                       </div>
                     </td>
                   </tr>
-                ) : salons.length === 0 ? (
+                ) : filteredSalons.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="py-24 text-center">
                       <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mx-auto mb-4 border border-slate-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
                       </div>
                       <p className="text-lg font-bold text-black-deep mb-1">No verified salons</p>
-                      <p className="text-sm text-secondary">There are currently no active salons in the system.</p>
+                      <p className="text-sm text-secondary">No verified salons match your search criteria.</p>
                     </td>
                   </tr>
                 ) : (
-                  salons.map((salon) => (
+                  filteredSalons.map((salon) => (
                     <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="py-4 px-6">
                         <div className="font-bold text-black-deep text-sm flex items-center gap-3">

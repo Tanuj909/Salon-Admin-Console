@@ -14,6 +14,10 @@ const AllSalons = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize] = useState(10);
 
+  // Filters state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+
   useEffect(() => {
     fetchAllSalons();
   }, [currentPage]);
@@ -68,6 +72,19 @@ const AllSalons = () => {
     }
   };
 
+  const filteredSalons = salons.filter((salon) => {
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      salon.name.toLowerCase().includes(query) ||
+      (salon.city && salon.city.toLowerCase().includes(query));
+
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      salon.verificationStatus === statusFilter.toUpperCase();
+
+    return matchesSearch && matchesStatus;
+  });
+
   if (error) return (
     <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center">
       <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm">
@@ -104,15 +121,22 @@ const AllSalons = () => {
               <input
                 type="text"
                 placeholder="Search all salons..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-slate-200 text-black-deep py-2.5 pl-9 pr-4 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 shadow-sm"
               />
             </div>
 
             <div className="relative z-10 w-full sm:w-auto">
-              <select className="w-full sm:w-48 appearance-none bg-white border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl font-medium text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-colors cursor-pointer shadow-sm">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full sm:w-48 appearance-none bg-white border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl font-medium text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-colors cursor-pointer shadow-sm"
+              >
                 <option>All Status</option>
                 <option>Verified</option>
                 <option>Pending</option>
+                <option>Rejected</option>
                 <option>Suspended</option>
               </select>
             </div>
@@ -139,18 +163,18 @@ const AllSalons = () => {
                       </div>
                     </td>
                   </tr>
-                ) : salons.length === 0 ? (
+                ) : filteredSalons.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="py-24 text-center">
                       <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mx-auto mb-4 border border-slate-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><path d="M4 10h16v2H4zm0 4h16v2H4zm0-8h16v2H4zm0 12h16v2H4z" /></svg>
                       </div>
                       <p className="text-lg font-bold text-black-deep mb-1">No salons discovered</p>
-                      <p className="text-sm text-secondary">The platform directory is currently empty.</p>
+                      <p className="text-sm text-secondary">No salons match your search criteria.</p>
                     </td>
                   </tr>
                 ) : (
-                  salons.map((salon) => (
+                  filteredSalons.map((salon) => (
                     <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="py-4 px-6">
                         <div className="font-bold text-black-deep text-sm flex items-center gap-3">

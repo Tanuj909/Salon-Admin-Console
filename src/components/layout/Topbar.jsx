@@ -70,18 +70,6 @@ const Topbar = ({ onMenuClick, isMobile }) => {
             className={`dropdown-menu absolute top-full right-0 mt-4 bg-cream/95 backdrop-blur-xl border border-gold/10 rounded-3xl shadow-luxe p-3 min-w-[220px] transition-all transform origin-top-right ${dropdownOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="dropdown-item flex items-center gap-3 p-4 rounded-2xl hover:bg-gold/10 text-black-deep text-sm transition-all cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              </div>
-              <span className="font-bold uppercase tracking-widest text-[10px]">Profile Settings</span>
-            </div>
-            <div className="dropdown-item flex items-center gap-3 p-4 rounded-2xl hover:bg-gold/10 text-black-deep text-sm transition-all cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-              </div>
-              <span className="font-bold uppercase tracking-widest text-[10px]">Business Settings</span>
-            </div>
             <div className="h-px bg-gold/10 my-2 mx-4"></div>
             <div className="dropdown-item flex items-center gap-3 p-4 rounded-2xl hover:bg-gold/10 text-black-deep text-sm transition-all cursor-pointer group" onClick={logout}>
               <div className="w-8 h-8 rounded-full bg-red-400/10 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all">

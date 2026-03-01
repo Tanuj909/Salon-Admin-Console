@@ -13,6 +13,9 @@ const PendingSalons = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [pageSize] = useState(10);
 
+  // Filters state
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     fetchPendingSalons();
   }, [currentPage]);
@@ -50,6 +53,15 @@ const PendingSalons = () => {
       setCurrentPage(newPage);
     }
   };
+
+  const filteredSalons = salons.filter((salon) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      salon.name.toLowerCase().includes(query) ||
+      (salon.city && salon.city.toLowerCase().includes(query)) ||
+      (salon.ownerUserId && salon.ownerUserId.toString().toLowerCase().includes(query))
+    );
+  });
 
   if (error) return (
     <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center">
@@ -93,6 +105,8 @@ const PendingSalons = () => {
               <input
                 type="text"
                 placeholder="Search salons..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-slate-200 text-black-deep py-2.5 pl-9 pr-4 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 shadow-sm"
               />
             </div>
@@ -119,18 +133,18 @@ const PendingSalons = () => {
                       </div>
                     </td>
                   </tr>
-                ) : salons.length === 0 ? (
+                ) : filteredSalons.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="py-24 text-center">
                       <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mx-auto mb-4 border border-slate-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                       </div>
                       <p className="text-lg font-bold text-black-deep mb-1">No pending request</p>
-                      <p className="text-sm text-secondary">All salon applications have been processed.</p>
+                      <p className="text-sm text-secondary">No pending salons match your search criteria.</p>
                     </td>
                   </tr>
                 ) : (
-                  salons.map((salon) => (
+                  filteredSalons.map((salon) => (
                     <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="py-4 px-6">
                         <div className="font-bold text-black-deep text-sm flex items-center gap-3">
