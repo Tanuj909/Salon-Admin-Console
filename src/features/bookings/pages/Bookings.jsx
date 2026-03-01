@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
-import { getBookingsByBusinessApi, acceptBookingApi, rejectBookingApi, rescheduleBookingApi } from "@/features/bookings/services/bookingService";
+import {
+  getBookingsByBusinessApi,
+  acceptBookingApi,
+  rejectBookingApi,
+  rescheduleBookingApi  // Add this missing import
+} from "@/features/bookings/services/bookingService";
 import { getStaffByServiceApi } from "@/features/staff/services/staffService";
-
+import { getBusinessTimingsApi } from "@/features/salons/services/timingService";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 const Bookings = () => {
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [businessId, setBusinessId] = useState(null);
@@ -29,6 +36,8 @@ const Bookings = () => {
   // Reschedule Booking Modal State
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isRescheduling, setIsRescheduling] = useState(false);
+  const [businessTimings, setBusinessTimings] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [rescheduleData, setRescheduleData] = useState({
     reason: "",
     alternativeStaffId: "",
@@ -130,28 +139,83 @@ const Bookings = () => {
 
   const handleOpenRescheduleModal = async (booking) => {
     setSelectedBooking(booking);
-    setRescheduleData({
-      reason: "",
-      alternativeStaffId: "",
-      alternativeDate: "",
-      alternativeStartTime: ""
-    });
     setIsRescheduleModalOpen(true);
     setStaffLoading(true);
     setEligibleStaff([]);
+    setBusinessTimings([]);
+    setAvailableSlots([]);
+
+    setRescheduleData({
+      reason: "",
+      alternativeStaffId: booking.staffId?.toString() || "",
+      alternativeDate: "",
+      alternativeStartTime: ""
+    });
 
     try {
+      // Fetch staff
       if (booking.services && booking.services.length > 0) {
         const serviceId = booking.services[0].id;
         const staffList = await getStaffByServiceApi(serviceId);
         setEligibleStaff(staffList);
       }
+
+      // Fetch timings
+      const bId = booking.businessId || businessId || (user?.id);
+      if (bId) {
+        const timings = await getBusinessTimingsApi(bId);
+        setBusinessTimings(timings || []);
+      }
     } catch (error) {
-      console.error("Error fetching staff for rescheduling:", error);
+      console.error("Error fetching reschedule requirements:", error);
     } finally {
       setStaffLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!rescheduleData.alternativeDate || !businessTimings.length) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    try {
+      const date = new Date(rescheduleData.alternativeDate);
+      const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+      const selectedDay = days[date.getDay()];
+
+      const timing = businessTimings.find(t => t.dayOfWeek === selectedDay);
+
+      if (!timing || timing.isClosed || !timing.openTime || !timing.closeTime) {
+        setAvailableSlots([]);
+        return;
+      }
+
+      const slots = [];
+      let current = timing.openTime; // "HH:mm"
+      const end = timing.closeTime;
+
+      while (current < end) {
+        slots.push(current);
+
+        const [hours, minutes] = current.split(':').map(Number);
+        let nextMin = minutes + 30;
+        let nextHour = hours;
+
+        if (nextMin >= 60) {
+          nextMin = 0;
+          nextHour += 1;
+        }
+
+        current = `${nextHour.toString().padStart(2, '0')}:${nextMin.toString().padStart(2, '0')}`;
+      }
+
+      setAvailableSlots(slots);
+    } catch (e) {
+      console.error("Error generating slots:", e);
+      setAvailableSlots([]);
+    }
+  }, [rescheduleData.alternativeDate, businessTimings]);
 
   const handleRescheduleBooking = async (e) => {
     e.preventDefault();
@@ -185,7 +249,13 @@ const Bookings = () => {
     return `${dateFormatted} ${timeFormatted}`;
   };
 
-  const filteredBookings = bookings.filter(booking => {
+  const normalizedBookings = bookings.map(booking => ({
+    ...booking,
+    status: booking.status?.trim().toUpperCase() || 'UNKNOWN',
+    paymentStatus: booking.paymentStatus?.trim().toUpperCase() || 'UNKNOWN'
+  }));
+
+  const filteredBookings = normalizedBookings.filter(booking => {
     const matchesSearch =
       booking.bookingNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customer?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -235,6 +305,7 @@ const Bookings = () => {
             <option value="">All Statuses</option>
             <option value="CONFIRMED">Confirmed</option>
             <option value="PENDING">Pending</option>
+            <option value="BROADCASTED">Broadcasted</option>
             <option value="COMPLETED">Completed</option>
             <option value="CANCELLED">Cancelled</option>
             <option value="RESCHEDULED">Rescheduled</option>
@@ -340,33 +411,34 @@ const Bookings = () => {
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${booking.status === 'CONFIRMED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
                           booking.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
-                            booking.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border border-green-200' :
-                              booking.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border border-red-200' :
-                                booking.status === 'RESCHEDULED' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
-                                  'bg-slate-50 text-slate-700 border border-slate-200'
+                            booking.status === 'BROADCASTED' ? 'bg-orange-50 text-orange-700 border border-orange-200' :
+                              booking.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border border-green-200' :
+                                booking.status === 'CANCELLED' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                  booking.status === 'RESCHEDULED' ? 'bg-purple-50 text-purple-700 border border-purple-200' :
+                                    'bg-slate-50 text-slate-700 border border-slate-200'
                           }`}>
                           {booking.status || 'UNKNOWN'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right min-w-[120px]">
                         <div className="flex items-center justify-end gap-2">
-                          {booking.status === 'PENDING' && (
+                          {(booking.status === 'PENDING' || booking.status === 'BROADCASTED') && (
                             <>
                               <button
-                                className="px-3 py-1.5 bg-gold text-white rounded font-bold uppercase tracking-wider text-[10px] hover:bg-gold/80 transition-colors"
+                                className="px-3 py-1.5 bg-gold text-white rounded font-bold uppercase tracking-wider text-[10px] hover:bg-gold/80 transition-colors shadow-sm"
                                 onClick={() => handleOpenAcceptModal(booking)}
                               >
                                 Accept
                               </button>
                               <button
-                                className="px-3 py-1.5 bg-red-50 text-red-700 rounded font-bold uppercase tracking-wider text-[10px] border border-red-200 hover:bg-red-100 transition-colors"
+                                className="px-3 py-1.5 bg-red-50 text-red-700 rounded font-bold uppercase tracking-wider text-[10px] border border-red-100 hover:bg-red-100 transition-colors"
                                 onClick={() => handleOpenRejectModal(booking)}
                               >
                                 Reject
                               </button>
                             </>
                           )}
-                          {(booking.status === 'CONFIRMED' || booking.status === 'PENDING') && (
+                          {(booking.status === 'CONFIRMED' || booking.status === 'PENDING' || booking.status === 'BROADCASTED' || booking.status === 'RESCHEDULED') && (
                             <button
                               className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded font-bold uppercase tracking-wider text-[10px] border border-slate-200 hover:bg-slate-100 transition-colors"
                               onClick={() => handleOpenRescheduleModal(booking)}
@@ -448,51 +520,83 @@ const Bookings = () => {
                   </div>
 
                   {staffLoading ? (
-                    <div className="py-4 text-center text-secondary text-sm flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
-                      Loading available staff...
+                    <div className="py-12 text-center text-secondary text-sm flex flex-col items-center justify-center gap-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                      <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+                      <span className="font-medium">Finding available experts...</span>
+                    </div>
+                  ) : eligibleStaff.length === 0 ? (
+                    <div className="text-red-500 text-xs mt-2 bg-red-50 p-4 rounded-2xl border border-red-100 flex flex-col items-center text-center gap-2">
+                      <svg className="w-8 h-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      <p className="font-bold">No Staff Found</p>
+                      <p>There are no staff members currently assigned to {selectedBooking?.services?.[0]?.name || 'this service'}.</p>
                     </div>
                   ) : (
-                    <select
-                      className="w-full mt-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none cursor-pointer"
-                      value={selectedStaffId}
-                      onChange={(e) => setSelectedStaffId(e.target.value)}
-                      required
-                      disabled={isAccepting || eligibleStaff.length === 0}
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 1rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.2em 1.2em`, paddingRight: `2.5rem` }}
-                    >
-                      <option value="" disabled>Select a staff member</option>
+                    <div className="space-y-3 max-h-[320px] overflow-y-auto px-1 py-1 custom-scrollbar">
                       {eligibleStaff.map(staff => (
-                        <option key={staff.id} value={staff.id}>
-                          {staff.userFullName} - {staff.designation} {staff.isAvailable ? '' : '(Busy)'}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
-                  {!staffLoading && eligibleStaff.length === 0 && (
-                    <div className="text-red-500 text-xs mt-2 bg-red-50 p-3 rounded-lg border border-red-100 flex items-start gap-2">
-                      <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                      No staff members setup for this service.
-                    </div>
-                  )}
-
-                  {selectedStaffId && (
-                    <div className="mt-4 p-4 bg-gold/5 border border-gold/10 rounded-xl">
-                      {(() => {
-                        const staff = eligibleStaff.find(s => s.id.toString() === selectedStaffId.toString());
-                        if (!staff) return null;
-                        return (
-                          <>
-                            <div className="font-bold text-black-deep text-base">{staff.userFullName}</div>
-                            <div className="text-sm text-secondary mt-1">{staff.bio || 'No bio available'}</div>
-                            <div className="mt-3 flex gap-4 text-xs font-medium">
-                              <span className="flex items-center gap-1"><span className="text-gold">★</span> {staff.averageRating || 'New'}</span>
-                              <span className="flex items-center gap-1 text-slate-500">Bookings: {staff.totalBookings || 0}</span>
+                        <div
+                          key={staff.id}
+                          onClick={() => !isAccepting && setSelectedStaffId(staff.id.toString())}
+                          className={`group relative p-4 rounded-2xl border-2 transition-all cursor-pointer flex gap-4 ${selectedStaffId === staff.id.toString()
+                            ? 'border-gold bg-gold/5 shadow-md shadow-gold/10'
+                            : 'border-slate-100 bg-white hover:border-gold/30 hover:bg-slate-50'
+                            } ${!staff.isAvailable ? 'opacity-70' : ''}`}
+                        >
+                          {/* Staff Avatar */}
+                          <div className="relative shrink-0">
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gold/10 to-gold/30 flex items-center justify-center text-gold overflow-hidden border border-gold/10">
+                              {staff.userProfileImageUrl ? (
+                                <img src={staff.userProfileImageUrl} alt={staff.userFullName} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-lg font-bold">{staff.userFullName?.charAt(0)}</span>
+                              )}
                             </div>
-                          </>
-                        );
-                      })()}
+                            {staff.isAvailable ? (
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white" title="Available"></div>
+                            ) : (
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-slate-300 border-2 border-white" title="Busy"></div>
+                            )}
+                          </div>
+
+                          {/* Staff Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-bold text-black-deep text-sm truncate uppercase tracking-tight">{staff.userFullName}</h4>
+                                <p className="text-[11px] text-secondary font-medium uppercase tracking-wider">{staff.designation}</p>
+                              </div>
+                              {staff.averageRating && (
+                                <div className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded-lg border border-slate-100 shadow-sm shrink-0">
+                                  <span className="text-gold text-[10px]">★</span>
+                                  <span className="text-[10px] font-bold text-black-deep">{staff.averageRating}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <p className="text-[11px] text-secondary mt-2 line-clamp-1 italic">
+                              {staff.bio || 'Professional salon specialist'}
+                            </p>
+
+                            <div className="mt-2.5 flex items-center gap-4">
+                              <div className="flex flex-col">
+                                <span className="text-[9px] uppercase tracking-widest text-secondary/70 font-bold">Bookings</span>
+                                <span className="text-xs font-bold text-black-deep">{staff.totalBookings || '0'}</span>
+                              </div>
+                              <div className="w-px h-6 bg-slate-200"></div>
+                              <div className="flex flex-col">
+                                <span className="text-[9px] uppercase tracking-widest text-secondary/70 font-bold">Services</span>
+                                <span className="text-xs font-bold text-black-deep">{staff.serviceCount || '1'}</span>
+                              </div>
+                              <div className="ml-auto">
+                                {selectedStaffId === staff.id.toString() && (
+                                  <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center animate-in zoom-in-50 duration-200">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -512,7 +616,7 @@ const Bookings = () => {
                   disabled={isAccepting || !selectedStaffId}
                 >
                   {isAccepting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-                  {isAccepting ? 'Accepting...' : 'Confirm & Accept'}
+                  {isAccepting ? 'Accepting...' : 'Assign & Accept'}
                 </button>
               </div>
             </form>
@@ -605,53 +709,86 @@ const Bookings = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Alternative Staff</label>
                   {staffLoading ? (
-                    <div className="py-3 text-secondary text-sm flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
-                      Loading available staff...
+                    <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                      <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-2"></div>
+                      <span className="text-xs text-secondary font-medium tracking-wide">Assigning experts...</span>
+                    </div>
+                  ) : eligibleStaff.length === 0 ? (
+                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-xs text-center">
+                      No staff members found for this service.
                     </div>
                   ) : (
-                    <select
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none cursor-pointer"
-                      value={rescheduleData.alternativeStaffId}
-                      onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeStaffId: e.target.value })}
-                      required
-                      disabled={isRescheduling || eligibleStaff.length === 0}
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 1rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.2em 1.2em`, paddingRight: `2.5rem` }}
-                    >
-                      <option value="" disabled>Select new staff member</option>
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto px-1 py-1 custom-scrollbar">
                       {eligibleStaff.map(staff => (
-                        <option key={staff.id} value={staff.id}>
-                          {staff.userFullName} - {staff.designation}
-                        </option>
+                        <div
+                          key={staff.id}
+                          onClick={() => !isRescheduling && setRescheduleData({ ...rescheduleData, alternativeStaffId: staff.id.toString() })}
+                          className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${rescheduleData.alternativeStaffId === staff.id.toString()
+                            ? 'border-gold bg-gold/5'
+                            : 'border-slate-100 bg-white hover:border-gold/20 hover:bg-slate-50'
+                            }`}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-gold font-bold text-sm shrink-0">
+                            {staff.userFullName?.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-black-deep text-[13px] truncate uppercase tracking-tight">{staff.userFullName}</h4>
+                            <p className="text-[10px] text-secondary font-medium uppercase tracking-wider truncate">{staff.designation}</p>
+                          </div>
+                          {rescheduleData.alternativeStaffId === staff.id.toString() && (
+                            <div className="w-4 h-4 rounded-full bg-gold flex items-center justify-center">
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                            </div>
+                          )}
+                        </div>
                       ))}
-                    </select>
+                    </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Alternative Date</label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
-                      value={rescheduleData.alternativeDate}
-                      onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeDate: e.target.value })}
-                      required
-                      disabled={isRescheduling}
-                    />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Alternative Date</label>
+                      <input
+                        type="date"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
+                        value={rescheduleData.alternativeDate}
+                        onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeDate: e.target.value, alternativeStartTime: "" })}
+                        required
+                        min={new Date().toISOString().split('T')[0]}
+                        disabled={isRescheduling}
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Alternative Time</label>
-                    <input
-                      type="time"
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
-                      value={rescheduleData.alternativeStartTime}
-                      onChange={(e) => setRescheduleData({ ...rescheduleData, alternativeStartTime: e.target.value })}
-                      required
-                      disabled={isRescheduling}
-                    />
-                  </div>
+                  {rescheduleData.alternativeDate && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Available Time Slot</label>
+                      {availableSlots.length > 0 ? (
+                        <div className="grid grid-cols-4 gap-2 max-h-[140px] overflow-y-auto p-1 custom-scrollbar">
+                          {availableSlots.map(slot => (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => setRescheduleData({ ...rescheduleData, alternativeStartTime: slot })}
+                              className={`py-2 px-1 text-[11px] font-bold rounded-lg border-2 transition-all ${rescheduleData.alternativeStartTime === slot
+                                ? 'bg-gold text-white border-gold shadow-sm'
+                                : 'bg-white text-slate-600 border-slate-100 hover:border-gold/30 hover:bg-gold/5'
+                                }`}
+                            >
+                              {slot}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-red-50 rounded-2xl border border-red-100 text-red-600 text-[11px] font-medium text-center flex flex-col items-center gap-2">
+                          <svg className="w-5 h-5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                          The salon is closed on this day. Please select another date.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
