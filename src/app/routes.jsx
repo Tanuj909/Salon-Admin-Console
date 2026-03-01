@@ -9,6 +9,7 @@ import VerifiedSalons from "@/features/salons/pages/VerifiedSalons";
 import SalonDetails from "@/features/salons/pages/SalonDetails";
 import Categories from "@/features/categories/pages/Categories";
 import MyAdminSalon from "@/features/salons/pages/MyAdminSalon";
+import BusinessTimings from "@/features/salons/pages/BusinessTimings";
 import Services from "@/features/services/pages/Services";
 import Staff from "@/features/staff/pages/Staff";
 import Admins from "@/features/users/pages/Admins";
@@ -42,6 +43,7 @@ const AppRoutes = () => {
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/my-salon" element={<MyAdminSalon />} />
+            <Route path="/admin/timings" element={<BusinessTimings />} />
             <Route path="/admin/services" element={<Services />} />
             <Route path="/admin/staff" element={<Staff />} />
             <Route path="/admin/reviews" element={<SalonReviews />} />

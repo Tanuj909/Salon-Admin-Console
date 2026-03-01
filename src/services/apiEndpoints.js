@@ -60,4 +60,8 @@ export const API_ENDPOINTS = {
     REJECT: (bookingId) => `/bookings/${bookingId}/reject`,
     RESCHEDULE: (bookingId) => `/bookings/${bookingId}/reschedule`,
   },
+  TIMINGS: {
+    GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,
+    UPDATE_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,
+  },
 };
