@@ -44,8 +44,8 @@ const Categories = () => {
     try {
       setSubmitting(true);
       await createCategoryApi({
-          ...form,
-          displayOrder: parseInt(form.displayOrder)
+        ...form,
+        displayOrder: parseInt(form.displayOrder)
       });
       setIsModalOpen(false);
       setForm({
@@ -66,13 +66,13 @@ const Categories = () => {
 
   return (
     <div className="page active">
-      <div className="admin-page-header" style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between'}}>
+      <div className="admin-page-header p-10 flex items-start justify-between border-b border-gold/10">
         <div>
-          <h1>Categories</h1>
-          <p>Manage service categories shown on the platform.</p>
+          <h1 className="font-display text-4xl italic text-black-deep">Categories</h1>
+          <p className="text-secondary text-sm mt-2 font-medium">Manage service categories shown on the platform.</p>
         </div>
-        <button className="admin-btn admin-btn-primary" onClick={() => setIsModalOpen(true)}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <button className="bg-gold text-black-deep px-8 py-4 rounded-full font-bold uppercase tracking-widest text-[10px] hover:shadow-luxe transition-all flex items-center gap-2 border-0 cursor-pointer" onClick={() => setIsModalOpen(true)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           Add Category
         </button>
       </div>
@@ -89,9 +89,9 @@ const Categories = () => {
             <div key={category?.id} className="category-card">
               <div className="cat-icon text-xl">
                 {category?.iconUrl ? (
-                    <img src={category.iconUrl} alt={category.name} className="w-6 h-6 object-contain" />
+                  <img src={category.iconUrl} alt={category.name} className="w-6 h-6 object-contain" />
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.72 0 3.33.48 4.7 1.32"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4" /><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.72 0 3.33.48 4.7 1.32" /></svg>
                 )}
               </div>
               <div className="cat-name uppercase">{category?.name}</div>
@@ -106,11 +106,11 @@ const Categories = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[1001] flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="bg-[#4a7cf7] p-6 text-white">
-              <h2 className="text-xl font-bold">New Category</h2>
-              <p className="text-white opacity-80 text-sm">Define a new business category</p>
+        <div className="fixed inset-0 bg-black-deep/40 backdrop-blur-md z-[1001] flex items-center justify-center p-4">
+          <div className="bg-cream rounded-[40px] w-full max-w-md shadow-luxe overflow-hidden border border-gold/20 animate-slide-up">
+            <div className="bg-gold p-10 text-black-deep">
+              <h2 className="font-display text-3xl italic">New Category</h2>
+              <p className="text-black-deep/60 text-[10px] uppercase font-bold tracking-widest mt-1">Define a new business category</p>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
@@ -169,18 +169,18 @@ const Categories = () => {
                 />
                 <label htmlFor="isActive" className="text-sm text-slate-600 font-medium">Category is Active</label>
               </div>
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-4 pt-6">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                  className="flex-1 bg-white border border-gold/20 text-secondary py-4 rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-beige transition-all border-0 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-[#4a7cf7] text-white py-3 rounded-xl font-bold hover:bg-[#3d6ef0] transition-all shadow-lg disabled:opacity-50"
+                  className="flex-1 bg-gold text-black-deep py-4 rounded-full font-bold uppercase tracking-widest text-[10px] hover:shadow-luxe transition-all disabled:opacity-50 border-0 cursor-pointer"
                 >
                   {submitting ? "Saving..." : "Create Category"}
                 </button>

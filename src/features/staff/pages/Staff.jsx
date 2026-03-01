@@ -284,14 +284,14 @@ const Staff = () => {
     }
   };
 
-  const DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"];
-  const DAYS_FULL = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"];
+  const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+  const DAYS_FULL = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "?";
 
-  const AVATAR_COLORS = ["#E8F0FE","#E6F4EA","#FEF3E2","#FCE8E6","#F3E8FD","#E8F5E9","#FFF3E0"];
-  const AVATAR_TEXT = ["#1967D2","#1E8E3E","#E37400","#D93025","#8430CE","#1B5E20","#E65100"];
+  const AVATAR_COLORS = ["#E8F0FE", "#E6F4EA", "#FEF3E2", "#FCE8E6", "#F3E8FD", "#E8F5E9", "#FFF3E0"];
+  const AVATAR_TEXT = ["#1967D2", "#1E8E3E", "#E37400", "#D93025", "#8430CE", "#1B5E20", "#E65100"];
 
   return (
     <>
@@ -299,11 +299,11 @@ const Staff = () => {
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         .s-root {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          background: #F8F9FB;
+          font-family: 'Jost', sans-serif;
+          background: #F7F3EE;
           min-height: 100vh;
-          padding: 2rem 2.5rem;
-          color: #111827;
+          padding: 3rem 4rem;
+          color: #1C1C1C;
         }
 
         .s-header {
@@ -314,38 +314,45 @@ const Staff = () => {
         }
 
         .s-title {
-          font-size: 1.375rem;
-          font-weight: 700;
-          color: #111827;
-          margin: 0 0 0.2rem 0;
-          letter-spacing: -0.02em;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2.5rem;
+          font-style: italic;
+          font-weight: 400;
+          color: #1C1C1C;
+          margin: 0;
         }
 
         .s-subtitle {
-          font-size: 0.8125rem;
-          color: #6B7280;
-          margin: 0;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
+          color: #7a7065;
+          margin-top: 0.5rem;
         }
 
         .s-btn-primary {
           display: inline-flex;
           align-items: center;
-          gap: 0.45rem;
-          background: #2563EB;
-          color: #fff;
+          gap: 0.6rem;
+          background: #C8A951;
+          color: #1C1C1C;
           border: none;
-          border-radius: 8px;
-          padding: 0.625rem 1.125rem;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 0.8125rem;
-          font-weight: 600;
+          border-radius: 100px;
+          padding: 1rem 2rem;
+          font-family: 'Jost', sans-serif;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
           cursor: pointer;
-          transition: background 0.15s, box-shadow 0.15s;
+          transition: all 0.4s ease;
         }
 
         .s-btn-primary:hover {
-          background: #1D4ED8;
-          box-shadow: 0 4px 12px rgba(37,99,235,0.28);
+          background: #B69843;
+          box-shadow: 0 10px 30px -10px rgba(200, 169, 81, 0.5);
+          transform: translateY(-2px);
         }
 
         /* Stats */
@@ -357,10 +364,12 @@ const Staff = () => {
         }
 
         .s-stat {
-          background: #fff;
-          border: 1px solid #E5E7EB;
-          border-radius: 10px;
-          padding: 1.1rem 1.25rem;
+          background: #FDFAF6;
+          border: 1px solid rgba(200, 169, 81, 0.1);
+          border-radius: 40px;
+          padding: 2.5rem;
+          box-shadow: 0 10px 40px -15px rgba(200, 169, 81, 0.1);
+          transition: all 0.4s ease;
         }
 
         .s-stat-label {
@@ -388,10 +397,11 @@ const Staff = () => {
 
         /* Table card */
         .s-card {
-          background: #fff;
-          border: 1px solid #E5E7EB;
-          border-radius: 12px;
+          background: #FDFAF6;
+          border: 1px solid rgba(200, 169, 81, 0.1);
+          border-radius: 40px;
           overflow: hidden;
+          box-shadow: 0 10px 40px -15px rgba(200, 169, 81, 0.1);
         }
 
         .s-card-header {
@@ -506,9 +516,9 @@ const Staff = () => {
         }
 
         .s-action:hover {
-          border-color: #2563EB;
-          color: #2563EB;
-          background: #EFF6FF;
+          border-color: #C8A951;
+          color: #1C1C1C;
+          background: #C8A951;
         }
 
         .s-actions-row {
@@ -695,9 +705,9 @@ const Staff = () => {
         }
 
         .s-pg:hover, .s-pg.active {
-          background: #2563EB;
-          border-color: #2563EB;
-          color: #fff;
+          background: #C8A951;
+          border-color: #C8A951;
+          color: #1C1C1C;
         }
 
         /* MODAL */
@@ -1349,7 +1359,7 @@ const Staff = () => {
           </div>
           <button className="s-btn-primary" onClick={() => setIsModalOpen(true)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add Team Member
           </button>
@@ -1367,8 +1377,8 @@ const Staff = () => {
             <div className="s-empty">
               <div className="s-empty-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
               <p className="s-empty-h">No staff members yet</p>
@@ -1424,7 +1434,7 @@ const Staff = () => {
                       <td>
                         <div className="s-actions-row">
                           <button className="s-action-view" onClick={() => openProfileModal(staff)}>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '3px', verticalAlign: '-1px' }}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '3px', verticalAlign: '-1px' }}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                             View
                           </button>
                           <button className="s-action" onClick={() => openUpdateModal(staff)}>Manage</button>
@@ -1751,7 +1761,7 @@ const Staff = () => {
                       className="sp-assign-btn"
                       onClick={() => openAssignModal(profileData)}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
                       Assign Services
                     </button>
                   </div>
@@ -1788,10 +1798,10 @@ const Staff = () => {
             <div className="sd-body">
               <div className="sd-icon">
                 <svg width="26" height="26" fill="none" stroke="#EF4444" strokeWidth="2" viewBox="0 0 24 24">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  <line x1="10" y1="11" x2="10" y2="17"/>
-                  <line x1="14" y1="11" x2="14" y2="17"/>
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
                 </svg>
               </div>
               <h3>Delete Staff Member</h3>
@@ -1831,7 +1841,7 @@ const Staff = () => {
                   >
                     <div className="sa-check">
                       {assignSelectedIds.includes(svc.id) && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                       )}
                     </div>
                     <span className="sa-svc-name">{svc.name}</span>

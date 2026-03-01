@@ -6,7 +6,7 @@ const PendingSalons = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState(null);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -55,9 +55,9 @@ const PendingSalons = () => {
 
   return (
     <div className="page active">
-      <div className="admin-page-header">
-        <h1>Pending Salons</h1>
-        <p>Review and approve salon registration requests.</p>
+      <div className="admin-page-header p-10 flex flex-col border-b border-gold/10">
+        <h1 className="font-display text-4xl italic text-black-deep">Pending Salons</h1>
+        <p className="text-secondary text-sm mt-2 font-medium">Review and approve salon registration requests.</p>
       </div>
 
       <div className="admin-toolbar">
@@ -70,7 +70,7 @@ const PendingSalons = () => {
         </div>
         <div className="admin-toolbar-right">
           <div className="admin-search-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" placeholder="Search salons..." />
           </div>
         </div>
@@ -108,14 +108,14 @@ const PendingSalons = () => {
                     </td>
                     <td>
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           className="admin-btn admin-btn-green admin-btn-sm"
                           onClick={() => handleVerify(salon.id, 'VERIFIED')}
                           disabled={actionLoading === salon.id}
                         >
                           {actionLoading === salon.id ? "..." : "Approve"}
                         </button>
-                        <button 
+                        <button
                           className="admin-btn admin-btn-red admin-btn-sm"
                           onClick={() => handleVerify(salon.id, 'REJECTED')}
                           disabled={actionLoading === salon.id}
@@ -130,22 +130,22 @@ const PendingSalons = () => {
             </tbody>
           </table>
         </div>
-        
+
         {totalPages > 1 && (
           <div className="admin-pagination">
             <span className="page-info">
               Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
             </span>
             <div className="page-btns">
-              <button 
-                className="page-btn" 
+              <button
+                className="page-btn"
                 disabled={currentPage === 0}
                 onClick={() => handlePageChange(currentPage - 1)}
               >
                 ‹
               </button>
               {[...Array(totalPages)].map((_, i) => (
-                <button 
+                <button
                   key={i}
                   className={`page-btn ${currentPage === i ? 'active' : ''}`}
                   onClick={() => handlePageChange(i)}
@@ -153,8 +153,8 @@ const PendingSalons = () => {
                   {i + 1}
                 </button>
               ))}
-              <button 
-                className="page-btn" 
+              <button
+                className="page-btn"
                 disabled={currentPage === totalPages - 1}
                 onClick={() => handlePageChange(currentPage + 1)}
               >

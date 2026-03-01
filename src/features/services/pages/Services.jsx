@@ -7,7 +7,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [businessId, setBusinessId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Create service form state
   const [form, setForm] = useState({
     name: "",
@@ -67,7 +67,7 @@ const Services = () => {
         bId = business.id;
         setBusinessId(bId);
       }
-      
+
       const data = await getServicesByBusinessApi(bId, currentPage, 10);
       setServices(data.content || []);
       setTotalPages(data.totalPages || 0);
@@ -179,8 +179,8 @@ const Services = () => {
 
 
   const filteredServices = services.filter(service => {
-    const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          service.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !categoryFilter || service.category === categoryFilter;
     const matchesStatus = !statusFilter || (statusFilter === "active" ? service.isActive : !service.isActive);
     const matchesPopular = !popularOnly || service.isPopular;
@@ -195,11 +195,13 @@ const Services = () => {
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700&display=swap');
 
         .services-container {
-          font-family: 'DM Sans', sans-serif;
-          color: #374151;
-          padding: 32px;
+          font-family: 'Jost', sans-serif;
+          color: #1C1C1C;
+          padding: 4rem;
           width: 100%;
           margin: 0 auto;
+          background: #F7F3EE;
+          min-height: 100vh;
         }
 
         .services-container *, .services-container *::before, .services-container *::after { 
@@ -214,37 +216,46 @@ const Services = () => {
         }
 
         .page-header-left h1 {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 700;
-          color: #111827;
-          letter-spacing: -0.3px;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 2.5rem;
+          font-style: italic;
+          font-weight: 400;
+          color: #1C1C1C;
           margin: 0;
         }
 
         .page-header-left p {
-          font-size: 13.5px;
-          color: #6B7280;
-          margin-top: 4px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.2em;
+          color: #7a7065;
+          margin-top: 0.5rem;
         }
 
         .btn-primary {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          background: #1B3F6E;
-          color: white;
+          background: #C8A951;
+          color: #1C1C1C;
           border: none;
-          padding: 9px 20px;
-          border-radius: 7px;
-          font-size: 13.5px;
-          font-weight: 500;
-          font-family: 'DM Sans', sans-serif;
+          padding: 1rem 2rem;
+          border-radius: 100px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          font-family: 'Jost', sans-serif;
           cursor: pointer;
-          transition: background 0.15s;
+          transition: all 0.3s ease;
           white-space: nowrap;
         }
-        .btn-primary:hover { background: #152f55; }
+        .btn-primary:hover { 
+          background: #B69843; 
+          box-shadow: 0 10px 30px -10px rgba(200, 169, 81, 0.5);
+          transform: translateY(-2px);
+        }
 
         /* Removed stats bar styles */
 
@@ -285,7 +296,7 @@ const Services = () => {
           transition: border-color 0.15s;
         }
 
-        .search-input:focus { border-color: #1B3F6E; }
+        .search-input:focus { border-color: #C8A951; }
         .search-input::placeholder { color: #9CA3AF; }
 
         .filter-select {
@@ -305,7 +316,7 @@ const Services = () => {
           padding-right: 30px;
           transition: border-color 0.15s;
         }
-        .filter-select:focus { border-color: #1B3F6E; }
+        .filter-select:focus { border-color: #C8A951; }
 
         .toggle-pill {
           display: inline-flex;
@@ -332,10 +343,11 @@ const Services = () => {
         }
 
         .table-container {
-          background: #FFFFFF;
-          border: 1px solid #E5E7EB;
-          border-radius: 10px;
+          background: #FDFAF6;
+          border: 1px solid rgba(200, 169, 81, 0.1);
+          border-radius: 40px;
           overflow: hidden;
+          box-shadow: 0 10px 40px -15px rgba(200, 169, 81, 0.1);
         }
 
         table {
@@ -663,7 +675,7 @@ const Services = () => {
             <p>Manage all services offered by this business &nbsp;·&nbsp; Business ID: {businessId || '...'} &nbsp;·&nbsp; Dubai</p>
           </div>
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Add New Service
           </button>
         </div>
@@ -671,17 +683,17 @@ const Services = () => {
         {/* ── Filter Bar ── */}
         <div className="filter-bar">
           <div className="search-wrap">
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input 
-              className="search-input" 
-              type="text" 
-              placeholder="Search services…" 
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search services…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <select 
-            className="filter-select" 
+          <select
+            className="filter-select"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
@@ -690,7 +702,7 @@ const Services = () => {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <select 
+          <select
             className="filter-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -699,11 +711,11 @@ const Services = () => {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
-          <div 
+          <div
             className={`toggle-pill ${popularOnly ? 'on' : ''}`}
             onClick={() => setPopularOnly(!popularOnly)}
           >
-            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
             Popular Only
           </div>
         </div>
@@ -741,7 +753,7 @@ const Services = () => {
                         <img className="svc-image" src={service.imageUrl} alt={service.name} />
                       ) : (
                         <div className="img-placeholder">
-                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                         </div>
                       )}
                     </td>
@@ -777,7 +789,7 @@ const Services = () => {
                     <td>
                       {(service.staffCount || 0) === 0 ? (
                         <span className="staff-zero">
-                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
                           0 Staff
                         </span>
                       ) : (
@@ -807,20 +819,20 @@ const Services = () => {
                 Showing page {currentPage + 1} of {totalPages}
               </span>
               <div className="pagination-controls">
-                <button 
+                <button
                   className="page-btn"
                   onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
                   disabled={currentPage === 0}
                 >
-                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
                 </button>
                 <div className="page-btn current">{currentPage + 1}</div>
-                <button 
+                <button
                   className="page-btn"
                   onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
                   disabled={currentPage === totalPages - 1}
                 >
-                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
                 </button>
               </div>
             </div>
@@ -833,132 +845,132 @@ const Services = () => {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1001] flex items-center justify-center p-4" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="bg-[#1B3F6E] p-8 text-white relative">
-                <h2 className="text-2xl font-bold leading-none mb-2">ADD NEW SERVICE</h2>
-                <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Expand your business menu</p>
+              <h2 className="text-2xl font-bold leading-none mb-2">ADD NEW SERVICE</h2>
+              <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Expand your business menu</p>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="p-8 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            required
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                            placeholder="e.g. Hair Cut & Styling"
-                        />
-                    </div>
-                    
-                    <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description</label>
-                        <textarea
-                            name="description"
-                            value={form.description}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all h-20 text-sm"
-                            placeholder="Detail what makes this service special..."
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
-                        <input
-                            type="text"
-                            name="category"
-                            value={form.category}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
-                        <input
-                            type="number"
-                            name="durationMinutes"
-                            value={form.durationMinutes}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={form.price}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
-                        <input
-                            type="number"
-                            name="discountedPrice"
-                            value={form.discountedPrice}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
-                        />
-                    </div>
-                    
-                    <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
-                        <input
-                            type="url"
-                            name="imageUrl"
-                            value={form.imageUrl}
-                            onChange={handleChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
-                            placeholder="https://..."
-                        />
-                    </div>
-                </div>
-                
-                <div className="flex gap-6 py-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            name="isActive"
-                            checked={form.isActive}
-                            onChange={handleChange}
-                            className="w-4 h-4 accent-[#1B3F6E]"
-                        />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            name="isPopular"
-                            checked={form.isPopular}
-                            onChange={handleChange}
-                            className="w-4 h-4 accent-amber-500"
-                        />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
-                    </label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                    placeholder="e.g. Hair Cut & Styling"
+                  />
                 </div>
 
-                <div className="flex gap-3 pt-4">
-                    <button
-                        type="button"
-                        onClick={() => setIsModalOpen(false)}
-                        className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={submitting}
-                        className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
-                    >
-                        {submitting ? "Saving..." : "Create"}
-                    </button>
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description</label>
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all h-20 text-sm"
+                    placeholder="Detail what makes this service special..."
+                  />
                 </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
+                  <input
+                    type="text"
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
+                  <input
+                    type="number"
+                    name="durationMinutes"
+                    value={form.durationMinutes}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={form.price}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
+                  <input
+                    type="number"
+                    name="discountedPrice"
+                    value={form.discountedPrice}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
+                  <input
+                    type="url"
+                    name="imageUrl"
+                    value={form.imageUrl}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-6 py-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    checked={form.isActive}
+                    onChange={handleChange}
+                    className="w-4 h-4 accent-[#1B3F6E]"
+                  />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="isPopular"
+                    checked={form.isPopular}
+                    onChange={handleChange}
+                    className="w-4 h-4 accent-amber-500"
+                  />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
+                >
+                  {submitting ? "Saving..." : "Create"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -969,111 +981,111 @@ const Services = () => {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[1001] flex items-center justify-center p-4" onClick={() => setIsUpdateModalOpen(false)}>
           <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="bg-[#1B3F6E] p-8 text-white relative">
-                <h2 className="text-2xl font-bold leading-none mb-2">UPDATE SERVICE</h2>
-                <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Edit service details</p>
+              <h2 className="text-2xl font-bold leading-none mb-2">UPDATE SERVICE</h2>
+              <p className="text-white opacity-80 font-bold text-xs uppercase tracking-widest">Edit service details</p>
             </div>
-            
+
             <form onSubmit={handleUpdateSubmit} className="p-8 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={updateForm.name}
-                            onChange={handleUpdateChange}
-                            required
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                            placeholder="e.g. Premium Hair Cut & Styling"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
-                        <input
-                            type="text"
-                            name="category"
-                            value={updateForm.category}
-                            onChange={handleUpdateChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
-                        <input
-                            type="number"
-                            name="durationMinutes"
-                            value={updateForm.durationMinutes}
-                            onChange={handleUpdateChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={updateForm.price}
-                            onChange={handleUpdateChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
-                        <input
-                            type="number"
-                            name="discountedPrice"
-                            value={updateForm.discountedPrice}
-                            onChange={handleUpdateChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
-                        />
-                    </div>
-                    
-                    <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
-                        <input
-                            type="url"
-                            name="imageUrl"
-                            value={updateForm.imageUrl}
-                            onChange={handleUpdateChange}
-                            className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
-                            placeholder="https://..."
-                        />
-                    </div>
-                </div>
-                
-                <div className="flex gap-6 py-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            name="isPopular"
-                            checked={updateForm.isPopular}
-                            onChange={handleUpdateChange}
-                            className="w-4 h-4 accent-amber-500"
-                        />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
-                    </label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Service Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={updateForm.name}
+                    onChange={handleUpdateChange}
+                    required
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                    placeholder="e.g. Premium Hair Cut & Styling"
+                  />
                 </div>
 
-                <div className="flex gap-3 pt-4">
-                    <button
-                        type="button"
-                        onClick={() => setIsUpdateModalOpen(false)}
-                        className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={updating}
-                        className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
-                    >
-                        {updating ? "Updating..." : "Update Service"}
-                    </button>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Category</label>
+                  <input
+                    type="text"
+                    name="category"
+                    value={updateForm.category}
+                    onChange={handleUpdateChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
                 </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Duration (Min)</label>
+                  <input
+                    type="number"
+                    name="durationMinutes"
+                    value={updateForm.durationMinutes}
+                    onChange={handleUpdateChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={updateForm.price}
+                    onChange={handleUpdateChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
+                  <input
+                    type="number"
+                    name="discountedPrice"
+                    value={updateForm.discountedPrice}
+                    onChange={handleUpdateChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all font-bold text-[#1B3F6E]"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
+                  <input
+                    type="url"
+                    name="imageUrl"
+                    value={updateForm.imageUrl}
+                    onChange={handleUpdateChange}
+                    className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-6 py-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="isPopular"
+                    checked={updateForm.isPopular}
+                    onChange={handleUpdateChange}
+                    className="w-4 h-4 accent-amber-500"
+                  />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Popular</span>
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsUpdateModalOpen(false)}
+                  className="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-1 bg-[#1B3F6E] text-white py-3 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-[#152f55] transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
+                >
+                  {updating ? "Updating..." : "Update Service"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -1086,10 +1098,10 @@ const Services = () => {
             <div className="delete-modal-body">
               <div className="delete-modal-icon">
                 <svg width="28" height="28" fill="none" stroke="#DC2626" strokeWidth="2" viewBox="0 0 24 24">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  <line x1="10" y1="11" x2="10" y2="17"/>
-                  <line x1="14" y1="11" x2="14" y2="17"/>
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
                 </svg>
               </div>
               <h3>Delete Service</h3>

@@ -7,7 +7,7 @@ const VerifiedSalons = () => {
   const [salons, setSalons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -43,9 +43,9 @@ const VerifiedSalons = () => {
 
   return (
     <div className="page active">
-      <div className="admin-page-header">
-        <h1>Verified Salons</h1>
-        <p>All approved and active salons on the platform.</p>
+      <div className="admin-page-header p-10 flex flex-col border-b border-gold/10">
+        <h1 className="font-display text-4xl italic text-black-deep">Verified Salons</h1>
+        <p className="text-secondary text-sm mt-2 font-medium">All approved and active salons on the platform.</p>
       </div>
 
       <div className="admin-toolbar">
@@ -60,7 +60,7 @@ const VerifiedSalons = () => {
         </div>
         <div className="admin-toolbar-right">
           <div className="admin-search-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
             <input type="text" placeholder="Search verified salons..." />
           </div>
         </div>
@@ -98,7 +98,7 @@ const VerifiedSalons = () => {
                     </td>
                     <td>
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           className="admin-btn admin-btn-ghost admin-btn-sm"
                           onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
                         >
@@ -113,22 +113,22 @@ const VerifiedSalons = () => {
             </tbody>
           </table>
         </div>
-        
+
         {totalPages > 1 && (
           <div className="admin-pagination">
             <span className="page-info">
               Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
             </span>
             <div className="page-btns">
-              <button 
-                className="page-btn" 
+              <button
+                className="page-btn"
                 disabled={currentPage === 0}
                 onClick={() => handlePageChange(currentPage - 1)}
               >
                 ‹
               </button>
               {[...Array(totalPages)].map((_, i) => (
-                <button 
+                <button
                   key={i}
                   className={`page-btn ${currentPage === i ? 'active' : ''}`}
                   onClick={() => handlePageChange(i)}
@@ -136,8 +136,8 @@ const VerifiedSalons = () => {
                   {i + 1}
                 </button>
               ))}
-              <button 
-                className="page-btn" 
+              <button
+                className="page-btn"
                 disabled={currentPage === totalPages - 1}
                 onClick={() => handlePageChange(currentPage + 1)}
               >

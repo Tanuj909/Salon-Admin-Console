@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "@/features/auth/pages/Login";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
-import AdminLayout from "@/components/layout/AdminLayout";
-import SuperAdminLayout from "@/components/layout/SuperAdminLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import PendingSalons from "@/features/salons/pages/PendingSalons";
 import AllSalons from "@/features/salons/pages/AllSalons";
 import VerifiedSalons from "@/features/salons/pages/VerifiedSalons";
@@ -27,7 +26,7 @@ const AppRoutes = () => {
 
         {/* Super Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
-          <Route element={<SuperAdminLayout />}>
+          <Route element={<DashboardLayout />}>
             <Route path="/super-admin/dashboard" element={<Dashboard />} />
             <Route path="/super-admin/pending-salons" element={<PendingSalons />} />
             <Route path="/super-admin/all-salons" element={<AllSalons />} />
@@ -35,20 +34,18 @@ const AppRoutes = () => {
             <Route path="/super-admin/salons/:id" element={<SalonDetails />} />
             <Route path="/super-admin/categories" element={<Categories />} />
             <Route path="/super-admin/admins" element={<Admins />} />
-            {/* Add more super admin routes here */}
           </Route>
         </Route>
 
         {/* Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route element={<AdminLayout />}>
+          <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/my-salon" element={<MyAdminSalon />} />
             <Route path="/admin/services" element={<Services />} />
             <Route path="/admin/staff" element={<Staff />} />
             <Route path="/admin/reviews" element={<SalonReviews />} />
             <Route path="/admin/bookings" element={<Bookings />} />
-            {/* Add more admin routes here */}
           </Route>
         </Route>
 

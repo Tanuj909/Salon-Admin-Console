@@ -9,13 +9,13 @@ const Admins = () => {
 
   return (
     <div className="page active">
-      <div className="admin-page-header" style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between'}}>
+      <div className="admin-page-header p-10 flex items-start justify-between border-b border-gold/10">
         <div>
-          <h1>All Admins</h1>
-          <p>Manage admin access and permissions.</p>
+          <h1 className="font-display text-4xl italic text-black-deep">All Admins</h1>
+          <p className="text-secondary text-sm mt-2 font-medium">Manage admin access and permissions.</p>
         </div>
-        <button className="admin-btn admin-btn-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <button className="bg-gold text-black-deep px-8 py-4 rounded-full font-bold uppercase tracking-widest text-[10px] hover:shadow-luxe transition-all flex items-center gap-2 border-0 cursor-pointer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           Add Admin
         </button>
       </div>
@@ -38,14 +38,14 @@ const Admins = () => {
                 <tr key={admin.id}>
                   <td>
                     <div className="flex items-center gap-2.5">
-                      <div className="avatar" style={{width: '32px', height: '32px', fontSize: '12px'}}>
+                      <div className="avatar" style={{ width: '32px', height: '32px', fontSize: '12px' }}>
                         {admin.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <strong>{admin.name}</strong>
                     </div>
                   </td>
                   <td>
-                    <span className="status-badge active" style={{background: admin.role === 'Super Admin' ? '#eff6ff' : '#f3f0ff', color: admin.role === 'Super Admin' ? '#2563eb' : '#7c3aed'}}>
+                    <span className="status-badge active" style={{ background: admin.role === 'Super Admin' ? '#eff6ff' : '#f3f0ff', color: admin.role === 'Super Admin' ? '#2563eb' : '#7c3aed' }}>
                       {admin.role}
                     </span>
                   </td>
