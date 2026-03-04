@@ -46,37 +46,25 @@
 //   );
 // };
 
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState } from "react";
 import { getToken, setToken, removeToken } from "@/utils/token";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setAuthToken] = useState(null);
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Initialize directly from localStorage without any validation
+  const [token, setAuthToken] = useState(() => {
+    return getToken(); // Just get whatever token exists
+  });
 
-  // Initialize user from localStorage if available
-  useEffect(() => {
-    const initializeAuth = () => {
-      const storedToken = getToken();
+  const [user, setUser] = useState(() => {
+    try {
       const storedUser = localStorage.getItem("admin_user");
-      
-      if (storedToken && storedUser) {
-        try {
-          setAuthToken(storedToken);
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          // If user data is corrupted, clear everything
-          removeToken();
-          localStorage.removeItem("admin_user");
-        }
-      }
-      setIsLoading(false);
-    };
-
-    initializeAuth();
-  }, []);
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (e) {
+      return null;
+    }
+  });
 
   const login = (data) => {
     const { accessToken, userId, role } = data;
@@ -101,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
