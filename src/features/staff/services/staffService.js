@@ -44,3 +44,10 @@ export const removeServicesFromStaffApi = async (staffId, serviceIds) => {
   });
   return response.data;
 };
+
+export const generateStaffSlotsApi = async (staffId, fromDate, toDate) => {
+  const response = await axiosInstance.post(API_ENDPOINTS.STAFF.GENERATE_SLOTS(staffId), null, {
+    params: { fromDate, toDate }
+  });
+  return response.data;
+};

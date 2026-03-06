@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi } from "@/features/staff/services/staffService";
+import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi } from "@/features/staff/services/staffService";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
 import { getServicesByBusinessApi } from "@/features/services/services/serviceService";
 
@@ -15,7 +15,7 @@ const Staff = () => {
     bio: "",
     commission: 10.0,
     isAvailable: true,
-    workStartTime: "09:00",
+    workStartTime: "10:00",
     workEndTime: "18:00",
     weeklyOffDays: ["SUNDAY"],
     role: "STAFF",
@@ -149,6 +149,51 @@ const Staff = () => {
   const [assignStaffName, setAssignStaffName] = useState("");
   const [assignSelectedIds, setAssignSelectedIds] = useState([]);
   const [assigning, setAssigning] = useState(false);
+  
+  // Slot generation state
+  const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
+  const [slotForm, setSlotForm] = useState({
+    staffId: "",
+    duration: 1, // months
+  });
+  const [generatingSlots, setGeneratingSlots] = useState(false);
+
+  const handleGenerateSlots = async () => {
+    if (!slotForm.staffId) {
+      alert("Please select a staff member");
+      return;
+    }
+    
+    try {
+      setGeneratingSlots(true);
+      
+      const fromDate = new Date();
+      const toDate = new Date();
+      toDate.setMonth(fromDate.getMonth() + parseInt(slotForm.duration));
+      
+      const formatDate = (date) => date.toISOString().split('T')[0];
+      
+      await generateStaffSlotsApi(
+        slotForm.staffId,
+        formatDate(fromDate),
+        formatDate(toDate)
+      );
+      
+      alert("Slots generated successfully!");
+      setIsSlotModalOpen(false);
+      setSlotForm({ staffId: "", duration: 1 });
+    } catch (err) {
+      console.error("Error generating slots", err);
+      alert(err.response?.data?.message || "Failed to generate slots. Please try again.");
+    } finally {
+      setGeneratingSlots(false);
+    }
+  };
+
+  const openSlotModal = (staff) => {
+    setSlotForm({ staffId: staff.id, duration: 1 });
+    setIsSlotModalOpen(true);
+  };
 
   const openAssignModal = (staff) => {
     setAssignStaffId(staff.id);
@@ -304,21 +349,23 @@ const Staff = () => {
 
   return (
     <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-4 bg-transparent max-w-5xl">
+      <div className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px]">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 px-2">
           <div>
             <h1 className="font-display text-4xl italic text-black-deep mb-2">Staff Management</h1>
             <p className="text-secondary text-base">Manage your team of professional service providers</p>
           </div>
-          <button
-            className="px-6 py-3 bg-gold text-black-deep font-bold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all flex items-center justify-center gap-2 tracking-wide whitespace-nowrap"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Team Member
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              className="px-6 py-3 bg-gold text-black-deep font-bold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all flex items-center justify-center gap-2 tracking-wide whitespace-nowrap"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Team Member
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
@@ -350,63 +397,95 @@ const Staff = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
-              {staffList.map((staff, i) => {
-                const ci = i % AVATAR_COLORS.length;
-                return (
-                  <div key={staff.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-gold/30 transition-all p-5 flex flex-col group">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex gap-4 items-center">
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg overflow-hidden shrink-0" style={{ background: AVATAR_COLORS[ci], color: AVATAR_TEXT[ci] }}>
-                          {staff.userProfileImageUrl
-                            ? <img src={staff.userProfileImageUrl} alt={staff.userFullName} className="w-full h-full object-cover" />
-                            : getInitials(staff.userFullName)}
-                        </div>
-                        <div>
-                          <div className="font-bold text-black-deep text-lg leading-tight group-hover:text-gold transition-colors cursor-pointer" onClick={() => openProfileModal(staff)}>{staff.userFullName}</div>
-                          <div className="text-sm text-secondary font-medium">{staff.designation}</div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${staff.isAvailable ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${staff.isAvailable ? 'bg-green-500' : 'bg-slate-400'}`}></span>
-                          {staff.isAvailable ? "Available" : "Off Duty"}
-                        </span>
-                        <div className="flex items-center gap-1 text-sm font-bold text-black-deep bg-gold/10 px-2 py-0.5 rounded-lg">
-                          <span className="text-gold">★</span> {(staff.averageRating ?? 0).toFixed(1)}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 mt-auto pt-4 border-t border-slate-50 mb-5">
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-black-deep">{staff.totalBookings ?? 0}</div>
-                        <div className="text-[10px] font-bold text-secondary uppercase tracking-wider">Bookings</div>
-                      </div>
-                      <div className="text-center border-l border-slate-50">
-                        <div className="text-lg font-bold text-black-deep">{staff.totalReviews ?? 0}</div>
-                        <div className="text-[10px] font-bold text-secondary uppercase tracking-wider">Reviews</div>
-                      </div>
-                      <div className="text-center border-l border-slate-50">
-                        <div className="text-lg font-bold text-black-deep">{staff.serviceCount ?? 0}</div>
-                        <div className="text-[10px] font-bold text-secondary uppercase tracking-wider">Services</div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-colors" onClick={() => openProfileModal(staff)}>
-                        View
-                      </button>
-                      <button className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-widest hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors" onClick={() => openUpdateModal(staff)}>
-                        Manage
-                      </button>
-                      <button className="flex-none px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs font-bold uppercase hover:bg-red-100 transition-colors" onClick={() => openDeleteStaffModal(staff)}>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[#FDFBF7] border-b border-gold/10">
+                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Team Member</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-center">Stats</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {staffList.map((staff, i) => {
+                    const ci = i % AVATAR_COLORS.length;
+                    return (
+                      <tr key={staff.id} className="hover:bg-slate-50/50 transition-colors group">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm overflow-hidden shrink-0 shadow-sm" style={{ background: AVATAR_COLORS[ci], color: AVATAR_TEXT[ci] }}>
+                              {staff.userProfileImageUrl
+                                ? <img src={staff.userProfileImageUrl} alt={staff.userFullName} className="w-full h-full object-cover" />
+                                : getInitials(staff.userFullName)}
+                            </div>
+                            <div>
+                              <div className="font-bold text-black-deep text-sm group-hover:text-gold transition-colors cursor-pointer" onClick={() => openProfileModal(staff)}>
+                                {staff.userFullName}
+                              </div>
+                              <div className="text-[11px] text-secondary font-medium tracking-wide">{staff.designation}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${staff.isAvailable ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                            <span className={`w-1 h-1 rounded-full ${staff.isAvailable ? 'bg-green-500' : 'bg-slate-400'}`}></span>
+                            {staff.isAvailable ? "Available" : "Off Duty"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex items-center justify-center gap-4 text-[11px]">
+                            <div className="flex flex-col items-center">
+                              <span className="font-bold text-black-deep">{staff.totalBookings ?? 0}</span>
+                              <span className="text-[8px] text-secondary uppercase font-bold tracking-tighter">Bookings</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="font-bold text-black-deep">★ {(staff.averageRating ?? 0).toFixed(1)}</span>
+                              <span className="text-[8px] text-secondary uppercase font-bold tracking-tighter">Rating</span>
+                            </div>
+                            <div className="flex flex-col items-center">
+                              <span className="font-bold text-black-deep">{staff.serviceCount ?? 0}</span>
+                              <span className="text-[8px] text-secondary uppercase font-bold tracking-tighter">Services</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              title="Generate Slots"
+                              className="p-2 bg-gold/10 text-gold border border-gold/20 rounded-lg hover:bg-gold/20 transition-all" 
+                              onClick={() => openSlotModal(staff)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                            </button>
+                            <button 
+                              title="View Profile"
+                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:bg-slate-100 transition-colors" 
+                              onClick={() => openProfileModal(staff)}
+                            >
+                              View
+                            </button>
+                            <button 
+                              title="Manage Details"
+                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors" 
+                              onClick={() => openUpdateModal(staff)}
+                            >
+                              Manage
+                            </button>
+                            <button 
+                              title="Delete Staff"
+                              className="p-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors" 
+                              onClick={() => openDeleteStaffModal(staff)}
+                            >
+                              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -798,33 +877,98 @@ const Staff = () => {
 
             <div className="p-6 overflow-y-auto custom-scrollbar">
               {assignSelectedIds.length > 0 && (
-                <div className="mb-4 text-[10px] font-bold text-gold bg-gold/5 border border-gold/20 inline-flex px-3 py-1 rounded-full uppercase tracking-widest">
-                  {assignSelectedIds.length} Service{assignSelectedIds.length !== 1 ? 's' : ''} Selected
+                <div className="space-y-2 mb-6">
+                  <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Services</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {availableServices.map(svc => {
+                      const isSel = assignSelectedIds.includes(svc.id);
+                      return (
+                        <div
+                          key={svc.id}
+                          onClick={() => toggleAssignService(svc.id)}
+                          className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${isSel ? 'border-gold bg-gold/5 translate-x-1' : 'border-slate-100 hover:border-slate-200'}`}
+                        >
+                          <span className={`text-sm font-medium ${isSel ? 'text-black-deep' : 'text-slate-600'}`}>{svc.name}</span>
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${isSel ? 'bg-gold border-gold text-black-deep' : 'border-slate-300'}`}>
+                            {isSel && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-3">
-                {availableServices.map(svc => {
-                  const isSel = assignSelectedIds.includes(svc.id);
-                  return (
-                    <div
-                      key={svc.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${isSel ? 'border-gold bg-gold/5 shadow-sm' : 'border-slate-200 hover:border-gold/40 hover:bg-slate-50'}`}
-                      onClick={() => toggleAssignService(svc.id)}
+            </div>
+
+            <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 shrink-0">
+              <button type="button" className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider" onClick={() => setIsAssignOpen(false)}>Cancel</button>
+              <button type="button" className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50" disabled={assigning} onClick={handleAssignServices}>
+                {assigning ? "Assigning…" : "Update Services"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal - Slot Generation */}
+      {isSlotModalOpen && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 transition-opacity" onClick={(e) => e.target === e.currentTarget && setIsSlotModalOpen(false)}>
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7] shrink-0">
+              <div>
+                <h3 className="font-display text-2xl italic text-black-deep m-0">Generate Slots</h3>
+                <p className="text-sm text-secondary mt-1">Automatic appointment slot generation</p>
+              </div>
+              <button className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors" onClick={() => setIsSlotModalOpen(false)}>
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Selected Staff</label>
+                <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-black-deep">
+                  {staffList.find(s => s.id == slotForm.staffId)?.userFullName || "Loading..."}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Generate Slots For</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[1, 2, 3, 4].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setSlotForm({ ...slotForm, duration: m })}
+                      className={`px-4 py-3 text-sm font-bold border rounded-xl transition-all ${slotForm.duration === m ? "bg-gold border-gold text-black-deep" : "bg-white border-slate-200 text-slate-500 hover:border-gold/40"}`}
                     >
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${isSel ? 'border-gold bg-gold' : 'border-slate-300'}`}>
-                        {isSel && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
-                      </div>
-                      <span className={`text-sm tracking-wide ${isSel ? 'font-bold text-black-deep' : 'font-medium text-slate-700'}`}>{svc.name}</span>
-                    </div>
-                  )
-                })}
+                      {m} {m === 1 ? 'Month' : 'Months'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
+                <div className="flex gap-3 text-blue-700">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  <p className="text-xs leading-relaxed">
+                    This will automatically create appointment slots based on the staff's working hours and services for the next <b>{slotForm.duration} month{slotForm.duration > 1 ? 's' : ''}</b>.
+                  </p>
+                </div>
               </div>
             </div>
 
             <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 shrink-0">
-              <button className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider" onClick={() => setIsAssignOpen(false)}>Cancel</button>
-              <button className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50" disabled={assigning} onClick={handleAssignServices}>
-                {assigning ? 'Assigning…' : `Save ${assignSelectedIds.length} Services`}
+              <button type="button" className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider" onClick={() => setIsSlotModalOpen(false)}>Cancel</button>
+              <button 
+                type="button" 
+                className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50" 
+                disabled={generatingSlots}
+                onClick={handleGenerateSlots}
+              >
+                {generatingSlots ? "Generating…" : "Generate Slots"}
               </button>
             </div>
           </div>
