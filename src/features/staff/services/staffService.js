@@ -51,3 +51,10 @@ export const generateStaffSlotsApi = async (staffId, fromDate, toDate) => {
   });
   return response.data;
 };
+
+export const getStaffSlotsApi = async (staffId, startDate, endDate) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_SLOTS(staffId), {
+    params: { startDate, endDate }
+  });
+  return response.data;
+};

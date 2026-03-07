@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi } from "@/features/staff/services/staffService";
+import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi, getStaffSlotsApi } from "@/features/staff/services/staffService";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
 import { getServicesByBusinessApi } from "@/features/services/services/serviceService";
 
@@ -149,7 +149,7 @@ const Staff = () => {
   const [assignStaffName, setAssignStaffName] = useState("");
   const [assignSelectedIds, setAssignSelectedIds] = useState([]);
   const [assigning, setAssigning] = useState(false);
-  
+
   // Slot generation state
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
   const [slotForm, setSlotForm] = useState({
@@ -157,28 +157,32 @@ const Staff = () => {
     duration: 1, // months
   });
   const [generatingSlots, setGeneratingSlots] = useState(false);
+  const [fetchedSlots, setFetchedSlots] = useState([]);
+  const [slotLoading, setSlotLoading] = useState(false);
+  const [showGenerateUI, setShowGenerateUI] = useState(false);
+  const [slotStaffName, setSlotStaffName] = useState("");
 
   const handleGenerateSlots = async () => {
     if (!slotForm.staffId) {
       alert("Please select a staff member");
       return;
     }
-    
+
     try {
       setGeneratingSlots(true);
-      
+
       const fromDate = new Date();
       const toDate = new Date();
       toDate.setMonth(fromDate.getMonth() + parseInt(slotForm.duration));
-      
+
       const formatDate = (date) => date.toISOString().split('T')[0];
-      
+
       await generateStaffSlotsApi(
         slotForm.staffId,
         formatDate(fromDate),
         formatDate(toDate)
       );
-      
+
       alert("Slots generated successfully!");
       setIsSlotModalOpen(false);
       setSlotForm({ staffId: "", duration: 1 });
@@ -190,9 +194,40 @@ const Staff = () => {
     }
   };
 
-  const openSlotModal = (staff) => {
+  const openSlotModal = async (staff) => {
     setSlotForm({ staffId: staff.id, duration: 1 });
+    setSlotStaffName(staff.userFullName);
+    setFetchedSlots([]);
+    setShowGenerateUI(false);
     setIsSlotModalOpen(true);
+
+    try {
+      setSlotLoading(true);
+      const today = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(today.getDate() + 7);
+
+      const formatDate = (date) => date.toISOString().split('T')[0];
+
+      const data = await getStaffSlotsApi(
+        staff.id,
+        formatDate(today),
+        formatDate(nextWeek)
+      );
+
+      const slots = data.body || data || [];
+      setFetchedSlots(slots);
+
+      if (slots.length === 0) {
+        setShowGenerateUI(true);
+      }
+    } catch (err) {
+      console.error("Error fetching slots", err);
+      // Fallback to generate UI if fetch fails
+      setShowGenerateUI(true);
+    } finally {
+      setSlotLoading(false);
+    }
   };
 
   const openAssignModal = (staff) => {
@@ -451,30 +486,30 @@ const Staff = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
-                            <button 
+                            <button
                               title="Generate Slots"
-                              className="p-2 bg-gold/10 text-gold border border-gold/20 rounded-lg hover:bg-gold/20 transition-all" 
+                              className="p-2 bg-gold/10 text-gold border border-gold/20 rounded-lg hover:bg-gold/20 transition-all"
                               onClick={() => openSlotModal(staff)}
                             >
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                             </button>
-                            <button 
+                            <button
                               title="View Profile"
-                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:bg-slate-100 transition-colors" 
+                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:bg-slate-100 transition-colors"
                               onClick={() => openProfileModal(staff)}
                             >
                               View
                             </button>
-                            <button 
+                            <button
                               title="Manage Details"
-                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors" 
+                              className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:border-gold hover:text-gold hover:bg-gold/5 transition-colors"
                               onClick={() => openUpdateModal(staff)}
                             >
                               Manage
                             </button>
-                            <button 
+                            <button
                               title="Delete Staff"
-                              className="p-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors" 
+                              className="p-1.5 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-colors"
                               onClick={() => openDeleteStaffModal(staff)}
                             >
                               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
@@ -910,66 +945,129 @@ const Staff = () => {
         </div>
       )}
 
-      {/* Modal - Slot Generation */}
+      {/* Modal - Slot Management */}
       {isSlotModalOpen && (
         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 transition-opacity" onClick={(e) => e.target === e.currentTarget && setIsSlotModalOpen(false)}>
-          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-lg flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[90vh]">
             <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7] shrink-0">
               <div>
-                <h3 className="font-display text-2xl italic text-black-deep m-0">Generate Slots</h3>
-                <p className="text-sm text-secondary mt-1">Automatic appointment slot generation</p>
+                <h3 className="font-display text-2xl italic text-black-deep m-0">Slot Management</h3>
+                <p className="text-sm text-secondary mt-1">{slotStaffName}</p>
               </div>
               <button className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors" onClick={() => setIsSlotModalOpen(false)}>
                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Selected Staff</label>
-                <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-black-deep">
-                  {staffList.find(s => s.id == slotForm.staffId)?.userFullName || "Loading..."}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {slotLoading ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-4">
+                  <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+                  <span className="text-secondary text-sm font-medium">Checking available slots...</span>
                 </div>
-              </div>
+              ) : showGenerateUI ? (
+                <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Generate Slots For</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[1, 2, 3, 4].map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setSlotForm({ ...slotForm, duration: m })}
+                          className={`px-4 py-3 text-sm font-bold border rounded-xl transition-all ${slotForm.duration === m ? "bg-gold border-gold text-black-deep" : "bg-white border-slate-200 text-slate-500 hover:border-gold/40"}`}
+                        >
+                          {m} {m === 1 ? 'Month' : 'Months'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Generate Slots For</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[1, 2, 3, 4].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setSlotForm({ ...slotForm, duration: m })}
-                      className={`px-4 py-3 text-sm font-bold border rounded-xl transition-all ${slotForm.duration === m ? "bg-gold border-gold text-black-deep" : "bg-white border-slate-200 text-slate-500 hover:border-gold/40"}`}
-                    >
-                      {m} {m === 1 ? 'Month' : 'Months'}
-                    </button>
-                  ))}
+                  <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
+                    <div className="flex gap-3 text-blue-700">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+                        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <p className="text-xs leading-relaxed">
+                        This will automatically create appointment slots based on the staff's working hours and services for the next <b>{slotForm.duration} month{slotForm.duration > 1 ? 's' : ''}</b>.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Available Slots (Next 7 Days)</span>
+                    <span className="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">{fetchedSlots.length} Slots Found</span>
+                  </div>
 
-              <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
-                <div className="flex gap-3 text-blue-700">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
-                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-                  </svg>
-                  <p className="text-xs leading-relaxed">
-                    This will automatically create appointment slots based on the staff's working hours and services for the next <b>{slotForm.duration} month{slotForm.duration > 1 ? 's' : ''}</b>.
-                  </p>
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {Object.entries(
+                      fetchedSlots.reduce((acc, slot) => {
+                        const date = slot.date;
+                        if (!acc[date]) acc[date] = [];
+                        acc[date].push(slot);
+                        return acc;
+                      }, {})
+                    ).map(([date, slots]) => (
+                      <div key={date} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                        <div className="font-bold text-black-deep text-xs mb-3 flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                          {new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {slots.slice(0, 8).map((slot) => (
+                            <div key={slot.id} className={`px-2 py-1 rounded text-[10px] font-bold border ${slot.status === 'AVAILABLE' ? 'bg-white border-green-100 text-green-700' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
+                              {slot.startTime.substring(0, 5)}
+                            </div>
+                          ))}
+                          {slots.length > 8 && (
+                            <div className="px-2 py-1 rounded text-[10px] font-bold bg-white border border-slate-100 text-slate-400">
+                              +{slots.length - 8} more
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setShowGenerateUI(true)}
+                    className="w-full py-4 border-2 border-dashed border-gold/30 rounded-2xl text-gold font-bold text-sm hover:bg-gold/5 hover:border-gold/50 transition-all flex flex-col items-center justify-center gap-2 mt-4"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
+                      <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    <span>Generate More Slots</span>
+                  </button>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 shrink-0">
-              <button type="button" className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider" onClick={() => setIsSlotModalOpen(false)}>Cancel</button>
-              <button 
-                type="button" 
-                className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50" 
-                disabled={generatingSlots}
-                onClick={handleGenerateSlots}
+              <button
+                type="button"
+                className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
+                onClick={() => {
+                  if (showGenerateUI && fetchedSlots.length > 0) {
+                    setShowGenerateUI(false);
+                  } else {
+                    setIsSlotModalOpen(false);
+                  }
+                }}
               >
-                {generatingSlots ? "Generating…" : "Generate Slots"}
+                {showGenerateUI && fetchedSlots.length > 0 ? "Back" : "Close"}
               </button>
+              {showGenerateUI && (
+                <button
+                  type="button"
+                  className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50"
+                  disabled={generatingSlots}
+                  onClick={handleGenerateSlots}
+                >
+                  {generatingSlots ? "Generating…" : "Generate Slots"}
+                </button>
+              )}
             </div>
           </div>
         </div>
