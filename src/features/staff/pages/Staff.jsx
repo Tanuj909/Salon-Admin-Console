@@ -911,7 +911,7 @@ const Staff = () => {
             </div>
 
             <div className="p-6 overflow-y-auto custom-scrollbar">
-              {assignSelectedIds.length > 0 && (
+              {availableServices.length > 0 ? (
                 <div className="space-y-2 mb-6">
                   <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Services</p>
                   <div className="grid grid-cols-1 gap-2">
@@ -931,6 +931,10 @@ const Staff = () => {
                       )
                     })}
                   </div>
+                </div>
+              ) : (
+                <div className="py-10 text-center text-secondary">
+                  <p className="text-sm">No services available. Please create services first.</p>
                 </div>
               )}
             </div>
