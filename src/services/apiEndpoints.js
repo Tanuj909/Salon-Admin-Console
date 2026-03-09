@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
   USERS: {
     GET_ALL: "/users",
     GET_BY_ID: (id) => `/users/${id}`,
+    GET_BY_EMAIL: "/users/by-email",
   },
 
   SALONS: {

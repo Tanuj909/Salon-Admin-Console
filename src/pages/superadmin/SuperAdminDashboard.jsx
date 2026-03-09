@@ -94,7 +94,7 @@ const Dashboard = () => {
               <div className="activity-item flex items-start gap-4 p-8 border-b border-gold/5 last:border-0 hover:bg-beige/30 transition-all">
                 <div className="activity-dot w-3 h-3 rounded-full mt-1.5 bg-gold shadow-[0_0_10px_rgba(200,169,81,0.5)]"></div>
                 <div>
-                  <div className="activity-text text-black-deep"><strong>Omar Farouq</strong> approved Luxe Hair Studio</div>
+                  <div className="activity-text text-black-deep"><strong>Omar Farouq</strong> approved Luxe Hair Studio </div>
                   <div className="activity-time text-xs text-secondary font-light italic mt-1">2 min ago</div>
                 </div>
               </div>

@@ -41,6 +41,8 @@ const Login = () => {
 
       if (data.role === "SUPER_ADMIN") {
         navigate("/super-admin/dashboard");
+      } else if (data.role === "RECEPTIONIST") {
+        navigate("/receptionist/dashboard");
       } else {
         navigate("/admin/dashboard");
       }

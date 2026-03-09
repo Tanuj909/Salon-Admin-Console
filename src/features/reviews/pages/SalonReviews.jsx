@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getMyBusinessApi } from "@/features/salons/services/salonService";
 import { getReviewsByBusinessApi, deleteReviewApi, updateReviewApi } from "@/features/reviews/services/reviewService";
+import { useBusiness } from "@/context/BusinessContext";
 
 const SalonReviews = () => {
+    const { businessId } = useBusiness();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [salonId, setSalonId] = useState(null);
 
     // Pagination State
     const [page, setPage] = useState(0);
@@ -32,33 +32,28 @@ const SalonReviews = () => {
     };
 
     useEffect(() => {
-        const fetchSalonAndReviews = async () => {
+        if (!businessId) return;
+        const fetchReviewsPage = async () => {
             try {
                 setLoading(true);
-                const salonData = await getMyBusinessApi();
-                if (salonData && salonData.id) {
-                    setSalonId(salonData.id);
-                    await fetchReviews(salonData.id, page);
-                } else {
-                    setError("Could not identify your salon.");
-                }
+                await fetchReviews(businessId, page);
             } catch (err) {
-                console.error("Error fetching salon data:", err);
-                setError("Failed to load salon details.");
+                console.error("Error fetching reviews:", err);
+                setError("Failed to load reviews.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchSalonAndReviews();
-    }, [page]);
+        fetchReviewsPage();
+    }, [page, businessId]);
 
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this review? This action cannot be undone.")) return;
         try {
             await deleteReviewApi(id);
             // Refresh reviews
-            fetchReviews(salonId, page);
+            fetchReviews(businessId, page);
         } catch (err) {
             console.error("Delete error:", err);
             alert("Failed to delete review.");
@@ -80,7 +75,7 @@ const SalonReviews = () => {
             setIsUpdating(true);
             await updateReviewApi(editingReview.id, editForm);
             setEditingReview(null);
-            fetchReviews(salonId, page);
+            fetchReviews(businessId, page);
         } catch (err) {
             console.error("Update error:", err);
             alert("Failed to update review.");

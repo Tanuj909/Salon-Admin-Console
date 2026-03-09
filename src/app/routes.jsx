@@ -25,29 +25,40 @@ const AppRoutes = () => {
 
         <Route path="/login" element={<Login />} />
 
-        {/* Super Admin Routes */}
-        <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
+        {/* Global Authenticated Layout */}
+        <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/super-admin/dashboard" element={<Dashboard />} />
-            <Route path="/super-admin/pending-salons" element={<PendingSalons />} />
-            <Route path="/super-admin/all-salons" element={<AllSalons />} />
-            <Route path="/super-admin/verified-salons" element={<VerifiedSalons />} />
-            <Route path="/super-admin/salons/:id" element={<SalonDetails />} />
-            <Route path="/super-admin/categories" element={<Categories />} />
-            <Route path="/super-admin/admins" element={<Admins />} />
-          </Route>
-        </Route>
 
-        {/* Admin Routes */}
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin/my-salon" element={<MyAdminSalon />} />
-            <Route path="/admin/timings" element={<BusinessTimings />} />
-            <Route path="/admin/services" element={<Services />} />
-            <Route path="/admin/staff" element={<Staff />} />
-            <Route path="/admin/reviews" element={<SalonReviews />} />
-            <Route path="/admin/bookings" element={<Bookings />} />
+            {/* Super Admin Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
+              <Route path="/super-admin/dashboard" element={<Dashboard />} />
+              <Route path="/super-admin/pending-salons" element={<PendingSalons />} />
+              <Route path="/super-admin/all-salons" element={<AllSalons />} />
+              <Route path="/super-admin/verified-salons" element={<VerifiedSalons />} />
+              <Route path="/super-admin/salons/:id" element={<SalonDetails />} />
+              <Route path="/super-admin/categories" element={<Categories />} />
+              <Route path="/super-admin/admins" element={<Admins />} />
+            </Route>
+
+            {/* Admin Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/my-salon" element={<MyAdminSalon />} />
+              <Route path="/admin/timings" element={<BusinessTimings />} />
+              <Route path="/admin/services" element={<Services />} />
+              <Route path="/admin/staff" element={<Staff />} />
+              <Route path="/admin/reviews" element={<SalonReviews />} />
+              <Route path="/admin/bookings" element={<Bookings />} />
+            </Route>
+
+            {/* Receptionist Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["RECEPTIONIST"]} />}>
+              <Route path="/receptionist/dashboard" element={<Dashboard />} />
+              <Route path="/receptionist/timings" element={<BusinessTimings />} />
+              <Route path="/receptionist/reviews" element={<SalonReviews />} />
+              <Route path="/receptionist/bookings" element={<Bookings />} />
+            </Route>
+
           </Route>
         </Route>
 

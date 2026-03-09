@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getBusinessTimingsApi, updateBusinessTimingsApi } from "../services/timingService";
-import { getMyBusinessApi } from "../services/salonService";
+import { useBusiness } from "@/context/BusinessContext";
 
 const DAYS_OF_WEEK = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
 
 const BusinessTimings = () => {
     const { user } = useAuth();
+    const { businessId } = useBusiness();
     const [salon, setSalon] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [timings, setTimings] = useState([]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (businessId) fetchData();
+    }, [businessId]);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const businessData = await getMyBusinessApi();
-            if (!businessData?.id) throw new Error("Business not found");
-
-            setSalon(businessData);
-            const timingsData = await getBusinessTimingsApi(businessData.id);
+            setSalon({ id: businessId });
+            const timingsData = await getBusinessTimingsApi(businessId);
 
             const safeTimingsData = Array.isArray(timingsData) ? timingsData : [];
             const initialTimings = DAYS_OF_WEEK.map((day) => {

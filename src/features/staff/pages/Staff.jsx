@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi, getStaffSlotsApi } from "@/features/staff/services/staffService";
-import { getMyBusinessApi } from "@/features/salons/services/salonService";
 import { getServicesByBusinessApi } from "@/features/services/services/serviceService";
+import { getUserByEmailApi } from "@/features/users/services/userService";
+import { useBusiness } from "@/context/BusinessContext";
 
 const Staff = () => {
+  const { businessId } = useBusiness();
   const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [businessId, setBusinessId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableServices, setAvailableServices] = useState([]);
+  const [servicesLoaded, setServicesLoaded] = useState(false);
 
   const [form, setForm] = useState({
     designation: "",
@@ -23,6 +25,30 @@ const Staff = () => {
     serviceIds: [],
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Email lookup state
+  const [lookupEmail, setLookupEmail] = useState("");
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupUser, setLookupUser] = useState(null);
+  const [lookupError, setLookupError] = useState("");
+
+  const handleEmailLookup = async () => {
+    if (!lookupEmail.trim()) return;
+    try {
+      setLookupLoading(true);
+      setLookupError("");
+      setLookupUser(null);
+      const userData = await getUserByEmailApi(lookupEmail.trim());
+      setLookupUser(userData);
+      setForm(prev => ({ ...prev, userId: String(userData.id) }));
+    } catch (err) {
+      console.error("Email lookup error", err);
+      setLookupError("No user found with this email. Please check and try again.");
+      setForm(prev => ({ ...prev, userId: "" }));
+    } finally {
+      setLookupLoading(false);
+    }
+  };
 
   // Update staff state
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -41,20 +67,17 @@ const Staff = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => { fetchStaffAndBusiness(); }, [currentPage]);
+  useEffect(() => { if (businessId) fetchStaffAndBusiness(); }, [currentPage, businessId]);
 
   const fetchStaffAndBusiness = async () => {
     try {
       setLoading(true);
-      let bId = businessId;
-      if (!bId) {
-        const business = await getMyBusinessApi();
-        bId = business.id;
-        setBusinessId(bId);
-        const servicesData = await getServicesByBusinessApi(bId, 0, 100);
+      if (!servicesLoaded) {
+        const servicesData = await getServicesByBusinessApi(businessId, 0, 100);
         setAvailableServices(servicesData.content || []);
+        setServicesLoaded(true);
       }
-      const data = await getStaffByBusinessApi(bId, currentPage, 10);
+      const data = await getStaffByBusinessApi(businessId, currentPage, 10);
       setStaffList(data.body?.content || data.content || []);
       setTotalPages(data.body?.totalPages || data.totalPages || 0);
     } catch (err) {
@@ -101,6 +124,9 @@ const Staff = () => {
       });
       setIsModalOpen(false);
       setForm({ designation: "", bio: "", commission: 10.0, isAvailable: true, workStartTime: "09:00", workEndTime: "18:00", weeklyOffDays: ["SUNDAY"], role: "STAFF", userId: "", serviceIds: [] });
+      setLookupEmail("");
+      setLookupUser(null);
+      setLookupError("");
       fetchStaffAndBusiness();
     } catch (err) {
       alert("Failed to create staff member");
@@ -559,13 +585,67 @@ const Staff = () => {
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto flex flex-col custom-scrollbar">
               <div className="p-6 space-y-6 flex-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">User ID</label>
-                    <input type="number" name="userId" value={form.userId} onChange={handleChange} required className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" placeholder="e.g. 4" />
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Find User by Email</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={lookupEmail}
+                        onChange={(e) => setLookupEmail(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleEmailLookup())}
+                        className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
+                        placeholder="Enter user email address"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleEmailLookup}
+                        disabled={lookupLoading || !lookupEmail.trim()}
+                        className="px-5 py-3 bg-black-deep text-white font-bold rounded-xl text-xs uppercase tracking-wider hover:bg-black transition-colors disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {lookupLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Searching…
+                          </div>
+                        ) : "Search"}
+                      </button>
+                    </div>
+
+                    {lookupError && (
+                      <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                        <span className="text-red-600 text-xs font-bold">{lookupError}</span>
+                      </div>
+                    )}
+
+                    {lookupUser && (
+                      <div className="flex items-center gap-4 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+                        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center font-bold text-sm text-gold overflow-hidden shrink-0">
+                          {lookupUser.profileImageUrl
+                            ? <img src={lookupUser.profileImageUrl} alt={lookupUser.fullName} className="w-full h-full object-cover" />
+                            : getInitials(lookupUser.fullName)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-black-deep text-sm truncate">{lookupUser.fullName}</div>
+                          <div className="text-[11px] text-secondary">{lookupUser.email} · <span className="text-gold font-bold">{lookupUser.role}</span></div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                          <span className="text-green-700 text-[10px] font-bold uppercase tracking-wider">Verified</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Designation</label>
                     <input type="text" name="designation" value={form.designation} onChange={handleChange} required className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" placeholder="e.g. Senior Hair Stylist" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Role</label>
+                    <select name="role" value={form.role} onChange={handleChange} required className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep appearance-none cursor-pointer">
+                      <option value="STAFF">Staff</option>
+                      <option value="RECEPTIONIST">Receptionist</option>
+                    </select>
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Biography</label>

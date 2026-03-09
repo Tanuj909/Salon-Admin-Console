@@ -940,7 +940,6 @@
 
 
 import { useState, useEffect } from "react";
-import { getMyBusinessApi } from "@/features/salons/services/salonService";
 import {
   getBookingsByBusinessApi,
   acceptBookingApi,
@@ -949,12 +948,13 @@ import {
 } from "@/features/bookings/services/bookingService";
 import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from "@/features/staff/services/staffService";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useBusiness } from "@/context/BusinessContext";
 
 const Bookings = () => {
   const { user } = useAuth();
+  const { businessId } = useBusiness();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [businessId, setBusinessId] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
@@ -994,21 +994,14 @@ const Bookings = () => {
   const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
-    fetchMyBusinessAndBookings();
-  }, [currentPage, sortOrder]);
+    if (businessId) fetchMyBusinessAndBookings();
+  }, [currentPage, sortOrder, businessId]);
 
   const fetchMyBusinessAndBookings = async () => {
     try {
       setLoading(true);
-      let bId = businessId;
-      if (!bId) {
-        const business = await getMyBusinessApi();
-        bId = business.id;
-        setBusinessId(bId);
-      }
-
       const sortParam = `bookingDate,${sortOrder}`;
-      const data = await getBookingsByBusinessApi(bId, currentPage, 10, sortParam);
+      const data = await getBookingsByBusinessApi(businessId, currentPage, 10, sortParam);
       setBookings(data.content || []);
       setTotalPages(data.totalPages || 0);
       setTotalElements(data.totalElements || 0);
@@ -1188,13 +1181,13 @@ const Bookings = () => {
 
     setIsRescheduling(true);
     try {
-const payload = {
-  status: selectedBooking.status, // keep same status
-  reason: rescheduleData.reason,
-  alternativeStaffId: parseInt(rescheduleData.alternativeStaffId, 10),
-  alternativeDate: rescheduleData.alternativeDate,
-  alternativeStartTime: rescheduleData.alternativeStartTime
-};
+      const payload = {
+        status: selectedBooking.status, // keep same status
+        reason: rescheduleData.reason,
+        alternativeStaffId: parseInt(rescheduleData.alternativeStaffId, 10),
+        alternativeDate: rescheduleData.alternativeDate,
+        alternativeStartTime: rescheduleData.alternativeStartTime
+      };
       await rescheduleBookingApi(selectedBooking.id, payload);
       setIsRescheduleModalOpen(false);
       fetchMyBusinessAndBookings();

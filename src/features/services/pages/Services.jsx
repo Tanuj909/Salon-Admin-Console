@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { getServicesByBusinessApi, createServiceApi, updateServiceApi, deleteServiceApi } from "@/features/services/services/serviceService";
-import { getMyBusinessApi } from "@/features/salons/services/salonService";
+import { useBusiness } from "@/context/BusinessContext";
 
 const Services = () => {
+  const { businessId } = useBusiness();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [businessId, setBusinessId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Create service form state
@@ -55,20 +55,13 @@ const Services = () => {
 
 
   useEffect(() => {
-    fetchMyBusinessAndServices();
-  }, [currentPage]);
+    if (businessId) fetchMyBusinessAndServices();
+  }, [currentPage, businessId]);
 
   const fetchMyBusinessAndServices = async () => {
     try {
       setLoading(true);
-      let bId = businessId;
-      if (!bId) {
-        const business = await getMyBusinessApi();
-        bId = business.id;
-        setBusinessId(bId);
-      }
-
-      const data = await getServicesByBusinessApi(bId, currentPage, 10);
+      const data = await getServicesByBusinessApi(businessId, currentPage, 10);
       setServices(data.content || []);
       setTotalPages(data.totalPages || 0);
       setTotalElements(data.totalElements || 0);
