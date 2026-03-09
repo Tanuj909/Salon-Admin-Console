@@ -8,6 +8,7 @@
 // } from "@/features/bookings/services/bookingService";
 // import { getStaffByServiceApi, getStaffSlotsApi } from "@/features/staff/services/staffService";
 // import { useAuth } from "@/features/auth/hooks/useAuth";
+
 // const Bookings = () => {
 //   const { user } = useAuth();
 //   const [bookings, setBookings] = useState([]);
@@ -240,13 +241,13 @@
 
 //     setIsRescheduling(true);
 //     try {
-//       const payload = {
-//         status: "RESCHEDULED",
-//         reason: rescheduleData.reason,
-//         alternativeStaffId: parseInt(rescheduleData.alternativeStaffId, 10),
-//         alternativeDate: rescheduleData.alternativeDate,
-//         alternativeStartTime: rescheduleData.alternativeStartTime
-//       };
+// const payload = {
+//   status: selectedBooking.status, // keep same status
+//   reason: rescheduleData.reason,
+//   alternativeStaffId: parseInt(rescheduleData.alternativeStaffId, 10),
+//   alternativeDate: rescheduleData.alternativeDate,
+//   alternativeStartTime: rescheduleData.alternativeStartTime
+// };
 //       await rescheduleBookingApi(selectedBooking.id, payload);
 //       setIsRescheduleModalOpen(false);
 //       fetchMyBusinessAndBookings();
@@ -324,7 +325,7 @@
 //             <option value="BROADCASTED">Broadcasted</option>
 //             <option value="COMPLETED">Completed</option>
 //             <option value="CANCELLED">Cancelled</option>
-//             <option value="RESCHEDULED">Rescheduled</option>
+//             {/* <option value="RESCHEDULED">Rescheduled</option> */}
 //           </select>
 
 //           <select
@@ -580,9 +581,9 @@
 //         )}
 //       </main>
 
-//       {/* Accept Booking Modal */}
+//       {/* Accept Booking Modal - Fixed z-index */}
 //       {isAcceptModalOpen && (
-//         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isAccepting && setIsAcceptModalOpen(false)}>
+//         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity" onClick={() => !isAccepting && setIsAcceptModalOpen(false)}>
 //           <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
 //             <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
 //               <h3 className="font-display text-2xl italic text-black-deep">Accept Booking</h3>
@@ -707,184 +708,184 @@
 //             </form>
 //           </div>
 //         </div>
-//       )
-//       }
+//       )}
 
-//       {/* Reject Booking Modal */}
-//       {
-//         isRejectModalOpen && (
-//           <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isRejecting && setIsRejectModalOpen(false)}>
-//             <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
-//               <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
-//                 <h3 className="font-display text-2xl italic text-black-deep">Reject Booking</h3>
+//       {/* Reject Booking Modal - Fixed z-index */}
+//       {isRejectModalOpen && (
+//         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity" onClick={() => !isRejecting && setIsRejectModalOpen(false)}>
+//           <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+//             <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+//               <h3 className="font-display text-2xl italic text-black-deep">Reject Booking</h3>
+//               <button
+//                 className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
+//                 onClick={() => setIsRejectModalOpen(false)}
+//                 disabled={isRejecting}
+//               >
+//                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+//               </button>
+//             </div>
+
+//             <form onSubmit={handleRejectBooking}>
+//               <div className="px-6 py-6 space-y-4">
+//                 <div className="space-y-2">
+//                   <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Rejection Reason</label>
+//                   <textarea
+//                     className="w-full mt-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all text-black-deep placeholder:text-slate-400 resize-none h-28"
+//                     placeholder="e.g. Staff not available, out of operational hours..."
+//                     value={rejectReason}
+//                     onChange={(e) => setRejectReason(e.target.value)}
+//                     required
+//                     disabled={isRejecting}
+//                   />
+//                 </div>
+//               </div>
+//               <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
 //                 <button
-//                   className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
+//                   type="button"
+//                   className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
 //                   onClick={() => setIsRejectModalOpen(false)}
 //                   disabled={isRejecting}
 //                 >
-//                   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+//                   Cancel
 //                 </button>
-//               </div>
-
-//               <form onSubmit={handleRejectBooking}>
-//                 <div className="px-6 py-6 space-y-4">
-//                   <div className="space-y-2">
-//                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Rejection Reason</label>
-//                     <textarea
-//                       className="w-full mt-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all text-black-deep placeholder:text-slate-400 resize-none h-28"
-//                       placeholder="e.g. Staff not available, out of operational hours..."
-//                       value={rejectReason}
-//                       onChange={(e) => setRejectReason(e.target.value)}
-//                       required
-//                       disabled={isRejecting}
-//                     />
-//                   </div>
-//                 </div>
-//                 <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-//                   <button
-//                     type="button"
-//                     className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
-//                     onClick={() => setIsRejectModalOpen(false)}
-//                     disabled={isRejecting}
-//                   >
-//                     Cancel
-//                   </button>
-//                   <button
-//                     type="submit"
-//                     className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-//                     disabled={isRejecting || !rejectReason.trim()}
-//                   >
-//                     {isRejecting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-//                     {isRejecting ? 'Rejecting...' : 'Reject Booking'}
-//                   </button>
-//                 </div>
-//               </form>
-//             </div>
-//           </div>
-//         )
-//       }
-
-//       {/* Reschedule Booking Modal */}
-//       {
-//         isRescheduleModalOpen && (
-//           <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" onClick={() => !isRescheduling && setIsRescheduleModalOpen(false)}>
-//             <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
-//               <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
-//                 <h3 className="font-display text-2xl italic text-black-deep">Reschedule Booking</h3>
 //                 <button
-//                   className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
-//                   onClick={() => setIsRescheduleModalOpen(false)}
-//                   disabled={isRescheduling}
+//                   type="submit"
+//                   className="px-5 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/20 transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+//                   disabled={isRejecting || !rejectReason.trim()}
 //                 >
-//                   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+//                   {isRejecting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+//                   {isRejecting ? 'Rejecting...' : 'Reject Booking'}
 //                 </button>
 //               </div>
+//             </form>
+//           </div>
+//         </div>
+//       )}
 
-//               <form onSubmit={handleRescheduleBooking}>
-//                 <div className="px-6 py-6 space-y-5">
-//                   <div className="space-y-2">
-//                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Reason for Rescheduling</label>
-//                     <input
-//                       type="text"
-//                       className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep placeholder:text-slate-400"
-//                       placeholder="e.g. Staff unavailable, Client request..."
-//                       value={rescheduleData.reason}
-//                       onChange={(e) => setRescheduleData({ ...rescheduleData, reason: e.target.value })}
-//                       required
-//                       disabled={isRescheduling}
-//                     />
-//                   </div>
+//       {/* Reschedule Booking Modal - Fixed z-index */}
+//       {isRescheduleModalOpen && (
+//         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity" onClick={() => !isRescheduling && setIsRescheduleModalOpen(false)}>
+//           <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+//             <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+//               <h3 className="font-display text-2xl italic text-black-deep">Reschedule Booking</h3>
+//               <button
+//                 className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
+//                 onClick={() => setIsRescheduleModalOpen(false)}
+//                 disabled={isRescheduling}
+//               >
+//                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+//               </button>
+//             </div>
 
-//                   <div className="space-y-2">
-//                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Alternative Staff</label>
-//                     {staffLoading ? (
+//             <form onSubmit={handleRescheduleBooking}>
+//               <div className="px-6 py-6 space-y-5">
+//                 <div className="space-y-2">
+//                   <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Reason for Rescheduling</label>
+//                   <input
+//                     type="text"
+//                     className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep placeholder:text-slate-400"
+//                     placeholder="e.g. Staff unavailable, Client request..."
+//                     value={rescheduleData.reason}
+//                     onChange={(e) => setRescheduleData({ ...rescheduleData, reason: e.target.value })}
+//                     required
+//                     disabled={isRescheduling}
+//                   />
+//                 </div>
+
+//                 <div className="space-y-2">
+//                   <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Alternative Staff</label>
+//                   {staffLoading ? (
+//                     <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+//                       <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-2"></div>
+//                       <span className="text-xs text-secondary font-medium tracking-wide">Assigning experts...</span>
+//                     </div>
+//                   ) : eligibleStaff.length === 0 ? (
+//                     <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-xs text-center">
+//                       No staff members found for this service.
+//                     </div>
+//                   ) : (
+//                     <div className="space-y-2 max-h-[160px] overflow-y-auto px-1 py-1 custom-scrollbar">
+//                       {eligibleStaff.map(staff => (
+//                         <div
+//                           key={staff.id}
+//                           onClick={() => !isRescheduling && setRescheduleData({ ...rescheduleData, alternativeStaffId: staff.id.toString() })}
+//                           className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${rescheduleData.alternativeStaffId === staff.id.toString()
+//                             ? 'border-gold bg-gold/5'
+//                             : 'border-slate-100 bg-white hover:border-gold/20 hover:bg-slate-50'
+//                             }`}
+//                         >
+//                           <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-gold font-bold text-sm shrink-0">
+//                             {staff.userFullName?.charAt(0)}
+//                           </div>
+//                           <div className="flex-1 min-w-0">
+//                             <h4 className="font-bold text-black-deep text-[13px] truncate uppercase tracking-tight">{staff.userFullName}</h4>
+//                             <p className="text-[10px] text-secondary font-medium uppercase tracking-wider truncate">{staff.designation}</p>
+//                           </div>
+//                           {rescheduleData.alternativeStaffId === staff.id.toString() && (
+//                             <div className="w-4 h-4 rounded-full bg-gold flex items-center justify-center">
+//                               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+//                             </div>
+//                           )}
+//                         </div>
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+
+//                 {/* Slot Picker — shown after staff is selected */}
+//                 {rescheduleData.alternativeStaffId && (
+//                   <div className="space-y-3">
+//                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Pick a Slot</label>
+
+//                     {slotsLoading ? (
 //                       <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
 //                         <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-2"></div>
-//                         <span className="text-xs text-secondary font-medium tracking-wide">Assigning experts...</span>
+//                         <span className="text-xs text-secondary font-medium">Fetching available slots...</span>
 //                       </div>
-//                     ) : eligibleStaff.length === 0 ? (
+//                     ) : Object.keys(slotsByDate).length === 0 ? (
 //                       <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-xs text-center">
-//                         No staff members found for this service.
+//                         No available slots found for the next 3 days.
 //                       </div>
 //                     ) : (
-//                       <div className="space-y-2 max-h-[160px] overflow-y-auto px-1 py-1 custom-scrollbar">
-//                         {eligibleStaff.map(staff => (
-//                           <div
-//                             key={staff.id}
-//                             onClick={() => !isRescheduling && setRescheduleData({ ...rescheduleData, alternativeStaffId: staff.id.toString() })}
-//                             className={`p-3 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-3 ${rescheduleData.alternativeStaffId === staff.id.toString()
-//                               ? 'border-gold bg-gold/5'
-//                               : 'border-slate-100 bg-white hover:border-gold/20 hover:bg-slate-50'
-//                               }`}
-//                           >
-//                             <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-gold font-bold text-sm shrink-0">
-//                               {staff.userFullName?.charAt(0)}
-//                             </div>
-//                             <div className="flex-1 min-w-0">
-//                               <h4 className="font-bold text-black-deep text-[13px] truncate uppercase tracking-tight">{staff.userFullName}</h4>
-//                               <p className="text-[10px] text-secondary font-medium uppercase tracking-wider truncate">{staff.designation}</p>
-//                             </div>
-//                             {rescheduleData.alternativeStaffId === staff.id.toString() && (
-//                               <div className="w-4 h-4 rounded-full bg-gold flex items-center justify-center">
-//                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-//                               </div>
-//                             )}
-//                           </div>
-//                         ))}
-//                       </div>
-//                     )}
-//                   </div>
-
-//                   {/* Slot Picker — shown after staff is selected */}
-//                   {rescheduleData.alternativeStaffId && (
-//                     <div className="space-y-3">
-//                       <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Pick a Slot</label>
-
-//                       {slotsLoading ? (
-//                         <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-//                           <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-2"></div>
-//                           <span className="text-xs text-secondary font-medium">Fetching available slots...</span>
+//                       <div className="space-y-3">
+//                         {/* Date Tabs */}
+//                         <div className="flex gap-2 overflow-x-auto pb-1">
+//                           {Object.keys(slotsByDate).sort().map(date => {
+//                             const d = new Date(date);
+//                             const today = new Date();
+//                             today.setHours(0, 0, 0, 0);
+//                             const isToday = d.toDateString() === today.toDateString();
+//                             return (
+//                               <button
+//                                 key={date}
+//                                 type="button"
+//                                 onClick={() => {
+//                                   setSelectedSlotDate(date);
+//                                   setRescheduleData(prev => ({ ...prev, alternativeDate: date, alternativeStartTime: "" }));
+//                                 }}
+//                                 className={`shrink-0 px-4 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border-2 transition-all ${selectedSlotDate === date
+//                                   ? 'bg-black-deep text-gold border-black-deep shadow-sm'
+//                                   : 'bg-white text-secondary border-slate-100 hover:border-gold/30'
+//                                   }`}
+//                               >
+//                                 {isToday ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+//                               </button>
+//                             );
+//                           })}
 //                         </div>
-//                       ) : Object.keys(slotsByDate).length === 0 ? (
-//                         <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-xs text-center">
-//                           No available slots found for the next 3 days.
-//                         </div>
-//                       ) : (
-//                         <div className="space-y-3">
-//                           {/* Date Tabs */}
-//                           <div className="flex gap-2 overflow-x-auto pb-1">
-//                             {Object.keys(slotsByDate).sort().map(date => {
-//                               const d = new Date(date);
-//                               const today = new Date();
-//                               today.setHours(0, 0, 0, 0);
-//                               const isToday = d.toDateString() === today.toDateString();
-//                               return (
-//                                 <button
-//                                   key={date}
-//                                   type="button"
-//                                   onClick={() => {
-//                                     setSelectedSlotDate(date);
-//                                     setRescheduleData(prev => ({ ...prev, alternativeDate: date, alternativeStartTime: "" }));
-//                                   }}
-//                                   className={`shrink-0 px-4 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-widest border-2 transition-all ${selectedSlotDate === date
-//                                     ? 'bg-black-deep text-gold border-black-deep shadow-sm'
-//                                     : 'bg-white text-secondary border-slate-100 hover:border-gold/30'
-//                                     }`}
-//                                 >
-//                                   {isToday ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
-//                                 </button>
-//                               );
-//                             })}
-//                           </div>
 
-//                           {/* Time Pills for selected date */}
-//                           {selectedSlotDate && slotsByDate[selectedSlotDate]?.length > 0 ? (
+//                         {/* Time Pills for selected date - NOW SCROLLABLE */}
+//                         {selectedSlotDate && slotsByDate[selectedSlotDate]?.length > 0 ? (
+//                           <div className="max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
 //                             <div className="grid grid-cols-4 gap-2">
 //                               {slotsByDate[selectedSlotDate].map(time => (
 //                                 <button
 //                                   key={time}
 //                                   type="button"
-//                                   onClick={() => setRescheduleData(prev => ({ ...prev, alternativeStartTime: time }))}
+//                                   onClick={() => {
+//                                     console.log('Time selected:', time);
+//                                     setRescheduleData(prev => ({ ...prev, alternativeStartTime: time }));
+//                                   }}
 //                                   className={`py-2 px-1 text-[11px] font-bold rounded-xl border-2 transition-all ${rescheduleData.alternativeStartTime === time
 //                                     ? 'bg-gold text-black-deep border-gold shadow-sm'
 //                                     : 'bg-white text-slate-600 border-slate-100 hover:border-gold/40 hover:bg-gold/5'
@@ -894,49 +895,49 @@
 //                                 </button>
 //                               ))}
 //                             </div>
-//                           ) : (
-//                             <div className="text-xs text-center text-secondary py-3 italic">No slots on this day.</div>
-//                           )}
-//                         </div>
-//                       )}
-//                     </div>
-//                   )}
-//                 </div>
-//                 <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-//                   <button
-//                     type="button"
-//                     className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
-//                     onClick={() => setIsRescheduleModalOpen(false)}
-//                     disabled={isRescheduling}
-//                   >
-//                     Cancel
-//                   </button>
-//                   <button
-//                     type="submit"
-//                     className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-//                     disabled={
-//                       isRescheduling ||
-//                       !rescheduleData.reason ||
-//                       !rescheduleData.alternativeStaffId ||
-//                       !rescheduleData.alternativeDate ||
-//                       !rescheduleData.alternativeStartTime
-//                     }
-//                   >
-//                     {isRescheduling && <div className="w-4 h-4 border-2 border-black-deep/30 border-t-black-deep rounded-full animate-spin"></div>}
-//                     {isRescheduling ? 'Rescheduling...' : 'Reschedule'}
-//                   </button>
-//                 </div>
-//               </form>
-//             </div>
+//                           </div>
+//                         ) : (
+//                           <div className="text-xs text-center text-secondary py-3 italic">No slots on this day.</div>
+//                         )}
+//                       </div>
+//                     )}
+//                   </div>
+//                 )}
+//               </div>
+//               <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+//                 <button
+//                   type="button"
+//                   className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-wider"
+//                   onClick={() => setIsRescheduleModalOpen(false)}
+//                   disabled={isRescheduling}
+//                 >
+//                   Cancel
+//                 </button>
+//                 <button
+//                   type="submit"
+//                   className="px-5 py-2.5 text-sm font-bold text-black-deep bg-gold rounded-xl hover:bg-gold/80 hover:shadow-lg transition-all uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+//                   disabled={
+//                     isRescheduling ||
+//                     !rescheduleData.reason ||
+//                     !rescheduleData.alternativeStaffId ||
+//                     !rescheduleData.alternativeDate ||
+//                     !rescheduleData.alternativeStartTime
+//                   }
+//                 >
+//                   {isRescheduling && <div className="w-4 h-4 border-2 border-black-deep/30 border-t-black-deep rounded-full animate-spin"></div>}
+//                   {isRescheduling ? 'Rescheduling...' : 'Reschedule Booking'}
+//                 </button>
+//               </div>
+//             </form>
 //           </div>
-//         )
-//       }
-
-//     </div >
+//         </div>
+//       )}
+//     </div>
 //   );
 // };
 
 // export default Bookings;
+
 
 import { useState, useEffect } from "react";
 import { getMyBusinessApi } from "@/features/salons/services/salonService";
@@ -946,7 +947,7 @@ import {
   rejectBookingApi,
   rescheduleBookingApi
 } from "@/features/bookings/services/bookingService";
-import { getStaffByServiceApi, getStaffSlotsApi } from "@/features/staff/services/staffService";
+import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from "@/features/staff/services/staffService";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const Bookings = () => {
@@ -1026,13 +1027,19 @@ const Bookings = () => {
     setEligibleStaff([]);
 
     try {
-      if (booking.services && booking.services.length > 0) {
-        const serviceId = booking.services[0].id;
-        const staffList = await getStaffByServiceApi(serviceId);
-        setEligibleStaff(staffList);
+      const targetStaffId = booking.staff?.id || booking.staffId;
+      if (targetStaffId) {
+        const res = await getStaffByIdApi(targetStaffId);
+        const staff = res?.body || res;
+        setEligibleStaff(staff ? [staff] : []);
+        if (staff && staff.id) {
+          setSelectedStaffId(staff.id.toString());
+        }
+      } else {
+        console.warn("No staff assigned or requested for this booking yet.", booking);
       }
     } catch (error) {
-      console.error("Error fetching staff for service:", error);
+      console.error("Error fetching staff by ID:", error);
     } finally {
       setStaffLoading(false);
     }
@@ -1539,7 +1546,7 @@ const payload = {
             <form onSubmit={handleAcceptBooking}>
               <div className="px-6 py-6 space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Assign Staff Member</label>
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Assigned Expert</label>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm">
                     <span className="text-secondary mr-2">Required Service:</span>
                     <span className="font-bold text-black-deep">{selectedBooking?.services?.[0]?.name || 'N/A'}</span>
@@ -1548,21 +1555,20 @@ const payload = {
                   {staffLoading ? (
                     <div className="py-12 text-center text-secondary text-sm flex flex-col items-center justify-center gap-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                       <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin"></div>
-                      <span className="font-medium">Finding available experts...</span>
+                      <span className="font-medium">Fetching assigned expert...</span>
                     </div>
                   ) : eligibleStaff.length === 0 ? (
                     <div className="text-red-500 text-xs mt-2 bg-red-50 p-4 rounded-2xl border border-red-100 flex flex-col items-center text-center gap-2">
                       <svg className="w-8 h-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       <p className="font-bold">No Staff Found</p>
-                      <p>There are no staff members currently assigned to {selectedBooking?.services?.[0]?.name || 'this service'}.</p>
+                      <p>There is no staff assigned to this booking yet.</p>
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-[320px] overflow-y-auto px-1 py-1 custom-scrollbar">
                       {eligibleStaff.map(staff => (
                         <div
-                          key={staff.id}
-                          onClick={() => !isAccepting && setSelectedStaffId(staff.id.toString())}
-                          className={`group relative p-4 rounded-2xl border-2 transition-all cursor-pointer flex gap-4 ${selectedStaffId === staff.id.toString()
+                          key={staff.id || 'staff-assigned'}
+                          className={`group relative p-4 rounded-2xl border-2 transition-all flex gap-4 ${selectedStaffId && staff.id && selectedStaffId === staff.id.toString()
                             ? 'border-gold bg-gold/5 shadow-md shadow-gold/10'
                             : 'border-slate-100 bg-white hover:border-gold/30 hover:bg-slate-50'
                             } ${!staff.isAvailable ? 'opacity-70' : ''}`}
@@ -1570,10 +1576,10 @@ const payload = {
                           {/* Staff Avatar */}
                           <div className="relative shrink-0">
                             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gold/10 to-gold/30 flex items-center justify-center text-gold overflow-hidden border border-gold/10">
-                              {staff.userProfileImageUrl ? (
-                                <img src={staff.userProfileImageUrl} alt={staff.userFullName} className="w-full h-full object-cover" />
+                              {(staff.userProfileImageUrl || staff.profileImageUrl) ? (
+                                <img src={staff.userProfileImageUrl || staff.profileImageUrl} alt={staff.userFullName || staff.fullName} className="w-full h-full object-cover" />
                               ) : (
-                                <span className="text-lg font-bold">{staff.userFullName?.charAt(0)}</span>
+                                <span className="text-lg font-bold">{(staff.userFullName || staff.fullName)?.charAt(0)}</span>
                               )}
                             </div>
                             {staff.isAvailable ? (
@@ -1587,7 +1593,7 @@ const payload = {
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
                               <div>
-                                <h4 className="font-bold text-black-deep text-sm truncate uppercase tracking-tight">{staff.userFullName}</h4>
+                                <h4 className="font-bold text-black-deep text-sm truncate uppercase tracking-tight">{staff.userFullName || staff.fullName}</h4>
                                 <p className="text-[11px] text-secondary font-medium uppercase tracking-wider">{staff.designation}</p>
                               </div>
                               {staff.averageRating && (
@@ -1613,11 +1619,9 @@ const payload = {
                                 <span className="text-xs font-bold text-black-deep">{staff.serviceCount || '1'}</span>
                               </div>
                               <div className="ml-auto">
-                                {selectedStaffId === staff.id.toString() && (
-                                  <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center animate-in zoom-in-50 duration-200">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                                  </div>
-                                )}
+                                <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center">
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1642,7 +1646,7 @@ const payload = {
                   disabled={isAccepting || !selectedStaffId}
                 >
                   {isAccepting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-                  {isAccepting ? 'Accepting...' : 'Assign & Accept'}
+                  {isAccepting ? 'Accepting...' : 'Accept Booking'}
                 </button>
               </div>
             </form>
@@ -1877,3 +1881,5 @@ const payload = {
 };
 
 export default Bookings;
+
+
