@@ -38,3 +38,13 @@ export const processPaymentApi = async (payload) => {
     const response = await axiosInstance.post(API_ENDPOINTS.PAYMENTS.PROCESS, payload);
     return response.data;
 };
+
+export const getBillDetailsApi = async (bookingNumber) => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PAYMENTS.GET_BILL(bookingNumber));
+    return response.data;
+};
+
+export const updateBookingStatusApi = async (bookingId, status) => {
+    const response = await axiosInstance.put(API_ENDPOINTS.BOOKINGS.UPDATE_STATUS(bookingId, status));
+    return response.data;
+};

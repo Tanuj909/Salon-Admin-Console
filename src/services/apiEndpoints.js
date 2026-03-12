@@ -62,6 +62,7 @@ export const API_ENDPOINTS = {
     ACCEPT: (bookingId, staffId) => `/bookings/${bookingId}/accept?staffId=${staffId}`,
     REJECT: (bookingId) => `/bookings/${bookingId}/reject`,
     RESCHEDULE: (bookingId) => `/bookings/${bookingId}/reschedule`,
+    UPDATE_STATUS: (bookingId, status) => `/bookings/staff/${bookingId}/status?status=${status}`,
   },
   TIMINGS: {
     GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,
@@ -70,5 +71,6 @@ export const API_ENDPOINTS = {
   PAYMENTS: {
     GET_BOOKING_DETAILS: (bookingNumber) => `/payments/booking/${bookingNumber}`,
     PROCESS: "/payments/process",
+    GET_BILL: (bookingNumber) => `/payments/bill/${bookingNumber}`,
   },
 };
