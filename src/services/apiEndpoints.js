@@ -67,4 +67,8 @@ export const API_ENDPOINTS = {
     GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,
     UPDATE_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,
   },
+  PAYMENTS: {
+    GET_BOOKING_DETAILS: (bookingNumber) => `/payments/booking/${bookingNumber}`,
+    PROCESS: "/payments/process",
+  },
 };

@@ -28,3 +28,13 @@ export const rescheduleBookingApi = async (bookingId, payload) => {
     const response = await axiosInstance.put(API_ENDPOINTS.BOOKINGS.RESCHEDULE(bookingId), payload);
     return response.data;
 };
+
+export const getBookingDetailsByNumberApi = async (bookingNumber) => {
+    const response = await axiosInstance.get(API_ENDPOINTS.PAYMENTS.GET_BOOKING_DETAILS(bookingNumber));
+    return response.data;
+};
+
+export const processPaymentApi = async (payload) => {
+    const response = await axiosInstance.post(API_ENDPOINTS.PAYMENTS.PROCESS, payload);
+    return response.data;
+};

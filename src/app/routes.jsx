@@ -15,6 +15,7 @@ import Staff from "@/features/staff/pages/Staff";
 import Admins from "@/features/users/pages/Admins";
 import SalonReviews from "@/features/reviews/pages/SalonReviews";
 import Bookings from "@/features/bookings/pages/Bookings";
+import CompleteBooking from "@/features/bookings/pages/CompleteBooking";
 
 const AppRoutes = () => {
   return (
@@ -49,6 +50,7 @@ const AppRoutes = () => {
               <Route path="/admin/staff" element={<Staff />} />
               <Route path="/admin/reviews" element={<SalonReviews />} />
               <Route path="/admin/bookings" element={<Bookings />} />
+              <Route path="/admin/complete-booking" element={<CompleteBooking />} />
             </Route>
 
             {/* Receptionist Routes */}
@@ -57,6 +59,7 @@ const AppRoutes = () => {
               <Route path="/receptionist/timings" element={<BusinessTimings />} />
               <Route path="/receptionist/reviews" element={<SalonReviews />} />
               <Route path="/receptionist/bookings" element={<Bookings />} />
+              <Route path="/receptionist/complete-booking" element={<CompleteBooking />} />
             </Route>
 
           </Route>
