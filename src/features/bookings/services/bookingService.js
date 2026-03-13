@@ -48,3 +48,14 @@ export const updateBookingStatusApi = async (bookingId, status) => {
     const response = await axiosInstance.put(API_ENDPOINTS.BOOKINGS.UPDATE_STATUS(bookingId, status));
     return response.data;
 };
+
+export const getMyBookingsApi = async (page = 0, size = 20, sort = 'bookingDate,desc') => {
+    const response = await axiosInstance.get(API_ENDPOINTS.BOOKINGS.MY, {
+        params: {
+            page,
+            size,
+            sort
+        }
+    });
+    return response.data;
+};

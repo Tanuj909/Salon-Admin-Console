@@ -120,8 +120,8 @@ const CompleteBooking = () => {
     const sc = booking ? statusColor(booking.status) : {};
 
     return (
-        <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-            <main className="mx-auto pb-12 pt-6 bg-transparent max-w-5xl px-6">
+        <div className="w-full font-jost min-h-[calc(100vh-80px)]">
+            <main className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px]">
 
                 {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
@@ -285,30 +285,44 @@ const CompleteBooking = () => {
 
                                         {/* Action Button */}
                                         <div className="mt-3 space-y-2">
-                                            {paymentSuccess ? (
-                                                <div className="w-full py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-xl font-bold uppercase tracking-widest text-[9px] text-center flex items-center justify-center gap-1.5">
+                                            {/* Generate Bill Button - Always Visible */}
+                                            <button
+                                                disabled={!billData?.payments?.length && !paymentSuccess}
+                                                onClick={() => setShowBillModal(true)}
+                                                className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${(billData?.payments?.length > 0 || paymentSuccess)
+                                                    ? "bg-black-deep text-gold hover:shadow-lg active:scale-[0.98]"
+                                                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                                    }`}
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                Generate Bill
+                                            </button>
+
+                                            <div className="h-px bg-slate-100 my-1"></div>
+
+                                            {/* Status specific buttons/badges */}
+                                            {booking.status === 'COMPLETED' ? (
+                                                <div className="w-full py-2.5 bg-slate-50 border border-slate-200 text-slate-400 rounded-xl font-bold uppercase tracking-widest text-[9px] text-center flex items-center justify-center gap-1.5">
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
-                                                    Settled
+                                                    Already Settled & Completed
                                                 </div>
-                                            ) : booking.status === 'COMPLETED' ? (
-                                                <div className="w-full py-2.5 bg-slate-50 border border-slate-200 text-slate-400 rounded-xl font-bold uppercase tracking-widest text-[9px] text-center">
-                                                    Already Settled
+                                            ) : paymentSuccess ? (
+                                                <div className="space-y-2">
+                                                    <div className="w-full py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-xl font-bold uppercase tracking-widest text-[9px] text-center flex items-center justify-center gap-1.5">
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                                                        Payment Settled
+                                                    </div>
+                                                    <button
+                                                        onClick={handleCompleteBooking}
+                                                        disabled={processing}
+                                                        className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-emerald-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        {processing && <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+                                                        Complete Booking
+                                                    </button>
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {/* Generate Bill Button */}
-                                                    <button
-                                                        disabled={!billData?.payments?.length}
-                                                        onClick={() => setShowBillModal(true)}
-                                                        className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${billData?.payments?.length
-                                                            ? "bg-black-deep text-gold hover:shadow-lg active:scale-[0.98]"
-                                                            : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                                                            }`}
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                                        Generate Bill
-                                                    </button>
-
                                                     {/* Process Payment Button (only show if no payments) */}
                                                     {(!billData?.payments || billData?.payments?.length === 0) && (
                                                         <button
@@ -319,8 +333,8 @@ const CompleteBooking = () => {
                                                         </button>
                                                     )}
 
-                                                    {/* Complete Booking Button (show if payments exist and not already completed) */}
-                                                    {billData?.payments?.length > 0 && booking.status !== 'COMPLETED' && (
+                                                    {/* Complete Booking Button (show if payments exist in DB but not yet completed) */}
+                                                    {billData?.payments?.length > 0 && (
                                                         <button
                                                             onClick={handleCompleteBooking}
                                                             disabled={processing}

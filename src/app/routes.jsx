@@ -16,6 +16,7 @@ import Admins from "@/features/users/pages/Admins";
 import SalonReviews from "@/features/reviews/pages/SalonReviews";
 import Bookings from "@/features/bookings/pages/Bookings";
 import CompleteBooking from "@/features/bookings/pages/CompleteBooking";
+import StaffBookingManager from "@/features/bookings/pages/StaffBookingManager";
 
 const AppRoutes = () => {
   return (
@@ -60,6 +61,12 @@ const AppRoutes = () => {
               <Route path="/receptionist/reviews" element={<SalonReviews />} />
               <Route path="/receptionist/bookings" element={<Bookings />} />
               <Route path="/receptionist/complete-booking" element={<CompleteBooking />} />
+            </Route>
+
+            {/* Staff Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["STAFF"]} />}>
+              <Route path="/staff/dashboard" element={<Navigate to="/staff/my-bookings" replace />} />
+              <Route path="/staff/my-bookings" element={<StaffBookingManager />} />
             </Route>
 
           </Route>

@@ -82,7 +82,7 @@
     --border: #e2e8f0;
     --border-gold: #C8A951;
     --text-primary: #1C1C1C;
-    --text-secondary: #7a7065;
+    --text-secondary: #5a524a; /* Darkened for better contrast */
     --accent: #C8A951;
     --error: #ef4444;
 
@@ -96,9 +96,8 @@
     --color-sidebar-hover: #262626;
     --color-sidebar-active: #C8A951;
     --color-sidebar-text: #F7F3EE;
-    --color-sidebar-muted: #7a7065;
-    --color-border: rgba(200, 169, 81, 0.1);
-    --color-border-light: rgba(200, 169, 81, 0.05);
+    --color-sidebar-muted: #5a524a; /* Improved contrast */
+    --color-border: rgba(200, 169, 81, 0.15); /* Increased opacity */
     --radius: 40px;
     --radius-sm: 16px;
   }
@@ -109,6 +108,9 @@
     min-height: 100vh;
     font-family: var(--font-jost);
     -webkit-font-smoothing: antialiased;
+    font-size: 16px; /* Slightly larger base size */
+    font-weight: 400; /* Increased from font-light/300 */
+    line-height: 1.6;
   }
 
   h1,

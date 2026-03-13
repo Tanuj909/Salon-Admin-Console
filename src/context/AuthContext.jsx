@@ -46,8 +46,9 @@
 //   );
 // };
 
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { getToken, setToken, removeToken } from "@/utils/token";
+import { getMeApi } from "@/features/auth/services/authService";
 
 export const AuthContext = createContext();
 
@@ -66,7 +67,7 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  const login = (data) => {
+  const login = async (data) => {
     const { accessToken, userId, role } = data;
 
     setToken(accessToken);
@@ -77,9 +78,38 @@ export const AuthProvider = ({ children }) => {
       role,
     };
 
+    // Try to fetch full user info after login
+    try {
+      const fullInfo = await getMeApi();
+      userData.fullName = fullInfo.fullName;
+      userData.email = fullInfo.email;
+    } catch (error) {
+      console.error("Error fetching user info after login", error);
+    }
+
     setUser(userData);
     localStorage.setItem("admin_user", JSON.stringify(userData));
   };
+
+  const fetchUser = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await getMeApi();
+      setUser(prev => {
+        const newUser = { ...prev, ...data };
+        localStorage.setItem("admin_user", JSON.stringify(newUser));
+        return newUser;
+      });
+    } catch (error) {
+      console.error("Error fetching current user", error);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token && !user?.fullName) {
+      fetchUser();
+    }
+  }, [token, user, fetchUser]);
 
   const logout = () => {
     removeToken();

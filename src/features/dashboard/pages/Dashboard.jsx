@@ -5,12 +5,12 @@ const Dashboard = () => {
   const roleDisplay = user?.role === "SUPER_ADMIN" ? "Superadmin" : "Admin";
 
   return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex flex-col">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-4 bg-transparent max-w-5xl flex-1 flex flex-col">
+    <div className="w-full font-jost min-h-[calc(100vh-80px)] flex flex-col">
+      <div className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px] flex-1 flex flex-col">
         {/* Page Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-display text-black-deep mb-2 italic">
-            Welcome, {roleDisplay} 👋
+            Welcome, {user?.role || "User"} 👋
           </h1>
           <p className="text-secondary text-lg font-light italic">
             Here's what's happening on your platform today.

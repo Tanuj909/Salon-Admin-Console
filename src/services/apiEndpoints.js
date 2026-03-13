@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
+    ME: "/auth/me",
   },
 
   USERS: {
@@ -63,6 +64,7 @@ export const API_ENDPOINTS = {
     REJECT: (bookingId) => `/bookings/${bookingId}/reject`,
     RESCHEDULE: (bookingId) => `/bookings/${bookingId}/reschedule`,
     UPDATE_STATUS: (bookingId, status) => `/bookings/staff/${bookingId}/status?status=${status}`,
+    MY: "/bookings/my",
   },
   TIMINGS: {
     GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,

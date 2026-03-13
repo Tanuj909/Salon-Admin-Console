@@ -1226,8 +1226,8 @@ const Bookings = () => {
   });
 
   return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-      <main className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
+    <div className="w-full font-jost min-h-[calc(100vh-80px)]">
+      <main className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px]">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>

@@ -53,15 +53,19 @@ const Topbar = ({ onMenuClick, isMobile }) => {
         </button>
         <div className="w-px h-8 bg-gold/10"></div>
         <div className="profile-btn flex items-center gap-4 p-2 pl-2 pr-4 rounded-full border border-gold/10 hover:bg-gold/5 transition-all cursor-pointer relative" onClick={(e) => { e.stopPropagation(); setDropdownOpen(!dropdownOpen); }} ref={dropdownRef}>
-          <div className="avatar w-10 h-10 rounded-full bg-gold flex items-center justify-center text-black-deep font-bold text-xs ring-4 ring-gold/10 shadow-sm">
-            {user?.role === 'SUPER_ADMIN' ? 'SA' : 'AD'}
+          <div className="avatar w-10 h-10 rounded-full bg-gold flex items-center justify-center text-black-deep font-bold text-xs ring-4 ring-gold/10 shadow-sm overflow-hidden">
+            {user?.fullName ? (
+              user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+            ) : (
+              user?.role === 'SUPER_ADMIN' ? 'SA' : 'AD'
+            )}
           </div>
           <div className="profile-info hidden md:flex flex-col text-left">
             <div className="profile-name text-sm font-bold text-black-deep leading-none mb-1">
-              {user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Salon Admin'}
+              {user?.fullName || (user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Salon Admin')}
             </div>
             <div className="profile-role text-[10px] uppercase tracking-widest text-secondary font-bold leading-none">
-              {user?.role === 'SUPER_ADMIN' ? 'Administrator' : 'Business Manager'}
+              {user?.role || "Role Not Found"}
             </div>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`text-secondary transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`}><polyline points="6,9 12,15 18,9" /></svg>

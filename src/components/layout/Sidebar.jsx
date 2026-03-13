@@ -70,7 +70,22 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
     }
   ];
 
-  const menuSections = role === "SUPER_ADMIN" ? superAdminMenu : role === "RECEPTIONIST" ? receptionistMenu : adminMenu;
+  const staffMenu = [
+    {
+      label: "Overview",
+      items: [
+        { path: "/staff/dashboard", label: "Dashboard", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg> },
+      ]
+    },
+    {
+      label: "My Work",
+      items: [
+        { path: "/staff/my-bookings", label: "My Bookings", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="2" /><path d="M9 14l2 2 4-4" /></svg> },
+      ]
+    }
+  ];
+
+  const menuSections = role === "SUPER_ADMIN" ? superAdminMenu : role === "RECEPTIONIST" ? receptionistMenu : role === "STAFF" ? staffMenu : adminMenu;
 
   return (
     <>
@@ -89,7 +104,7 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
 
           {!collapsed && (
             <div className="flex flex-col justify-center overflow-hidden whitespace-nowrap opacity-100 transition-opacity duration-300">
-              <div className="font-display text-xl leading-tight italic tracking-wide">Salon Luxe</div>
+              <div className="font-display text-xl leading-tight italic tracking-wide">Business Management</div>
               <div className="text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{role === 'SUPER_ADMIN' ? 'Super Admin' : role === 'RECEPTIONIST' ? 'Receptionist' : 'Admin Console'}</div>
             </div>
           )}

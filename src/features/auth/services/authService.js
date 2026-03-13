@@ -22,3 +22,12 @@ export const logoutApi = async () => {
     throw error;
   }
 };
+
+export const getMeApi = async () => {
+  try {
+    const response = await axiosInstance.get(API_ENDPOINTS.AUTH.ME);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
