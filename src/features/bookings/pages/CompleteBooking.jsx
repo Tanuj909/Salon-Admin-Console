@@ -87,7 +87,7 @@ const CompleteBooking = () => {
 
         setProcessing(true);
         try {
-            await updateBookingStatusApi(booking.id, 'COMPLETED');
+            await updateBookingStatusApi(booking.id || booking.bookingId, 'COMPLETED');
             toast.success("Booking marked as completed!");
 
             // Refresh both to get latest status
