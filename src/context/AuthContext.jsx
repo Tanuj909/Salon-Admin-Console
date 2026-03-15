@@ -1,23 +1,25 @@
-// import { createContext, useState } from "react";
+// import { createContext, useState, useEffect, useCallback } from "react";
 // import { getToken, setToken, removeToken } from "@/utils/token";
+// import { getMeApi } from "@/features/auth/services/authService";
 
 // export const AuthContext = createContext();
 
 // export const AuthProvider = ({ children }) => {
-//   const [token, setAuthToken] = useState(getToken());
+//   // Initialize directly from localStorage without any validation
+//   const [token, setAuthToken] = useState(() => {
+//     return getToken(); // Just get whatever token exists
+//   });
 
-//   // Initialize user from localStorage if available
-//   const getInitialUser = () => {
+//   const [user, setUser] = useState(() => {
 //     try {
 //       const storedUser = localStorage.getItem("admin_user");
 //       return storedUser ? JSON.parse(storedUser) : null;
 //     } catch (e) {
 //       return null;
 //     }
-//   };
-//   const [user, setUser] = useState(getInitialUser());
+//   });
 
-//   const login = (data) => {
+//   const login = async (data) => {
 //     const { accessToken, userId, role } = data;
 
 //     setToken(accessToken);
@@ -28,9 +30,38 @@
 //       role,
 //     };
 
+//     // Try to fetch full user info after login
+//     try {
+//       const fullInfo = await getMeApi();
+//       userData.fullName = fullInfo.fullName;
+//       userData.email = fullInfo.email;
+//     } catch (error) {
+//       console.error("Error fetching user info after login", error);
+//     }
+
 //     setUser(userData);
 //     localStorage.setItem("admin_user", JSON.stringify(userData));
 //   };
+
+//   const fetchUser = useCallback(async () => {
+//     if (!token) return;
+//     try {
+//       const data = await getMeApi();
+//       setUser(prev => {
+//         const newUser = { ...prev, ...data };
+//         localStorage.setItem("admin_user", JSON.stringify(newUser));
+//         return newUser;
+//       });
+//     } catch (error) {
+//       console.error("Error fetching current user", error);
+//     }
+//   }, [token]);
+
+//   useEffect(() => {
+//     if (token && !user?.fullName) {
+//       fetchUser();
+//     }
+//   }, [token, user, fetchUser]);
 
 //   const logout = () => {
 //     removeToken();
@@ -49,14 +80,12 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { getToken, setToken, removeToken } from "@/utils/token";
 import { getMeApi } from "@/features/auth/services/authService";
+import { PushSubscriptionService } from "@/features/notifications/services/pushSubscriptionService";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Initialize directly from localStorage without any validation
-  const [token, setAuthToken] = useState(() => {
-    return getToken(); // Just get whatever token exists
-  });
+  const [token, setAuthToken] = useState(() => getToken());
 
   const [user, setUser] = useState(() => {
     try {
@@ -73,29 +102,31 @@ export const AuthProvider = ({ children }) => {
     setToken(accessToken);
     setAuthToken(accessToken);
 
-    const userData = {
-      userId,
-      role,
-    };
+    const userData = { userId, role };
 
-    // Try to fetch full user info after login
     try {
       const fullInfo = await getMeApi();
       userData.fullName = fullInfo.fullName;
-      userData.email = fullInfo.email;
+      userData.email    = fullInfo.email;
     } catch (error) {
       console.error("Error fetching user info after login", error);
     }
 
     setUser(userData);
     localStorage.setItem("admin_user", JSON.stringify(userData));
+
+    // ── Trigger push subscription after successful login ──
+    // Non-blocking — login won't fail if push subscription fails
+    PushSubscriptionService.subscribe().catch((err) =>
+      console.warn("[Push] Auto-subscribe failed:", err.message)
+    );
   };
 
   const fetchUser = useCallback(async () => {
     if (!token) return;
     try {
       const data = await getMeApi();
-      setUser(prev => {
+      setUser((prev) => {
         const newUser = { ...prev, ...data };
         localStorage.setItem("admin_user", JSON.stringify(newUser));
         return newUser;
