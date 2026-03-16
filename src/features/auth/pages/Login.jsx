@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginApi } from "../services/authService";
-import { useAuth } from "../hooks/useAuth";
+import { loginApi } from "@/services/authService";
+import { useAuth } from "@/hooks/useAuth";
 import { removeToken } from "@/utils/token";
 
 const Login = () => {
@@ -37,17 +37,11 @@ const Login = () => {
 
     try {
       const data = await loginApi(form);
-      login(data);
-
-      if (data.role === "SUPER_ADMIN") {
-        navigate("/super-admin/dashboard");
-      } else if (data.role === "RECEPTIONIST") {
-        navigate("/receptionist/dashboard");
-      } else if (data.role === "STAFF") {
-        navigate("/staff/dashboard");
-      } else {
-        navigate("/admin/dashboard");
-      }
+      // Process login (store token, fetch profile)
+      await login(data);
+      
+      // Use the root redirect logic which is role-aware
+      navigate("/", { replace: true });
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     } finally {
@@ -56,8 +50,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#F8F4EE] flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Enhanced decorative elements */}
+    <div className="min-h-screen bg-gradient-to-br from-[#FDFBF7] to-[#F8F4EE] flex items-center justify-center p-6 relative overflow-hidden font-jost">
+      {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gold/5 to-gold/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-gold/5 to-gold/10 rounded-full blur-3xl"></div>
@@ -66,7 +60,7 @@ const Login = () => {
       <div className="relative w-full max-w-[420px]">
         {/* Branding outside card */}
         <div className="text-center mb-8">
-          <h1 className="font-display text-5xl italic text-black-deep mb-2">Salon Luxe</h1>
+          <h1 className="font-display text-5xl italic text-black-deep mb-2">FastBooking</h1>
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
             <p className="text-secondary font-medium tracking-[0.3em] uppercase text-[10px]">Administrative Console</p>
@@ -81,7 +75,7 @@ const Login = () => {
 
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Enhanced error message */}
+              {/* Error message */}
               {error && (
                 <div className="relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-500/5"></div>
@@ -162,34 +156,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Remember me checkbox - enhanced */}
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="w-4 h-4 border-2 border-slate-300 rounded bg-white/50 
-                             checked:border-gold checked:bg-gold
-                             focus:ring-2 focus:ring-gold/20 focus:outline-none
-                             transition-all duration-200 cursor-pointer
-                             appearance-none"
-                  />
-                  <svg
-                    className="absolute inset-0 w-4 h-4 text-white pointer-events-none opacity-0 group-has-checked:opacity-100 transition-opacity"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <span className="text-xs text-secondary font-medium group-hover:text-black-deep transition-colors">
-                  Stay signed in for 30 days
-                </span>
-              </label>
-
-              {/* Submit button - enhanced */}
+              {/* Submit button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -232,7 +199,7 @@ const Login = () => {
             </form>
           </div>
 
-          {/* Footer with gradient */}
+          {/* Footer */}
           <div className="relative px-8 py-4 bg-gradient-to-r from-black-deep/5 to-black-deep/10 border-t border-white/50">
             <p className="text-[10px] text-secondary/60 uppercase tracking-wider text-center">
               Authorized Personnel Only • Powered by SalonFlow
@@ -240,17 +207,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {/* Custom styles for checkbox checked state */}
-      <style jsx>{`
-        input[type="checkbox"]:checked {
-          background-color: #B89B6E;
-          border-color: #B89B6E;
-        }
-        .group:has(input:checked) svg {
-          opacity: 1;
-        }
-      `}</style>
     </div>
   );
 };

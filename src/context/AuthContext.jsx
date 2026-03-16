@@ -1,157 +1,93 @@
-// import { createContext, useState, useEffect, useCallback } from "react";
-// import { getToken, setToken, removeToken } from "@/utils/token";
-// import { getMeApi } from "@/features/auth/services/authService";
-
-// export const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   // Initialize directly from localStorage without any validation
-//   const [token, setAuthToken] = useState(() => {
-//     return getToken(); // Just get whatever token exists
-//   });
-
-//   const [user, setUser] = useState(() => {
-//     try {
-//       const storedUser = localStorage.getItem("admin_user");
-//       return storedUser ? JSON.parse(storedUser) : null;
-//     } catch (e) {
-//       return null;
-//     }
-//   });
-
-//   const login = async (data) => {
-//     const { accessToken, userId, role } = data;
-
-//     setToken(accessToken);
-//     setAuthToken(accessToken);
-
-//     const userData = {
-//       userId,
-//       role,
-//     };
-
-//     // Try to fetch full user info after login
-//     try {
-//       const fullInfo = await getMeApi();
-//       userData.fullName = fullInfo.fullName;
-//       userData.email = fullInfo.email;
-//     } catch (error) {
-//       console.error("Error fetching user info after login", error);
-//     }
-
-//     setUser(userData);
-//     localStorage.setItem("admin_user", JSON.stringify(userData));
-//   };
-
-//   const fetchUser = useCallback(async () => {
-//     if (!token) return;
-//     try {
-//       const data = await getMeApi();
-//       setUser(prev => {
-//         const newUser = { ...prev, ...data };
-//         localStorage.setItem("admin_user", JSON.stringify(newUser));
-//         return newUser;
-//       });
-//     } catch (error) {
-//       console.error("Error fetching current user", error);
-//     }
-//   }, [token]);
-
-//   useEffect(() => {
-//     if (token && !user?.fullName) {
-//       fetchUser();
-//     }
-//   }, [token, user, fetchUser]);
-
-//   const logout = () => {
-//     removeToken();
-//     localStorage.removeItem("admin_user");
-//     setAuthToken(null);
-//     setUser(null);
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ token, user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import { getToken, setToken, removeToken } from "@/utils/token";
-import { getMeApi } from "@/features/auth/services/authService";
+import storage from "@/utils/storage";
+import { STORAGE_KEYS } from "@/utils/constants";
+import { getMeApi } from "@/services/authService";
 import { PushSubscriptionService } from "@/features/notifications/services/pushSubscriptionService";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setAuthToken] = useState(() => getToken());
+  const [user, setUser] = useState(() => storage.get(STORAGE_KEYS.USER));
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [user, setUser] = useState(() => {
-    try {
-      const storedUser = localStorage.getItem("admin_user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch (e) {
-      return null;
+  const fetchUser = useCallback(async (authToken) => {
+    if (!authToken) {
+      setIsLoading(false);
+      return;
     }
-  });
+    
+    try {
+      const userData = await getMeApi();
+      setUser(userData);
+      storage.set(STORAGE_KEYS.USER, userData);
+    } catch (error) {
+      console.error("Error fetching user session", error);
+      // If 401, the interceptor will handle logout
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Restore session on mount
+  useEffect(() => {
+    if (token) {
+      fetchUser(token);
+    } else {
+      setIsLoading(false);
+    }
+  }, [token, fetchUser]);
 
   const login = async (data) => {
     const { accessToken, userId, role } = data;
 
+    // 1. Store token
     setToken(accessToken);
     setAuthToken(accessToken);
 
-    const userData = { userId, role };
+    // 2. Set temporary user data
+    const tempUserData = { userId, role };
+    setUser(tempUserData);
+    storage.set(STORAGE_KEYS.USER, tempUserData);
 
+    // 3. Fetch full profile and update
     try {
       const fullInfo = await getMeApi();
-      userData.fullName = fullInfo.fullName;
-      userData.email    = fullInfo.email;
+      const updatedUser = { ...tempUserData, ...fullInfo };
+      setUser(updatedUser);
+      storage.set(STORAGE_KEYS.USER, updatedUser);
     } catch (error) {
-      console.error("Error fetching user info after login", error);
+      console.error("Error fetching full user info after login", error);
     }
 
-    setUser(userData);
-    localStorage.setItem("admin_user", JSON.stringify(userData));
-
-    // ── Trigger push subscription after successful login ──
-    // Non-blocking — login won't fail if push subscription fails
+    // 4. Trigger push subscription (non-blocking)
     PushSubscriptionService.subscribe().catch((err) =>
       console.warn("[Push] Auto-subscribe failed:", err.message)
     );
   };
 
-  const fetchUser = useCallback(async () => {
-    if (!token) return;
-    try {
-      const data = await getMeApi();
-      setUser((prev) => {
-        const newUser = { ...prev, ...data };
-        localStorage.setItem("admin_user", JSON.stringify(newUser));
-        return newUser;
-      });
-    } catch (error) {
-      console.error("Error fetching current user", error);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (token && !user?.fullName) {
-      fetchUser();
-    }
-  }, [token, user, fetchUser]);
-
-  const logout = () => {
+  const logout = useCallback(() => {
     removeToken();
-    localStorage.removeItem("admin_user");
+    storage.remove(STORAGE_KEYS.USER);
     setAuthToken(null);
     setUser(null);
-  };
+    window.location.href = "/login";
+  }, []);
+
+  const value = useMemo(() => ({
+    token,
+    user,
+    isLoading,
+    login,
+    logout,
+    isAuthenticated: !!token,
+    role: user?.role
+  }), [token, user, isLoading, logout]);
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!isLoading && children}
     </AuthContext.Provider>
   );
 };
