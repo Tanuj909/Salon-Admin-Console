@@ -20,6 +20,7 @@ import SalonReviews from "@/features/reviews/pages/SalonReviews";
 import Bookings from "@/features/bookings/pages/Bookings";
 import CompleteBooking from "@/features/bookings/pages/CompleteBooking";
 import StaffBookingManager from "@/features/bookings/pages/StaffBookingManager";
+import StaffReviews from "@/features/reviews/pages/StaffReviews";
 
 // Layouts
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -92,6 +93,7 @@ const AppRoutes = () => {
               <Route element={<ProtectedRoute allowedRoles={["STAFF"]} />}>
                 <Route path="/staff/dashboard" element={<Navigate to="/staff/my-bookings" replace />} />
                 <Route path="/staff/my-bookings" element={<StaffBookingManager />} />
+                <Route path="/staff/reviews" element={<StaffReviews />} />
               </Route>
             </Route>
           </Route>

@@ -160,15 +160,15 @@ const SalonReviews = () => {
                 ) : (
                     <div className="grid gap-6">
                         {reviews.map((review) => (
-                            <div key={review.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-gold/30 group">
-                                <div className="flex flex-col md:flex-row gap-6">
+                            <div key={review.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-gold/30 group">
+                                <div className="flex flex-col md:flex-row gap-5">
                                     <div className="flex-1">
-                                        <div className="flex justify-between items-start mb-4">
+                                        <div className="flex justify-between items-start mb-3">
                                             <div className="flex items-center gap-3">
                                                 {renderStars(review.rating)}
                                                 <span className="text-lg font-bold text-black-deep leading-none mt-0.5">{Number(review.rating).toFixed(1)}</span>
                                             </div>
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-3">
                                                 <span className="text-[11px] font-bold text-secondary uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
                                                     {formatDate(review.createdAt)}
                                                 </span>
@@ -191,13 +191,13 @@ const SalonReviews = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-black-deep leading-relaxed text-[15px] font-medium my-4">
+                                        <p className="text-black-deep leading-relaxed text-[14px] font-medium my-2">
                                             "{review.comment}"
                                         </p>
                                         {review.imageUrls && review.imageUrls.length > 0 && (
-                                            <div className="flex gap-3 mt-5 overflow-x-auto pb-2 custom-scrollbar">
+                                            <div className="flex gap-2 mt-3 overflow-x-auto pb-1 custom-scrollbar">
                                                 {review.imageUrls.map((url, idx) => (
-                                                    <div key={idx} className="w-20 h-20 rounded-xl overflow-hidden border border-slate-100 shrink-0">
+                                                    <div key={idx} className="w-16 h-16 rounded-xl overflow-hidden border border-slate-100 shrink-0">
                                                         <img src={url} alt="Review attachment" className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
                                                     </div>
                                                 ))}
@@ -205,9 +205,9 @@ const SalonReviews = () => {
                                         )}
                                     </div>
 
-                                    <div className="md:w-[280px] shrink-0 flex flex-col gap-4 pt-5 md:pt-0 md:border-l md:pl-6 border-slate-100">
-                                        <div className="flex items-center gap-4 bg-slate-50/50 p-3 rounded-xl border border-slate-50">
-                                            <div className="w-12 h-12 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
+                                    <div className="md:w-[280px] shrink-0 flex flex-col gap-3 pt-4 md:pt-0 md:border-l md:pl-5 border-slate-100 justify-center">
+                                        <div className="flex items-center gap-3 bg-slate-50/50 p-2.5 rounded-xl border border-slate-50">
+                                            <div className="w-10 h-10 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
                                                 <img src={review.customer?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (review.isAnonymous ? "A" : (review.customer?.fullName || "A")) + "&background=FDFBF7&color=C8A951"} className="w-full h-full object-cover" alt="Customer" />
                                             </div>
                                             <div className="overflow-hidden">
@@ -216,33 +216,33 @@ const SalonReviews = () => {
                                             </div>
                                         </div>
 
-                                        {review.staff && (
-                                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                                <div className="w-10 h-10 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
-                                                    <img src={review.staff?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (review.staff?.fullName || "S") + "&background=F8FAFC&color=64748B"} className="w-full h-full object-cover" alt="Staff" />
-                                                </div>
-                                                <div className="overflow-hidden">
-                                                    <div className="text-[13px] font-bold text-black-deep truncate">{review.staff.fullName}</div>
-                                                    <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mt-0.5">Specialist</div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {review.booking && (
-                                            <div className="bg-[#FDFBF7] rounded-xl p-4 border border-gold/10 relative overflow-hidden">
-                                                <div className="absolute -right-4 -top-4 text-gold/5">
-                                                    <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z" /></svg>
-                                                </div>
-                                                <div className="relative">
-                                                    <div className="text-[10px] text-secondary uppercase font-bold tracking-widest mb-1.5 flex items-center gap-1.5">
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                                                        Booking Ref
+                                        <div className="flex gap-2">
+                                            {review.staff && (
+                                                <div className="flex items-center gap-2 p-2 rounded-xl border border-slate-100 bg-white hover:border-gold/30 transition-colors flex-1 min-w-0">
+                                                    <div className="w-8 h-8 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
+                                                        <img src={review.staff?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (review.staff?.fullName || "S") + "&background=F8FAFC&color=64748B"} className="w-full h-full object-cover" alt="Staff" />
                                                     </div>
-                                                    <div className="text-sm font-bold text-black-deep">{review.booking.bookingNumber}</div>
-                                                    <div className="text-xs text-secondary mt-1 font-medium">{formatDate(review.booking.bookingDate)}</div>
+                                                    <div className="overflow-hidden">
+                                                        <div className="text-xs font-bold text-black-deep truncate">{review.staff.fullName}</div>
+                                                        <div className="text-[9px] text-secondary uppercase font-bold tracking-widest mt-0.5">Specialist</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+
+                                            {review.booking && (
+                                                <div className="bg-[#FDFBF7] rounded-xl p-2 border border-gold/20 relative overflow-hidden flex-1 min-w-0 flex flex-col justify-center">
+                                                    <div className="absolute -right-2 -top-2 text-gold/10">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z" /></svg>
+                                                    </div>
+                                                    <div className="relative z-10">
+                                                        <div className="text-[9px] text-secondary uppercase font-bold tracking-widest mb-0.5">
+                                                            Ref No.
+                                                        </div>
+                                                        <div className="text-xs font-bold text-black-deep truncate">{review.booking.bookingNumber}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

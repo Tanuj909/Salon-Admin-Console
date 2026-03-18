@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
   },
   REVIEWS: {
     GET_BY_BUSINESS: (businessId) => `/reviews/business/${businessId}`,
+    GET_BY_STAFF: (staffId) => `/reviews/staff/${staffId}`,
     UPDATE_BY_ID: (id) => `/reviews/${id}`,
     DELETE_BY_ID: (id) => `/reviews/${id}`,
   },
