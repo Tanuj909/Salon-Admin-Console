@@ -73,3 +73,38 @@ export const verifySalonApi = async (id, status) => {
   });
   return response.data;
 };
+
+export const getVerificationDocumentsApi = async (businessId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_VERIFICATION_DOCUMENTS(businessId));
+  return response.data;
+};
+
+export const reviewDocumentApi = async (documentId, approve, rejectionReason = null) => {
+  const params = { approve };
+  if (rejectionReason) params.rejectionReason = rejectionReason;
+  
+  const response = await axiosInstance.put(API_ENDPOINTS.SALONS.REVIEW_DOCUMENT(documentId), null, {
+    params
+  });
+  return response.data;
+};
+
+export const getVerificationMessagesApi = async (businessId, page = 0, size = 10) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_VERIFICATION_MESSAGES(businessId), {
+    params: { page, size, sort: 'sentAt,desc' }
+  });
+  return response.data;
+};
+
+export const sendVerificationMessageApi = async (businessId, message, attachment = null) => {
+  const formData = new FormData();
+  formData.append("data", new Blob([JSON.stringify({ message })], { type: "application/json" }));
+  if (attachment) {
+    formData.append("attachment", attachment);
+  }
+  
+  const response = await axiosInstance.post(API_ENDPOINTS.SALONS.SEND_VERIFICATION_MESSAGE(businessId), formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+  return response.data;
+};

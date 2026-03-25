@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getPendingSalonsApi, verifySalonApi } from "../services/salonService";
+import DocumentVerificationModal from "../components/DocumentVerificationModal";
+import VerificationMessageModal from "../components/VerificationMessageModal";
 
 const PendingSalons = () => {
   const [salons, setSalons] = useState([]);
@@ -15,6 +17,11 @@ const PendingSalons = () => {
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Document Verification and Messaging Modal state
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  const [isMsgModalOpen, setIsMsgModalOpen] = useState(false);
+  const [selectedSalon, setSelectedSalon] = useState(null);
 
   useEffect(() => {
     fetchPendingSalons();
@@ -161,7 +168,25 @@ const PendingSalons = () => {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            className="px-4 py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                            onClick={() => {
+                              setSelectedSalon(salon);
+                              setIsMsgModalOpen(true);
+                            }}
+                          >
+                            Message
+                          </button>
+                          <button
+                            className="px-4 py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                            onClick={() => {
+                              setSelectedSalon(salon);
+                              setIsDocModalOpen(true);
+                            }}
+                          >
+                            Verify Documents
+                          </button>
                           <button
                             className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
                             onClick={() => handleVerify(salon.id, 'VERIFIED')}
@@ -219,6 +244,26 @@ const PendingSalons = () => {
           )}
         </div>
       </div>
+      
+      <DocumentVerificationModal 
+        isOpen={isDocModalOpen}
+        onClose={() => {
+          setIsDocModalOpen(false);
+          setSelectedSalon(null);
+        }}
+        businessId={selectedSalon?.id}
+        businessName={selectedSalon?.name}
+      />
+
+      <VerificationMessageModal 
+        isOpen={isMsgModalOpen}
+        onClose={() => {
+          setIsMsgModalOpen(false);
+          setSelectedSalon(null);
+        }}
+        businessId={selectedSalon?.id}
+        businessName={selectedSalon?.name}
+      />
     </div>
   );
 };
