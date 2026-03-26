@@ -71,8 +71,8 @@ const PendingSalons = () => {
   });
 
   if (error) return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center">
-      <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm">
+    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
+      <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm max-w-md">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
         {error}
       </div>
@@ -80,22 +80,22 @@ const PendingSalons = () => {
   );
 
   return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-      <div className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 px-2">
+    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] p-4 sm:p-6">
+      <div className="responsive-container pb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 px-1">
           <div>
-            <h1 className="font-display text-4xl italic text-black-deep mb-2">Pending Salons</h1>
-            <p className="text-secondary text-base">Review and approve salon registration requests.</p>
+            <h1 className="text-responsive-h2 font-display italic text-black-deep mb-2 leading-tight">Pending Salons</h1>
+            <p className="text-secondary text-sm sm:text-base">Review and approve salon registration requests.</p>
           </div>
-          <div className="text-right bg-white px-6 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 hidden md:flex">
-            <div className="text-xs text-secondary font-bold uppercase tracking-widest text-left">Total<br />Pending</div>
-            <div className="text-3xl font-display font-bold text-gold">{totalElements}</div>
+          <div className="bg-white px-5 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 self-start md:self-auto min-w-[150px]">
+            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left">Total<br />Pending</div>
+            <div className="text-2xl sm:text-3xl font-display font-bold text-gold">{totalElements}</div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
-            <div className="absolute -left-4 -top-4 text-gold/5 pointer-events-none">
+          <div className="px-4 py-4 sm:px-6 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
+            <div className="absolute -left-4 -top-4 text-gold/5 pointer-events-none hidden sm:block">
               <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
             </div>
             <div className="relative z-10 w-full sm:w-auto">
@@ -119,15 +119,15 @@ const PendingSalons = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+          <div className="overflow-x-auto custom-scrollbar relative">
+            <table className="w-full text-left border-collapse min-w-[700px] sm:min-w-[800px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest rounded-tl-2xl">Salon Name</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">City</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Owner ID</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Salon Name</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest hidden sm:table-cell">City</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest hidden md:table-cell">Owner ID</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -142,7 +142,7 @@ const PendingSalons = () => {
                   </tr>
                 ) : filteredSalons.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-24 text-center">
+                    <td colSpan="5" className="py-24 text-center px-4">
                       <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mx-auto mb-4 border border-slate-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                       </div>
@@ -153,24 +153,31 @@ const PendingSalons = () => {
                 ) : (
                   filteredSalons.map((salon) => (
                     <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-4 sm:px-6">
                         <div className="font-bold text-black-deep text-sm flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gold/10 text-gold flex items-center justify-center font-bold text-xs shrink-0">{salon.name.substring(0, 2).toUpperCase()}</div>
-                          {salon.name}
+                          <div className="w-8 h-8 rounded-full bg-gold/10 text-gold flex items-center justify-center font-bold text-[10px] shrink-0">{salon.name.substring(0, 2).toUpperCase()}</div>
+                          <div className="flex flex-col">
+                            <span>{salon.name}</span>
+                            <span className="sm:hidden text-[10px] text-secondary font-medium mt-1">{salon.city}</span>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-sm text-secondary font-medium">{salon.city}</td>
-                      <td className="py-4 px-6 text-xs font-mono text-slate-500 font-semibold bg-slate-50 px-2 py-1 rounded inline-block mt-3 ml-6">{salon.ownerUserId}</td>
-                      <td className="py-4 px-6">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+                      <td className="py-4 px-4 sm:px-6 text-sm text-secondary font-medium hidden sm:table-cell">{salon.city}</td>
+                      <td className="py-4 px-4 sm:px-6 hidden md:table-cell">
+                         <span className="text-[10px] font-mono text-slate-500 font-semibold bg-slate-50 px-2 py-1 rounded">
+                            {salon.ownerUserId}
+                         </span>
+                      </td>
+                      <td className="py-4 px-4 sm:px-6">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100 whitespace-nowrap">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                           Pending Check
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right">
-                        <div className="flex gap-2 justify-end">
+                      <td className="py-4 px-4 sm:px-6 text-right">
+                        <div className="flex flex-wrap gap-2 justify-end">
                           <button
-                            className="px-4 py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
                             onClick={() => {
                               setSelectedSalon(salon);
                               setIsMsgModalOpen(true);
@@ -179,7 +186,7 @@ const PendingSalons = () => {
                             Message
                           </button>
                           <button
-                            className="px-4 py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#FDFBF7] text-gold hover:bg-gold/5 border border-gold/20 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
                             onClick={() => {
                               setSelectedSalon(salon);
                               setIsDocModalOpen(true);
@@ -188,14 +195,14 @@ const PendingSalons = () => {
                             Verify Documents
                           </button>
                           <button
-                            className="px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
                             onClick={() => handleVerify(salon.id, 'VERIFIED')}
                             disabled={actionLoading === salon.id}
                           >
                             {actionLoading === salon.id ? "..." : "Approve"}
                           </button>
                           <button
-                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
                             onClick={() => handleVerify(salon.id, 'REJECTED')}
                             disabled={actionLoading === salon.id}
                           >
@@ -211,9 +218,9 @@ const PendingSalons = () => {
           </div>
 
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gold/10 bg-[#FDFBF7] flex items-center justify-between">
-              <span className="text-secondary text-sm font-medium">
-                Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
+            <div className="px-4 py-4 sm:px-6 border-t border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-secondary text-xs sm:text-sm font-medium">
+                Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements}
               </span>
               <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                 <button
@@ -226,7 +233,7 @@ const PendingSalons = () => {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`px-4 py-2 text-sm font-medium border-l border-slate-200 transition-colors ${currentPage === i ? 'bg-gold/10 text-gold' : 'text-slate-600 hover:bg-slate-50'}`}
+                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-l border-slate-200 transition-colors ${currentPage === i ? 'bg-gold/10 text-gold' : 'text-slate-600 hover:bg-slate-50'}`}
                     onClick={() => handlePageChange(i)}
                   >
                     {i + 1}

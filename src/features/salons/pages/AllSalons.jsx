@@ -47,25 +47,25 @@ const AllSalons = () => {
     switch (status) {
       case 'VERIFIED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-green-50 text-green-700 border border-green-100">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-green-50 text-green-700 border border-green-100 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Verified
           </span>
         );
       case 'PENDING':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending
           </span>
         );
       case 'REJECTED':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-red-50 text-red-600 border border-red-100">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Rejected
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-100 text-slate-600 border border-slate-200">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span> {status}
           </span>
         );
@@ -86,8 +86,8 @@ const AllSalons = () => {
   });
 
   if (error) return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center">
-      <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm">
+    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
+      <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-100 font-medium flex items-center gap-3 shadow-sm max-w-md">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
         {error}
       </div>
@@ -95,22 +95,22 @@ const AllSalons = () => {
   );
 
   return (
-    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-      <div className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 px-2">
+    <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] p-4 sm:p-6">
+      <div className="responsive-container pb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 px-1">
           <div>
-            <h1 className="font-display text-4xl italic text-black-deep mb-2">All Salons</h1>
-            <p className="text-secondary text-base">Complete directory of all registered businesses.</p>
+            <h1 className="text-responsive-h2 font-display italic text-black-deep mb-2 leading-tight">All Salons</h1>
+            <p className="text-secondary text-sm sm:text-base">Complete directory of all registered businesses.</p>
           </div>
-          <div className="text-right bg-white px-6 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 hidden md:flex">
-            <div className="text-xs text-secondary font-bold uppercase tracking-widest text-left">Total<br />Salons</div>
-            <div className="text-3xl font-display font-bold text-black-deep">{totalElements}</div>
+          <div className="bg-white px-5 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 self-start md:self-auto min-w-[150px]">
+            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left">Total<br />Salons</div>
+            <div className="text-2xl sm:text-3xl font-display font-bold text-black-deep">{totalElements}</div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
-            <div className="absolute -left-4 -top-4 text-gold/5 pointer-events-none">
+          <div className="px-4 py-4 sm:px-6 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
+            <div className="absolute -left-4 -top-4 text-gold/5 pointer-events-none hidden sm:block">
               <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h16v2H4zm0 4h16v2H4zm0-8h16v2H4zm0 12h16v2H4z" /></svg>
             </div>
 
@@ -142,15 +142,15 @@ const AllSalons = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+          <div className="overflow-x-auto custom-scrollbar relative">
+            <table className="w-full text-left border-collapse min-w-[600px] sm:min-w-[800px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest rounded-tl-2xl">Salon Name</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">City</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Rating</th>
-                  <th className="py-4 px-6 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Salon Name</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest hidden sm:table-cell">City</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest hidden md:table-cell">Rating</th>
+                  <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -165,7 +165,7 @@ const AllSalons = () => {
                   </tr>
                 ) : filteredSalons.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-24 text-center">
+                    <td colSpan="5" className="py-24 text-center px-4">
                       <div className="w-16 h-16 bg-slate-50 flex items-center justify-center rounded-2xl mx-auto mb-4 border border-slate-100">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><path d="M4 10h16v2H4zm0 4h16v2H4zm0-8h16v2H4zm0 12h16v2H4z" /></svg>
                       </div>
@@ -176,30 +176,31 @@ const AllSalons = () => {
                 ) : (
                   filteredSalons.map((salon) => (
                     <tr key={salon.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-4 sm:px-6">
                         <div className="font-bold text-black-deep text-sm flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">{salon.name.substring(0, 2).toUpperCase()}</div>
-                          {salon.name}
+                          <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px] shrink-0">{salon.name.substring(0, 2).toUpperCase()}</div>
+                          <div className="flex flex-col">
+                            <span>{salon.name}</span>
+                            <span className="sm:hidden text-[10px] text-secondary font-medium mt-1">{salon.city}</span>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-sm text-secondary font-medium">{salon.city}</td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-4 sm:px-6 text-sm text-secondary font-medium hidden sm:table-cell">{salon.city}</td>
+                      <td className="py-4 px-4 sm:px-6">
                         {getStatusBadge(salon.verificationStatus)}
                       </td>
-                      <td className="py-4 px-6 text-sm font-bold text-black-deep">
-                        <div className="flex items-center gap-1 bg-gold/10 px-2 py-0.5 rounded inline-block">
-                          <span className="text-gold">★</span> {salon.averageRating.toFixed(1)}
+                      <td className="py-4 px-4 sm:px-6 hidden md:table-cell">
+                        <div className="flex items-center gap-1 bg-gold/10 px-2 py-0.5 rounded text-sm font-bold text-black-deep w-fit">
+                          <span className="text-gold text-xs">★</span> {salon.averageRating.toFixed(1)}
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-right">
-                        <div className="flex gap-2 justify-end transition-opacity">
-                          <button
-                            className="px-4 py-2 bg-white text-slate-700 hover:text-gold hover:bg-gold/10 hover:border-gold/30 border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
-                            onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
-                          >
-                            View Details
-                          </button>
-                        </div>
+                      <td className="py-4 px-4 sm:px-6 text-right">
+                        <button
+                          className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-slate-700 hover:text-gold hover:bg-gold/10 hover:border-gold/30 border border-slate-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm"
+                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                        >
+                          View Details
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -209,9 +210,9 @@ const AllSalons = () => {
           </div>
 
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gold/10 bg-[#FDFBF7] flex items-center justify-between">
-              <span className="text-secondary text-sm font-medium">
-                Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements} entries
+            <div className="px-4 py-4 sm:px-6 border-t border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-secondary text-xs sm:text-sm font-medium">
+                Showing {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements}
               </span>
               <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                 <button
@@ -224,7 +225,7 @@ const AllSalons = () => {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`px-4 py-2 text-sm font-medium border-l border-slate-200 transition-colors ${currentPage === i ? 'bg-gold/10 text-gold' : 'text-slate-600 hover:bg-slate-50'}`}
+                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-l border-slate-200 transition-colors ${currentPage === i ? 'bg-gold/10 text-gold' : 'text-slate-600 hover:bg-slate-50'}`}
                     onClick={() => handlePageChange(i)}
                   >
                     {i + 1}
