@@ -21,6 +21,7 @@ const PendingSalons = () => {
   // Document Verification and Messaging Modal state
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isMsgModalOpen, setIsMsgModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedSalon, setSelectedSalon] = useState(null);
 
   useEffect(() => {
@@ -85,10 +86,15 @@ const PendingSalons = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 px-1">
           <div>
             <h1 className="text-responsive-h2 font-display italic text-black-deep mb-2 leading-tight">Pending Salons</h1>
-            <p className="text-secondary text-sm sm:text-base">Review and approve salon registration requests.</p>
+            <p className="text-secondary text-sm sm:text-base hidden lg:block">Review and approve salon registration requests.</p>
           </div>
           <div className="bg-white px-5 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 self-start md:self-auto min-w-[150px]">
-            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left">Total<br />Pending</div>
+            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left leading-tight">
+                Total<br className="hidden lg:block" /> 
+                <span className="lg:hidden">Pending</span>
+                <span className="hidden lg:inline">Pending</span>
+                <span className="block lg:hidden text-amber-600 mt-0.5">As pending</span>
+            </div>
             <div className="text-2xl sm:text-3xl font-display font-bold text-gold">{totalElements}</div>
           </div>
         </div>
@@ -120,7 +126,7 @@ const PendingSalons = () => {
           </div>
 
           <div className="overflow-x-auto custom-scrollbar relative">
-            <table className="w-full text-left border-collapse min-w-[700px] sm:min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[700px] sm:min-w-[800px] hidden lg:table">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
                   <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Salon Name</th>
@@ -215,6 +221,43 @@ const PendingSalons = () => {
                 )}
               </tbody>
             </table>
+
+            {/* MOBILE CARD VIEW */}
+            <div className="lg:hidden divide-y divide-slate-50">
+              {loading && salons.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-4">
+                  <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+                  <span className="text-secondary font-medium tracking-wider uppercase text-xs">Loading requests...</span>
+                </div>
+              ) : filteredSalons.length === 0 ? (
+                <div className="py-24 text-center px-4">
+                  <p className="text-lg font-bold text-black-deep mb-1">No pending request</p>
+                </div>
+              ) : (
+                filteredSalons.map((salon) => (
+                  <div key={salon.id} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center font-bold text-[11px] shrink-0">
+                      {salon.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-black-deep text-[13px] truncate leading-none mb-1">{salon.name}</div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-secondary font-medium truncate flex-1 uppercase tracking-wider">{salon.city}</span>
+                        <button 
+                          onClick={() => {
+                            setSelectedSalon(salon);
+                            setIsDetailModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 bg-gold/10 text-gold border border-gold/20 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
           {totalPages > 1 && (
@@ -271,6 +314,85 @@ const PendingSalons = () => {
         businessId={selectedSalon?.id}
         businessName={selectedSalon?.name}
       />
+
+      {/* MOBILE DETAILS MODAL */}
+      {isDetailModalOpen && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 lg:hidden">
+          <div className="bg-white rounded-[28px] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <div>
+                <h3 className="font-display text-xl italic text-black-deep">Salon Details</h3>
+                <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-1">Reviewing process</p>
+              </div>
+              <button 
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                aria-label="Close details"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gold/10 text-gold flex items-center justify-center font-bold text-xl">
+                  {selectedSalon?.name.substring(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-black-deep leading-tight">{selectedSalon?.name}</h4>
+                  <p className="text-sm text-secondary">{selectedSalon?.city}</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">Status</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  Pending Check
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  className="px-4 py-3 bg-[#FDFBF7] text-gold border border-gold/20 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+                  onClick={() => setIsMsgModalOpen(true)}
+                >
+                  Message
+                </button>
+                <button
+                  className="px-4 py-3 bg-[#FDFBF7] text-gold border border-gold/20 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+                  onClick={() => setIsDocModalOpen(true)}
+                >
+                  Verify Docs
+                </button>
+                <button
+                  className="px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-xl text-[10px] font-bold uppercase tracking-widest"
+                  onClick={() => {
+                    handleVerify(selectedSalon.id, 'VERIFIED');
+                    setIsDetailModalOpen(false);
+                  }}
+                  disabled={actionLoading === selectedSalon?.id}
+                >
+                  {actionLoading === selectedSalon?.id ? "..." : "Approve Salon"}
+                </button>
+                <button
+                  className="px-4 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[10px] font-bold uppercase tracking-widest"
+                  onClick={() => {
+                    handleVerify(selectedSalon.id, 'REJECTED');
+                    setIsDetailModalOpen(false);
+                  }}
+                  disabled={actionLoading === selectedSalon?.id}
+                >
+                  Reject Salon
+                </button>
+              </div>
+            </div>
+            <div className="p-6 bg-slate-50 border-t border-slate-100">
+                <p className="text-[9px] text-slate-400 uppercase tracking-widest text-center font-medium">Salon ID: {selectedSalon?.id || selectedSalon?.ownerUserId}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

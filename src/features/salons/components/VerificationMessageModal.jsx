@@ -74,7 +74,7 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1100] flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-[20px] sm:rounded-[24px] w-full max-w-2xl h-[90vh] sm:h-[80vh] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col my-2 sm:my-8">
         {/* Header */}
         <div className="bg-[#FDFBF7] p-4 sm:p-6 border-b border-gold/10 flex justify-between items-start shrink-0">

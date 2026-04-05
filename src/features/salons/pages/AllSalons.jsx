@@ -100,50 +100,60 @@ const AllSalons = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 px-1">
           <div>
             <h1 className="text-responsive-h2 font-display italic text-black-deep mb-2 leading-tight">All Salons</h1>
-            <p className="text-secondary text-sm sm:text-base">Complete directory of all registered businesses.</p>
+            <p className="text-secondary text-sm sm:text-base hidden lg:block">Complete directory of all registered businesses.</p>
           </div>
           <div className="bg-white px-5 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4 self-start md:self-auto min-w-[150px]">
-            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left">Total<br />Salons</div>
+            <div className="text-[10px] text-secondary font-bold uppercase tracking-widest text-left leading-tight">
+                Total<br className="hidden lg:block" /> 
+                <span className="lg:hidden">Registered</span>
+                <span className="hidden lg:inline">Salons</span>
+                <span className="block lg:hidden text-black-deep/40 mt-0.5">Businesses</span>
+            </div>
             <div className="text-2xl sm:text-3xl font-display font-bold text-black-deep">{totalElements}</div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gold/10 overflow-hidden">
-          <div className="px-4 py-4 sm:px-6 border-b border-gold/10 bg-[#FDFBF7] flex flex-col sm:flex-row gap-4 justify-between items-center relative overflow-hidden">
+          <div className="px-4 py-4 sm:px-6 border-b border-gold/10 bg-[#FDFBF7] flex flex-col lg:flex-row gap-4 justify-between items-center relative overflow-hidden">
             <div className="absolute -left-4 -top-4 text-gold/5 pointer-events-none hidden sm:block">
               <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h16v2H4zm0 4h16v2H4zm0-8h16v2H4zm0 12h16v2H4z" /></svg>
             </div>
 
-            <div className="relative z-10 w-full sm:w-64 group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-gold transition-colors">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search all salons..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white border border-slate-200 text-black-deep py-2.5 pl-9 pr-4 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 shadow-sm"
-              />
-            </div>
+            <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 relative z-10 font-jost">
+                <div className="relative group w-full sm:w-64">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-gold transition-colors">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search salons..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-white border border-slate-200 text-black-deep py-2.5 pl-9 pr-4 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                    />
+                </div>
 
-            <div className="relative z-10 w-full sm:w-auto">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-48 appearance-none bg-white border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl font-medium text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-colors cursor-pointer shadow-sm"
-              >
-                <option>All Status</option>
-                <option>Verified</option>
-                <option>Pending</option>
-                <option>Rejected</option>
-                <option>Suspended</option>
-              </select>
+                <div className="relative w-full sm:w-48">
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full appearance-none bg-white border border-slate-200 text-slate-700 py-2.5 px-4 pr-8 rounded-xl font-medium text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-colors cursor-pointer shadow-sm"
+                    >
+                        <option>All Status</option>
+                        <option>Verified</option>
+                        <option>Pending</option>
+                        <option>Rejected</option>
+                        <option>Suspended</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
             </div>
           </div>
 
           <div className="overflow-x-auto custom-scrollbar relative">
-            <table className="w-full text-left border-collapse min-w-[600px] sm:min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-[600px] sm:min-w-[800px] hidden lg:table">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
                   <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-secondary uppercase tracking-widest">Salon Name</th>
@@ -207,6 +217,43 @@ const AllSalons = () => {
                 )}
               </tbody>
             </table>
+
+            {/* MOBILE CARD VIEW */}
+            <div className="lg:hidden divide-y divide-slate-50">
+              {loading && salons.length === 0 ? (
+                <div className="py-20 text-center flex flex-col items-center justify-center gap-4">
+                  <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+                  <span className="text-secondary font-medium tracking-wider uppercase text-xs">Loading salons...</span>
+                </div>
+              ) : filteredSalons.length === 0 ? (
+                <div className="py-24 text-center px-4">
+                  <p className="text-lg font-bold text-black-deep mb-1">No salons found</p>
+                </div>
+              ) : (
+                filteredSalons.map((salon) => (
+                  <div key={salon.id} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 flex items-center justify-center font-bold text-[11px] shrink-0">
+                      {salon.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="font-bold text-black-deep text-[13px] truncate">{salon.name}</span>
+                        {getStatusBadge(salon.verificationStatus)}
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-secondary font-medium truncate uppercase tracking-wider">{salon.city}</span>
+                        <button 
+                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                          className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
           {totalPages > 1 && (

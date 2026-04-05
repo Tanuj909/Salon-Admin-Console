@@ -91,24 +91,35 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-black-deep text-white border-r border-white/5 transition-all duration-300 ease-in-out font-jost
+        className={`fixed inset-y-0 left-0 z-[100] flex flex-col h-screen bg-black-deep text-white border-r border-white/5 transition-all duration-300 ease-in-out font-jost
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           `}
         id="sidebar"
       >
         {/* LOGO AREA */}
-        <div className={`flex items-center gap-4 p-4 sm:p-6 border-b border-white/5 h-20 sm:h-24 shrink-0 transition-all ${collapsed ? 'justify-center border-b-transparent' : 'justify-start'}`}>
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gold flex items-center justify-center text-black-deep shadow-[0_4px_20px_-5px_rgba(200,169,81,0.5)] flex-shrink-0">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+        <div className={`flex items-center justify-between p-4 sm:p-6 border-b border-white/5 h-20 sm:h-24 shrink-0 transition-all ${collapsed ? 'border-b-transparent' : ''}`}>
+          <div className={`flex items-center gap-4 ${collapsed ? 'justify-center w-full' : 'justify-start'}`}>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gold flex items-center justify-center text-black-deep shadow-[0_4px_20px_-5px_rgba(200,169,81,0.5)] flex-shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+            </div>
+
+            {!collapsed && (
+              <div className="flex flex-col justify-center overflow-hidden whitespace-nowrap opacity-100 transition-opacity duration-300 text-left">
+                <div className="font-display text-lg sm:text-xl leading-tight italic tracking-wide">FastBooking</div>
+                <div className="text-[8px] sm:text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{role === 'SUPER_ADMIN' ? 'Super Admin' : role === 'RECEPTIONIST' ? 'Receptionist' : 'Admin Console'}</div>
+              </div>
+            )}
           </div>
 
-          {!collapsed && (
-            <div className="flex flex-col justify-center overflow-hidden whitespace-nowrap opacity-100 transition-opacity duration-300">
-              <div className="font-display text-lg sm:text-xl leading-tight italic tracking-wide">Business Management</div>
-              <div className="text-[8px] sm:text-[9px] text-white/50 uppercase tracking-[0.2em] font-bold mt-0.5">{role === 'SUPER_ADMIN' ? 'Super Admin' : role === 'RECEPTIONIST' ? 'Receptionist' : 'Admin Console'}</div>
-            </div>
-          )}
+          {/* MOBILE CLOSE BUTTON */}
+          <button 
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden text-white/50 hover:text-white p-2 rounded-xl hover:bg-white/5 transition-all"
+            aria-label="Close Sidebar"
+          >
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
 
         {/* NAVIGATION AREA */}
