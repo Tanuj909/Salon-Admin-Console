@@ -35,21 +35,27 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status, config } = error.response;
       const isAuthRequest = config.url?.includes("/auth/login") || config.url?.includes("/login");
+      const isMeRequest = config.url?.includes("/auth/me");
 
       // Handle 401 Unauthorized errors
       if (status === 401 && !isAuthRequest) {
-        console.warn("Unauthorized! Logging out...");
-        removeToken();
-        storage.remove(STORAGE_KEYS.USER);
+        console.warn(`Unauthorized! URL: ${config.url}`);
         
-        // Use window.location as a last resort if context is unavailable
-        // But ideally, the context will listen to token changes
-        window.location.href = "/login";
+        // Only redirect of the profile check fails or if we already have no token
+        if (isMeRequest || !getToken()) {
+          console.warn("Session expired or token missing. Clearing session...");
+          removeToken();
+          storage.remove(STORAGE_KEYS.USER);
+          
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
+        }
       }
 
       // Handle 403 Forbidden errors
       if (status === 403) {
-        console.error("Access Forbidden!");
+        console.error(`Access Forbidden for URL: ${config.url}`);
       }
     }
     return Promise.reject(error);

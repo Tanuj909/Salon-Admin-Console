@@ -5,7 +5,13 @@ const storage = {
   get: (key) => {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
+      if (!item) return null;
+      try {
+        return JSON.parse(item);
+      } catch {
+        // Fallback to raw string if not valid JSON
+        return item;
+      }
     } catch (error) {
       console.error(`Error reading from localStorage: ${key}`, error);
       return null;

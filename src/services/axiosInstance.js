@@ -1,5 +1,7 @@
 import axios from "axios";
 import { getToken, removeToken } from "../utils/token";
+import storage from "../utils/storage";
+import { STORAGE_KEYS } from "../utils/constants";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -39,21 +41,30 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       const { status, config } = error.response;
 
-      // Don't do anything for login requests
-      if (config.url?.includes('/auth/login') || config.url?.includes('/login')) {
-        return Promise.reject(error);
-      }
-
-      // For other requests with 401, just remove token but DON'T redirect automatically
-      if (status === 401) {
-        removeToken();
-        localStorage.removeItem("admin_user");
-        // Don't redirect here - let the component decide
+      // Don't do anything for auth requests to avoid loops
+      const isAuthRequest = config.url?.includes('/auth/login') || config.url?.includes('/login');
+      const isMeRequest = config.url?.includes('/auth/me');
+      
+      if (status === 401 && !isAuthRequest) {
+        console.warn(`Unauthorized access on URL: ${config.url}`);
+        
+        // Only redirect of the profile check fails or if we already have no token
+        if (isMeRequest || !getToken()) {
+          console.warn("Session expired or token missing. Clearing session...");
+          removeToken();
+          storage.remove(STORAGE_KEYS.USER);
+          
+          if (window.location.pathname !== '/login') {
+            window.location.href = "/login";
+          }
+        } else {
+          console.warn("401 encountered but staying logged in for now...");
+        }
       }
 
       // Forbidden
       if (status === 403) {
-        console.error("Access Denied");
+        console.error(`Access Forbidden for URL: ${config.url}`);
       }
     }
 

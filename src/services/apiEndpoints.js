@@ -22,10 +22,10 @@ export const API_ENDPOINTS = {
     UPLOAD_IMAGES: "/businesses/images",
     DELETE_IMAGE: "/businesses/images",
     VERIFY: (id) => `/businesses/${id}/verify`,
-    GET_VERIFICATION_DOCUMENTS: (id) => `/businesses/verification/${id}/documents`,
+    GET_VERIFICATION_DOCUMENTS: (id) => `/businesses/${id}/verification/documents`,
     REVIEW_DOCUMENT: (documentId) => `/businesses/verification/documents/${documentId}/review`,
-    GET_VERIFICATION_MESSAGES: (id) => `/businesses/verification/${id}/messages`,
-    SEND_VERIFICATION_MESSAGE: (id) => `/businesses/verification/${id}/messages`,
+    GET_VERIFICATION_MESSAGES: (id) => `/businesses/${id}/verification/messages`,
+    SEND_VERIFICATION_MESSAGE: (id) => `/businesses/${id}/verification/messages`,
   },
 
   CATEGORIES: {

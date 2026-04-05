@@ -21,7 +21,14 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
       setDocuments(data || []);
     } catch (err) {
       console.error("Failed to fetch documents", err);
-      setError("Failed to load documents. Please try again.");
+      // More specific error message
+      if (err.response?.status === 401) {
+        setError("Unauthorized access. Please try loggin in again or check permissions.");
+      } else if (err.response?.status === 404) {
+        setError("Endpoint not found. The API path might be incorrect.");
+      } else {
+        setError("Failed to load documents. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

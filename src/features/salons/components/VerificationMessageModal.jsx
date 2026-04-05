@@ -30,7 +30,13 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
       setMessages((data.content || []).reverse());
     } catch (err) {
       console.error("Failed to fetch messages", err);
-      setError("Failed to load messages.");
+      if (err.response?.status === 401) {
+        setError("Unauthorized access. Check permissions.");
+      } else if (err.response?.status === 404) {
+        setError("Message endpoint not found.");
+      } else {
+        setError("Failed to load messages.");
+      }
     } finally {
       setLoading(false);
     }
