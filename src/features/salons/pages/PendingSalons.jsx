@@ -23,6 +23,7 @@ const PendingSalons = () => {
   const [isMsgModalOpen, setIsMsgModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedSalon, setSelectedSalon] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // { id, type, salonName }
 
   useEffect(() => {
     fetchPendingSalons();
@@ -47,6 +48,7 @@ const PendingSalons = () => {
     try {
       setActionLoading(id);
       await verifySalonApi(id, status);
+      setConfirmAction(null);
       fetchPendingSalons();
     } catch (err) {
       alert(`Failed to ${status.toLowerCase()} salon. Please try again.`);
@@ -202,14 +204,14 @@ const PendingSalons = () => {
                           </button>
                           <button
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
-                            onClick={() => handleVerify(salon.id, 'VERIFIED')}
+                            onClick={() => setConfirmAction({ id: salon.id, type: 'VERIFIED', salonName: salon.name })}
                             disabled={actionLoading === salon.id}
                           >
                             {actionLoading === salon.id ? "..." : "Approve"}
                           </button>
                           <button
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
-                            onClick={() => handleVerify(salon.id, 'REJECTED')}
+                            onClick={() => setConfirmAction({ id: salon.id, type: 'REJECTED', salonName: salon.name })}
                             disabled={actionLoading === salon.id}
                           >
                             Reject
@@ -367,20 +369,14 @@ const PendingSalons = () => {
                 </button>
                 <button
                   className="px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-xl text-[10px] font-bold uppercase tracking-widest"
-                  onClick={() => {
-                    handleVerify(selectedSalon.id, 'VERIFIED');
-                    setIsDetailModalOpen(false);
-                  }}
+                  onClick={() => setConfirmAction({ id: selectedSalon.id, type: 'VERIFIED', salonName: selectedSalon.name })}
                   disabled={actionLoading === selectedSalon?.id}
                 >
                   {actionLoading === selectedSalon?.id ? "..." : "Approve Salon"}
                 </button>
                 <button
                   className="px-4 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[10px] font-bold uppercase tracking-widest"
-                  onClick={() => {
-                    handleVerify(selectedSalon.id, 'REJECTED');
-                    setIsDetailModalOpen(false);
-                  }}
+                  onClick={() => setConfirmAction({ id: selectedSalon.id, type: 'REJECTED', salonName: selectedSalon.name })}
                   disabled={actionLoading === selectedSalon?.id}
                 >
                   Reject Salon
@@ -389,6 +385,55 @@ const PendingSalons = () => {
             </div>
             <div className="p-6 bg-slate-50 border-t border-slate-100">
                 <p className="text-[9px] text-slate-400 uppercase tracking-widest text-center font-medium">Salon ID: {selectedSalon?.id || selectedSalon?.ownerUserId}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1500] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className={`p-6 text-center ${confirmAction.type === 'VERIFIED' ? 'bg-green-50/30' : 'bg-red-50/30'}`}>
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                confirmAction.type === 'VERIFIED' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+              }`}>
+                {confirmAction.type === 'VERIFIED' ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-black-deep mb-2">
+                Confirm {confirmAction.type === 'VERIFIED' ? 'Approval' : 'Rejection'}
+              </h3>
+              <p className="text-secondary text-xs sm:text-sm leading-relaxed">
+                Are you sure you want to <strong>{confirmAction.type === 'VERIFIED' ? 'approve' : 'reject'}</strong> <br/>
+                <span className="text-gold font-bold italic">"{confirmAction.salonName}"</span>?
+              </p>
+            </div>
+
+            <div className="p-6 bg-slate-50/80 border-t border-slate-100 flex gap-3">
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-secondary hover:bg-slate-100 font-bold uppercase tracking-widest text-[10px] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleVerify(confirmAction.id, confirmAction.type);
+                  setIsDetailModalOpen(false); // Close mobile modal if open
+                }}
+                disabled={actionLoading === confirmAction.id}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-white font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg ${
+                  confirmAction.type === 'VERIFIED' 
+                    ? 'bg-green-600 hover:bg-green-700 shadow-green-600/10' 
+                    : 'bg-red-600 hover:bg-red-700 shadow-red-600/10'
+                } disabled:opacity-50 disabled:shadow-none`}
+              >
+                {actionLoading === confirmAction.id ? "Processing..." : `Confirm ${confirmAction.type === 'VERIFIED' ? 'Approve' : 'Reject'}`}
+              </button>
             </div>
           </div>
         </div>

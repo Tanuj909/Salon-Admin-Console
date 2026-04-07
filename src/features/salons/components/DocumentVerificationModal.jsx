@@ -5,6 +5,9 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [confirmReview, setConfirmReview] = useState(null); // { id, type, documentType }
+  const [localRejectionReason, setLocalRejectionReason] = useState("");
   const [reviewLoading, setReviewLoading] = useState(null);
 
   useEffect(() => {
@@ -34,20 +37,12 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
     }
   };
 
-  const handleReview = async (documentId, approve) => {
-    let rejectionReason = null;
-    if (!approve) {
-      rejectionReason = window.prompt("Please enter the reason for rejection:");
-      if (rejectionReason === null) return; // User cancelled prompt
-      if (!rejectionReason.trim()) {
-        alert("Rejection reason is required.");
-        return;
-      }
-    }
-
+  const handleReview = async (documentId, approve, reason) => {
     try {
       setReviewLoading(documentId);
-      await reviewDocumentApi(documentId, approve, rejectionReason);
+      await reviewDocumentApi(documentId, approve, reason);
+      setConfirmReview(null);
+      setLocalRejectionReason("");
       await fetchDocuments(); // Refresh list to show updated status
     } catch (err) {
       console.error("Failed to review document", err);
@@ -110,19 +105,19 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
             <div className="space-y-4">
               {documents.map((doc) => (
                 <div key={doc.id} className="group bg-white border border-slate-100 hover:border-gold/30 rounded-2xl p-3 sm:p-4 transition-all hover:shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gold/5 flex items-center justify-center text-gold border border-gold/10 shrink-0">
                       <svg width="18" height="18" sm:width="20" sm:height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h4 className="font-bold text-black-deep text-xs sm:text-sm mb-0.5 truncate uppercase tracking-wide">{doc.documentType.replace(/_/g, " ")}</h4>
-                      <p className="text-[10px] sm:text-xs text-secondary font-medium truncate">{doc.fileName}</p>
+                      <p className="text-[10px] sm:text-xs text-secondary font-medium truncate" title={doc.fileName}>{doc.fileName}</p>
                       <p className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">Uploaded: {new Date(doc.uploadedAt).toLocaleDateString()}</p>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between sm:justify-end shrink-0">
-                    <div className="flex flex-col items-start sm:items-end gap-1">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between sm:justify-end sm:shrink-0 w-full sm:w-auto">
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-1 w-full sm:w-auto">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border whitespace-nowrap ${
                         doc.verificationStatus === 'APPROVED' ? 'bg-green-50 text-green-600 border-green-100' :
                         doc.verificationStatus === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-100' :
@@ -138,27 +133,25 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
                       )}
                     </div>
                     
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <a 
-                        href={doc.fileUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 bg-[#FDFBF7] text-gold border border-gold/20 hover:bg-gold/5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all text-center no-underline whitespace-nowrap"
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                      <button 
+                        onClick={() => setPreviewUrl(doc.fileUrl)}
+                        className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 bg-[#FDFBF7] text-gold border border-gold/20 hover:bg-gold/5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all text-center no-underline whitespace-nowrap cursor-pointer"
                       >
                         View
-                      </a>
+                      </button>
                       
                       {doc.verificationStatus === 'PENDING' && (
                         <>
                           <button
-                            onClick={() => handleReview(doc.id, true)}
+                            onClick={() => setConfirmReview({ id: doc.id, type: 'approve', documentType: doc.documentType })}
                             disabled={reviewLoading === doc.id}
                             className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
                             {reviewLoading === doc.id ? "..." : "Approve"}
                           </button>
                           <button
-                            onClick={() => handleReview(doc.id, false)}
+                            onClick={() => setConfirmReview({ id: doc.id, type: 'reject', documentType: doc.documentType })}
                             disabled={reviewLoading === doc.id}
                             className="flex-1 sm:flex-none px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
@@ -184,6 +177,98 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
           </button>
         </div>
       </div>
+
+      {/* Inline Image Preview Modal */}
+      {previewUrl && (
+        <div 
+          className="fixed inset-0 bg-black-deep/90 backdrop-blur-md z-[1200] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <div className="relative max-w-5xl w-full flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setPreviewUrl(null)}
+              className="absolute -top-12 sm:right-0 text-white/70 hover:text-white flex items-center gap-2 group transition-colors px-2 py-1"
+            >
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Close Preview</span>
+              <div className="p-1.5 rounded-full bg-white/10 group-hover:bg-white/20 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </div>
+            </button>
+            <div className="w-full bg-white/5 rounded-[24px] p-2 sm:p-3 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+              <img 
+                src={previewUrl} 
+                alt="Document Preview" 
+                className="max-w-full max-h-[80vh] object-contain rounded-[18px] shadow-inner"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmReview && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1300] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className={`p-4 sm:p-6 text-center ${confirmReview.type === 'approve' ? 'bg-green-50/30' : 'bg-red-50/30'}`}>
+              <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                confirmReview.type === 'approve' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+              }`}>
+                {confirmReview.type === 'approve' ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-black-deep mb-2">
+                Confirm {confirmReview.type === 'approve' ? 'Approval' : 'Rejection'}
+              </h3>
+              <p className="text-secondary text-xs sm:text-sm mb-4 leading-relaxed">
+                Are you sure you want to <strong>{confirmReview.type}</strong> the <br/>
+                <span className="text-gold font-bold italic">"{confirmReview.documentType.replace(/_/g, " ")}"</span> document?
+              </p>
+
+              {confirmReview.type === 'reject' && (
+                <div className="mt-4 text-left">
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-secondary block mb-2 px-1">Reason for Rejection</label>
+                  <textarea
+                    value={localRejectionReason}
+                    onChange={(e) => setLocalRejectionReason(e.target.value)}
+                    placeholder="Provide a feedback for the salon..."
+                    className="w-full h-24 p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-red-500/20 focus:border-red-300 transition-all resize-none"
+                    autoFocus
+                  />
+                  {!localRejectionReason.trim() && (
+                    <p className="text-[9px] text-red-500 mt-1.5 ml-1 font-medium italic">* A rejection reason is required to proceed.</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 sm:p-6 bg-slate-50/80 border-t border-slate-100 flex gap-3">
+              <button
+                onClick={() => {
+                  setConfirmReview(null);
+                  setLocalRejectionReason("");
+                }}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-secondary hover:bg-slate-100 font-bold uppercase tracking-widest text-[10px] transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleReview(confirmReview.id, confirmReview.type === 'approve', localRejectionReason)}
+                disabled={reviewLoading === confirmReview.id || (confirmReview.type === 'reject' && !localRejectionReason.trim())}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-white font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg ${
+                  confirmReview.type === 'approve' 
+                    ? 'bg-green-600 hover:bg-green-700 shadow-green-600/10' 
+                    : 'bg-red-600 hover:bg-red-700 shadow-red-600/10'
+                } disabled:opacity-50 disabled:shadow-none`}
+              >
+                {reviewLoading === confirmReview.id ? "Processing..." : `Confirm ${confirmReview.type === 'approve' ? 'Approve' : 'Reject'}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
