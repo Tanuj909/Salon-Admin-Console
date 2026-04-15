@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { getBookingDetailsByNumberApi, processPaymentApi, getBillDetailsApi, updateBookingStatusApi } from "../services/bookingService";
 import { toast } from "react-hot-toast";
+import BillModal from "../components/BillModal";
 
 const PAYMENT_METHODS = [
     { value: "CASH", label: "Cash", icon: "💵" },
@@ -497,119 +498,13 @@ const CompleteBooking = () => {
                     </div>
                 )}
                 {/* ─── Bill Modal ─── */}
-                {showBillModal && billData && (
-                    <div
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
-                        onClick={() => setShowBillModal(false)}
-                    >
-                        <div
-                            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {/* Modal Header */}
-                            <div className="px-6 py-4 border-b border-slate-100 bg-[#FDFBF7] flex justify-between items-center shrink-0">
-                                <div>
-                                    <h3 className="font-display text-2xl italic text-black-deep">Receipt / Bill</h3>
-                                    <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">#{billData.billNumber}</p>
-                                </div>
-                                <button
-                                    className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-lg transition-colors"
-                                    onClick={() => setShowBillModal(false)}
-                                >
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                </button>
-                            </div>
+                <BillModal 
+                    isOpen={showBillModal} 
+                    onClose={() => setShowBillModal(false)} 
+                    billData={billData} 
+                />
 
-                            {/* Modal Content */}
-                            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                                {/* Business & Customer Header */}
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div>
-                                        <p className="text-[9px] font-black text-secondary/30 uppercase tracking-[0.2em] mb-3">From</p>
-                                        <h4 className="font-bold text-base text-black-deep mb-1">{billData.business.name}</h4>
-                                        <p className="text-xs text-secondary/70 leading-relaxed max-w-[200px]">{billData.business.address}</p>
-                                        <p className="text-xs text-secondary/70 mt-1">{billData.business.phone}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-[9px] font-black text-secondary/30 uppercase tracking-[0.2em] mb-3">Bill To</p>
-                                        <h4 className="font-bold text-base text-black-deep mb-1">{billData.customer.name}</h4>
-                                        <p className="text-xs text-secondary/70 leading-relaxed">{billData.customer.email}</p>
-                                        <p className="text-xs text-secondary/70 mt-1">{billData.customer.phone}</p>
-                                    </div>
-                                </div>
 
-                                {/* Payments Table */}
-                                <div>
-                                    <p className="text-[9px] font-black text-secondary/30 uppercase tracking-[0.2em] mb-4">Payment History</p>
-                                    <div className="rounded-xl border border-slate-100 overflow-hidden">
-                                        <table className="w-full text-left text-xs">
-                                            <thead className="bg-[#FDFBF7] text-secondary/50 font-bold uppercase tracking-wider border-b border-slate-100">
-                                                <tr>
-                                                    <th className="px-4 py-3">Transaction ID</th>
-                                                    <th className="px-4 py-3">Method</th>
-                                                    <th className="px-4 py-3">Date</th>
-                                                    <th className="px-4 py-3 text-right">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-50">
-                                                {billData.payments.map((p, i) => (
-                                                    <tr key={i} className="text-black-deep font-medium">
-                                                        <td className="px-4 py-3 font-mono text-[10px]">{p.transactionId}</td>
-                                                        <td className="px-4 py-3">
-                                                            <span className="px-2 py-0.5 bg-slate-100 rounded text-[9px] font-bold uppercase">{p.paymentMethod}</span>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-secondary/60">{new Date(p.paymentDate).toLocaleDateString()}</td>
-                                                        <td className="px-4 py-3 text-right font-bold">₹{p.amount.toFixed(2)}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                {/* Totals Section */}
-                                <div className="flex flex-col items-end pt-4">
-                                    <div className="w-full max-w-[240px] space-y-3">
-                                        <div className="flex justify-between text-xs font-medium text-secondary/60">
-                                            <span>Subtotal</span>
-                                            <span className="text-black-deep">₹{billData.subtotal.toFixed(2)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xs font-medium text-emerald-600">
-                                            <span>Discount</span>
-                                            <span>- ₹{billData.discount.toFixed(2)}</span>
-                                        </div>
-                                        <div className="h-px bg-slate-100 my-2"></div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs font-black text-black-deep uppercase tracking-widest">Total Amount</span>
-                                            <span className="text-2xl font-display italic text-black-deep">₹{billData.total.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Notes */}
-                                {billData.notes && (
-                                    <div className="bg-[#FDFBF7] p-4 rounded-xl border border-gold/10">
-                                        <p className="text-[9px] font-black text-gold/60 uppercase tracking-[0.2em] mb-1.5">Note</p>
-                                        <p className="text-xs text-secondary italic">"{billData.notes}"</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
-                                <p className="text-[10px] text-secondary/40 font-medium italic">Generated at {new Date(billData.generatedAt).toLocaleString()}</p>
-                                <div className="flex gap-3">
-                                    <button
-                                        className="px-6 py-2.5 text-xs font-bold text-black-deep bg-gold rounded-xl hover:shadow-lg hover:shadow-gold/20 transition-all uppercase tracking-wider active:scale-95"
-                                        onClick={() => window.print()}
-                                    >
-                                        Print Invoice
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </main>
         </div>
     );
