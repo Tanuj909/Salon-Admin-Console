@@ -1,17 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 
 const BillModal = ({ isOpen, onClose, billData }) => {
-    const [printFormat, setPrintFormat] = useState("a4"); // 'a4' or 'thermal'
-
     if (!isOpen || !billData) return null;
-
-    const handlePrint = (format) => {
-        setPrintFormat(format);
-        // Short delay to ensure React state update reflects in classes before print dialog
-        setTimeout(() => {
-            window.print();
-        }, 50);
-    };
 
     return (
         <div
@@ -22,8 +12,10 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                 {`
                 /* Print Styles - Professional Invoice Printing */
                 @media print {
-                    /* Basic Reset */
+                    /* Reset all margins and padding */
                     * {
+                        margin: 0;
+                        padding: 0;
                         box-sizing: border-box;
                     }
                     
@@ -38,23 +30,14 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         visibility: hidden;
                     }
                     
-                    /* Universal Printable Area Show Logic */
-                    .print-a4 #printable-invoice,
-                    .print-a4 #printable-invoice *,
-                    .print-thermal #printable-receipt,
-                    .print-thermal #printable-receipt * {
+                    /* Show only the invoice container */
+                    #printable-invoice,
+                    #printable-invoice * {
                         visibility: visible;
-                        display: block;
-                    }
-
-                    /* Ensure they are hidden when not active */
-                    .print-a4 #printable-receipt,
-                    .print-thermal #printable-invoice {
-                        display: none !important;
                     }
                     
-                    /* A4 Specific Formatting */
-                    .print-a4 #printable-invoice {
+                    /* Position invoice properly on page */
+                    #printable-invoice {
                         position: fixed !important;
                         top: 0 !important;
                         left: 0 !important;
@@ -64,21 +47,8 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         max-width: 210mm !important;
                         background: white !important;
                         box-shadow: none !important;
-                        padding: 20mm !important;
+                        padding: 15mm !important;
                         z-index: 999999 !important;
-                    }
-
-                    /* Thermal Specific Formatting */
-                    .print-thermal #printable-receipt {
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        width: 80mm !important;
-                        margin: 0 auto !important;
-                        background: white !important;
-                        padding: 5mm !important;
-                        z-index: 999999 !important;
-                        font-family: 'Courier New', Courier, monospace !important;
                     }
                     
                     /* Hide print button and close button */
@@ -86,30 +56,182 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         display: none !important;
                     }
                     
-                    /* Page size settings */
-                    @page {
-                        margin: 0;
-                    }
-
-                    .print-a4 @page { size: A4; }
-                    .print-thermal @page { size: 80mm auto; }
-                    
-                    /* Avoid page breaks in content */
-                    .section-header, .section-details, .section-table, .section-summary, .section-footer {
+                    /* Ensure proper page breaks */
+                    .print-container {
                         page-break-inside: avoid;
                     }
                     
-                    /* Better spacing for print sections (A4 Only) */
-                    .print-a4 .section-header { margin-bottom: 50px !important; }
-                    .print-a4 .section-details { margin-bottom: 60px !important; }
-                    .print-a4 .section-table { margin-bottom: 50px !important; }
-                    .print-a4 .section-summary { margin-top: 30px !important; }
-                    .print-a4 .section-footer { margin-top: 80px !important; }
-
-                    /* Thermal Layout Overrides */
-                    .print-thermal .thermal-divider {
-                        border-top: 1px dashed black;
-                        margin: 5mm 0;
+                    /* Set page size and margins */
+                    @page {
+                        size: A4;
+                        margin: 0;
+                    }
+                    
+                    /* Ensure table doesn't break */
+                    table {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* Better spacing for print */
+                    .invoice-content {
+                        width: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    /* ===== SPACING IMPROVEMENTS ===== */
+                    
+                    /* Header section spacing */
+                    #printable-invoice .border-b-2 {
+                        margin-bottom: 20px !important;
+                        padding-bottom: 20px !important;
+                    }
+                    
+                    /* Customer & Payment Details section */
+                    #printable-invoice .grid-cols-2 {
+                        margin-bottom: 30px !important;
+                        gap: 30px !important;
+                    }
+                    
+                    /* Section dividers - add visual separation */
+                    #printable-invoice .grid-cols-2 > div:first-child {
+                        padding-right: 20px !important;
+                        border-right: 1px solid #e5e5e5 !important;
+                    }
+                    
+                    /* Section headings spacing */
+                    #printable-invoice h3 {
+                        margin-bottom: 12px !important;
+                        padding-bottom: 6px !important;
+                    }
+                    
+                    /* Table section spacing */
+                    #printable-invoice .mb-10 {
+                        margin-bottom: 30px !important;
+                    }
+                    
+                    /* Table header spacing */
+                    #printable-invoice thead tr {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    #printable-invoice th {
+                        padding-top: 12px !important;
+                        padding-bottom: 12px !important;
+                    }
+                    
+                    /* Table rows spacing */
+                    #printable-invoice td {
+                        padding-top: 12px !important;
+                        padding-bottom: 12px !important;
+                    }
+                    
+                    /* Summary section - top margin */
+                    #printable-invoice .flex.justify-between.items-start {
+                        margin-top: 30px !important;
+                        padding-top: 20px !important;
+                        border-top: 2px solid #000 !important;
+                    }
+                    
+                    /* Notes box spacing */
+                    #printable-invoice .bg-zinc-50 {
+                        padding: 15px !important;
+                        margin-right: 20px !important;
+                    }
+                    
+                    /* Total section spacing */
+                    #printable-invoice .space-y-3 {
+                        padding-left: 20px !important;
+                    }
+                    
+                    #printable-invoice .border-t-2 {
+                        padding-top: 15px !important;
+                        margin-top: 15px !important;
+                    }
+                    
+                    /* Footer spacing */
+                    #printable-invoice .mt-20 {
+                        margin-top: 40px !important;
+                        padding-top: 20px !important;
+                    }
+                    
+                    /* Individual section separators */
+                    #printable-invoice > * + * {
+                        margin-top: 10px;
+                    }
+                    
+                    /* Page break control - keep sections together */
+                    #printable-invoice > div {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* Keep header with customer details */
+                    #printable-invoice .border-b-2:first-of-type {
+                        page-break-after: avoid;
+                    }
+                    
+                    /* Keep table rows together */
+                    #printable-invoice tbody tr {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* Extra spacing between major sections */
+                    #printable-invoice .border-b-2:first-of-type {
+                        margin-bottom: 30px !important;
+                        padding-bottom: 25px !important;
+                    }
+                    
+                    /* Ensure proper spacing for customer section */
+                    #printable-invoice .grid-cols-2 {
+                        margin-bottom: 35px !important;
+                        margin-top: 10px !important;
+                    }
+                    
+                    /* Payment status badge spacing */
+                    #printable-invoice .text-right .mt-1 {
+                        margin-top: 12px !important;
+                    }
+                    
+                    /* Table container spacing */
+                    #printable-invoice .mb-10 {
+                        margin-bottom: 35px !important;
+                    }
+                    
+                    /* Summary section spacing */
+                    #printable-invoice .flex.justify-between.items-start {
+                        margin-top: 25px !important;
+                    }
+                    
+                    /* Line item spacing in summary */
+                    #printable-invoice .space-y-3 > div {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    /* Grand total styling with spacing */
+                    #printable-invoice .border-t-2.border-black {
+                        padding-top: 18px !important;
+                        margin-top: 18px !important;
+                    }
+                    
+                    /* Footer disclaimer spacing */
+                    #printable-invoice .mt-20 {
+                        margin-top: 50px !important;
+                        padding-top: 25px !important;
+                    }
+                    
+                    /* Footer text spacing */
+                    #printable-invoice .text-center p:first-child {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    /* Ensure no content sticks together */
+                    #printable-invoice {
+                        line-height: 1.5 !important;
+                    }
+                    
+                    /* Section gap helper */
+                    .section-gap {
+                        margin-bottom: 25px !important;
                     }
                 }
                 
@@ -122,34 +244,25 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                 }
                 `}
             </style>
-
+            
             {/* Modal Container */}
             <div
-                className={`bg-white rounded-3xl shadow-2xl w-full max-w-[210mm] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300 my-auto max-h-[90vh] relative print-${printFormat}`}
+                className="bg-white rounded-3xl shadow-2xl w-full max-w-[210mm] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300 my-auto max-h-[90vh] relative"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Modal Tools (Float over content) - Hidden when printing */}
-                <div className="absolute top-6 right-6 flex items-center gap-2 no-print z-20">
+                <div className="absolute top-6 right-6 flex items-center gap-3 no-print z-20">
                     <button
-                        className="flex items-center gap-1.5 px-3 py-2 bg-gray-900 text-amber-500 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:shadow-lg active:scale-95 transition-all"
-                        onClick={() => handlePrint('a4')}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-amber-500 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg active:scale-95 transition-all"
+                        onClick={() => window.print()}
                     >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
-                        Print A4
+                        Print Invoice
                     </button>
                     <button
-                        className="flex items-center gap-1.5 px-3 py-2 bg-amber-500 text-gray-950 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:shadow-lg active:scale-95 transition-all"
-                        onClick={() => handlePrint('thermal')}
-                    >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        Print Receipt
-                    </button>
-                    <button
-                        className="w-8 h-8 flex items-center justify-center bg-white border border-slate-200 text-slate-400 hover:text-gray-900 hover:border-gray-900 rounded-lg transition-all active:scale-90"
+                        className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 text-slate-400 hover:text-gray-900 hover:border-gray-900 rounded-xl transition-all active:scale-90"
                         onClick={onClose}
                     >
                         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -160,13 +273,13 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                 </div>
 
                 {/* Invoice Content - Printable Area */}
-                <div
+                <div 
                     id="printable-invoice"
                     className="invoice-content bg-white text-black p-[15mm] sm:p-[20mm] overflow-y-auto"
                     style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}
                 >
                     {/* Header */}
-                    <div className="section-header flex justify-between items-start border-b-2 border-black pb-8 mb-10">
+                    <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-10">
                         <div className="space-y-1.5">
                             <h1 className="text-3xl font-black uppercase tracking-tight text-black m-0 leading-none mb-2">
                                 {billData.business.name}
@@ -183,10 +296,10 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                             <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
                                 <span className="text-zinc-500 font-bold text-left">Bill No:</span>
                                 <span className="font-bold text-black">{billData.billNumber}</span>
-
+                                
                                 <span className="text-zinc-500 font-bold text-left">Date:</span>
                                 <span className="font-bold text-black">{new Date(billData.generatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-
+                                
                                 <span className="text-zinc-500 font-bold text-left">Ref:</span>
                                 <span className="font-bold text-black uppercase">{billData.payments[0]?.bookingNumber || 'N/A'}</span>
                             </div>
@@ -194,7 +307,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                     </div>
 
                     {/* Customer & Payment Details */}
-                    <div className="section-details grid grid-cols-2 gap-10 mb-12">
+                    <div className="grid grid-cols-2 gap-10 mb-12">
                         <div>
                             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3 border-b border-zinc-100 pb-1">Customer Details</h3>
                             <p className="text-sm font-bold m-0 text-black">{billData.customer.name}</p>
@@ -212,7 +325,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                     </div>
 
                     {/* Transactions Table */}
-                    <div className="section-table mb-10">
+                    <div className="mb-10">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-zinc-50 border-b-2 border-black">
@@ -238,7 +351,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                     </div>
 
                     {/* Summary & Notes */}
-                    <div className="section-summary flex justify-between items-start">
+                    <div className="flex justify-between items-start">
                         <div className="max-w-[320px]">
                             {billData.notes && (
                                 <div className="bg-zinc-50 border border-zinc-100 p-4 rounded-lg">
@@ -266,70 +379,9 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                     </div>
 
                     {/* Footer Disclaimer */}
-                    <div className="section-footer mt-20 pt-10 border-t border-zinc-100 text-center space-y-2">
+                    <div className="mt-20 pt-10 border-t border-zinc-100 text-center space-y-2">
                         <p className="text-sm font-bold text-black mb-1">Thank you for visiting {billData.business.name}!</p>
                         <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-medium">This is a computer-generated invoice and does not require a signature.</p>
-                    </div>
-                </div>
-
-                {/* Thermal Receipt Content - Hidden on screen, visible during thermal print */}
-                <div 
-                    id="printable-receipt"
-                    className="hidden text-black text-[12px] leading-tight"
-                    style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                    <div className="text-center mb-4">
-                        <h2 className="text-base font-bold uppercase">{billData.business.name}</h2>
-                        <p className="text-[10px]">{billData.business.address}</p>
-                        <p className="text-[10px]">Tel: {billData.business.phone}</p>
-                    </div>
-
-                    <div className="thermal-divider" />
-
-                    <div className="flex justify-between mb-1">
-                        <span>Invoice:</span>
-                        <span className="font-bold">{billData.billNumber.split('-').pop()}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                        <span>Date:</span>
-                        <span>{new Date(billData.generatedAt).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                        <span>Customer:</span>
-                        <span className="font-bold">{billData.customer.name}</span>
-                    </div>
-
-                    <div className="thermal-divider" />
-
-                    <table className="w-full text-[11px] mb-2">
-                        <thead>
-                            <tr className="border-b border-black text-left">
-                                <th className="pb-1">Item</th>
-                                <th className="pb-1 text-right">Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {billData.payments.map((p, i) => (
-                                <tr key={i}>
-                                    <td className="py-1">Booking Ref x1</td>
-                                    <td className="py-1 text-right">₹{p.amount.toFixed(2)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <div className="thermal-divider" />
-
-                    <div className="flex justify-between font-bold text-sm">
-                        <span>TOTAL:</span>
-                        <span>₹{billData.total.toFixed(2)}</span>
-                    </div>
-
-                    <div className="thermal-divider" />
-
-                    <div className="text-center mt-4 italic text-[10px]">
-                        <p>Thank you for visiting us!</p>
-                        <p>Powered by Salon Admin Console</p>
                     </div>
                 </div>
             </div>
