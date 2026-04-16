@@ -38,7 +38,7 @@ const Topbar = ({ onMenuClick, isMobile }) => {
 
   return (
     <header className="topbar-container bg-cream/80 backdrop-blur-xl border-b border-gold/10 px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between sticky top-0 z-[60]">
-      <div className="topbar-left flex items-center gap-4 sm:gap-8">
+      <div className="topbar-left flex items-center gap-4 sm:gap-8 flex-1">
         {isMobile && (
           <button
             className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold hover:bg-gold hover:text-black-deep transition-all"
@@ -51,9 +51,23 @@ const Topbar = ({ onMenuClick, isMobile }) => {
             </svg>
           </button>
         )}
-        <h1 className="page-title font-display text-xl sm:text-2xl text-black-deep italic truncate max-w-[150px] sm:max-w-none">
+        
+        <h1 className="page-title font-display text-xl sm:text-2xl text-black-deep italic truncate max-w-[150px] sm:max-w-none hidden lg:block">
           {currentTitle}
         </h1>
+
+        {/* ── Search Bar ── */}
+        <div className="hidden md:flex items-center relative flex-1 max-w-md ml-4">
+          <svg className="absolute left-4 text-secondary/50" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Search bookings, customers, services..." 
+            className="w-full h-12 bg-gold/5 border border-gold/10 rounded-2xl pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all font-jost"
+          />
+        </div>
       </div>
 
       <div className="topbar-right flex items-center gap-3 sm:gap-6">

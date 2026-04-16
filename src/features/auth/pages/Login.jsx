@@ -60,6 +60,11 @@ const Login = () => {
       <div className="relative w-full max-w-[420px]">
         {/* Branding outside card */}
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-white shadow-luxe p-2 flex items-center justify-center">
+              <img src="/logo/fastbooking.png" alt="FastBooking Logo" className="w-full h-full object-contain" />
+            </div>
+          </div>
           <h1 className="font-display text-5xl italic text-black-deep mb-2">FastBooking</h1>
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>

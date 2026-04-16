@@ -6,6 +6,9 @@ import AuthLayout from "@/components/layout/AuthLayout";
 // Features
 import Login from "@/features/auth/pages/Login";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
+import AdminDashboard from "@/features/dashboard/pages/AdminDashboard";
+import SuperAdminDashboard from "@/features/dashboard/pages/SuperAdminDashboard";
+import ReceptionistDashboard from "@/features/dashboard/pages/ReceptionistDashboard";
 import PendingSalons from "@/features/salons/pages/PendingSalons";
 import AllSalons from "@/features/salons/pages/AllSalons";
 import VerifiedSalons from "@/features/salons/pages/VerifiedSalons";
@@ -59,7 +62,7 @@ const AppRoutes = () => {
 
               {/* Super Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
-                <Route path="/super-admin/dashboard" element={<Dashboard />} />
+                <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
                 <Route path="/super-admin/pending-salons" element={<PendingSalons />} />
                 <Route path="/super-admin/all-salons" element={<AllSalons />} />
                 <Route path="/super-admin/verified-salons" element={<VerifiedSalons />} />
@@ -70,7 +73,7 @@ const AppRoutes = () => {
 
               {/* Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-                <Route path="/admin/dashboard" element={<Dashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/my-salon" element={<MyAdminSalon />} />
                 <Route path="/admin/timings" element={<BusinessTimings />} />
                 <Route path="/admin/services" element={<Services />} />
@@ -82,7 +85,7 @@ const AppRoutes = () => {
 
               {/* Receptionist Routes */}
               <Route element={<ProtectedRoute allowedRoles={["RECEPTIONIST"]} />}>
-                <Route path="/receptionist/dashboard" element={<Dashboard />} />
+                <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
                 <Route path="/receptionist/timings" element={<BusinessTimings />} />
                 <Route path="/receptionist/reviews" element={<SalonReviews />} />
                 <Route path="/receptionist/bookings" element={<Bookings />} />
