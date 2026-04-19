@@ -10,18 +10,25 @@ const Topbar = ({ onMenuClick, isMobile }) => {
   const dropdownRef = useRef(null);
 
   const pageTitles = {
-    '/super-admin/dashboard': 'Dashboard',
-    '/super-admin/pending-salons': 'Pending Salons',
-    '/super-admin/verified-salons': 'Verified Salons',
-    '/super-admin/categories': 'Categories',
-    '/super-admin/all-salons': 'All Salons',
-    '/super-admin/admins': 'All Admins',
-    '/admin/dashboard': 'Overview',
+    '/admin/dashboard': 'Dashboard',
+    '/admin/super-admin/dashboard': 'Dashboard',
+    '/admin/super-admin/analyze': 'Platform Analysis',
+    '/admin/super-admin/pending-salons': 'Pending Salons',
+    '/admin/super-admin/verified-salons': 'Verified Salons',
+    '/admin/super-admin/categories': 'Categories',
+    '/admin/super-admin/all-salons': 'All Salons',
+    '/admin/super-admin/admins': 'All Admins',
     '/admin/my-salon': 'My Salon',
-    '/admin/services': 'Service Menu',
+    '/admin/timings': 'Business Timings',
+    '/admin/services': 'Services',
     '/admin/staff': 'Staff Management',
-    '/admin/reviews': 'Client Reviews',
-    '/admin/bookings': 'Appointments'
+    '/admin/reviews': 'Salon Reviews',
+    '/admin/bookings': 'Bookings',
+    '/admin/receptionist/dashboard': 'Dashboard',
+    '/admin/staff/dashboard': 'My Dashboard',
+    '/admin/staff/my-bookings': 'My Bookings',
+    '/admin/staff/reviews': 'My Reviews',
+    '/admin/complete-booking': 'Payment & Complete',
   };
 
   const currentTitle = pageTitles[location.pathname] || 'Dashboard';

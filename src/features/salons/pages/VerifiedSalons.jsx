@@ -153,7 +153,7 @@ const VerifiedSalons = () => {
                         <div className="flex gap-2 justify-end transition-opacity">
                           <button
                             className="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors"
-                            onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                            onClick={() => navigate(`/admin/super-admin/salons/${salon.id}`)}
                           >
                             View Details
                           </button>
@@ -196,7 +196,7 @@ const VerifiedSalons = () => {
                         <span className="text-[10px] text-secondary font-medium truncate uppercase tracking-wider">{salon.city}</span>
                         <div className="flex gap-2">
                           <button 
-                            onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                            onClick={() => navigate(`/admin/super-admin/salons/${salon.id}`)}
                             className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
                           >
                             View

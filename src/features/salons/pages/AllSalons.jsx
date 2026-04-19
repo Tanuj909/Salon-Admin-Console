@@ -207,7 +207,7 @@ const AllSalons = () => {
                       <td className="py-4 px-4 sm:px-6 text-right">
                         <button
                           className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-slate-700 hover:text-gold hover:bg-gold/10 hover:border-gold/30 border border-slate-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm"
-                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                          onClick={() => navigate(`/admin/super-admin/salons/${salon.id}`)}
                         >
                           View Details
                         </button>
@@ -243,7 +243,7 @@ const AllSalons = () => {
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] text-secondary font-medium truncate uppercase tracking-wider">{salon.city}</span>
                         <button 
-                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                          onClick={() => navigate(`/admin/super-admin/salons/${salon.id}`)}
                           className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
                         >
                           View Details

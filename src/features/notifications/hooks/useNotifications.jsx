@@ -64,8 +64,46 @@ export const useNotifications = () => {
   const knownIdsRef  = useRef(new Set());   // tracks IDs we've already seen
   const initialLoad  = useRef(true);        // skip toasts on first load
 
+  // ─── Play notification chime ────────────────────────────────────────────
+  const playNotificationSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // First tone — C6 (high, bright)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(1047, ctx.currentTime);       // C6
+      gain1.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc1.connect(gain1).connect(ctx.destination);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.3);
+
+      // Second tone — E6 (harmonic, pleasant)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1319, ctx.currentTime + 0.15); // E6
+      gain2.gain.setValueAtTime(0, ctx.currentTime);
+      gain2.gain.setValueAtTime(0.12, ctx.currentTime + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc2.connect(gain2).connect(ctx.destination);
+      osc2.start(ctx.currentTime + 0.15);
+      osc2.stop(ctx.currentTime + 0.5);
+
+      // Cleanup
+      setTimeout(() => ctx.close(), 600);
+    } catch (e) {
+      console.warn(LOG_PREFIX, "Could not play notification sound:", e.message);
+    }
+  }, []);
+
   // ─── Show toast for a notification ────────────────────────────────────────
   const showNotificationToast = useCallback((notification) => {
+    // Play chime sound
+    playNotificationSound();
+
     toast(<NotificationToast notification={notification} />, {
       type: "info",
       autoClose: 6000,
@@ -79,7 +117,7 @@ export const useNotifications = () => {
         background: "linear-gradient(90deg, #C8A951, #E8D48B)",
       },
     });
-  }, []);
+  }, [playNotificationSound]);
 
   // ─── Helper: handle incoming WS notification ──────────────────────────────
   const handleNewNotification = useCallback((notification) => {

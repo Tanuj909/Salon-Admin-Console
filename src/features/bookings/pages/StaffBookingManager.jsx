@@ -121,7 +121,7 @@ const StaffBookingManager = () => {
                                         <div>
                                             <p className="font-bold text-black-deep">{booking.customerName || booking.customer?.fullName}</p>
                                             <p className="text-[11px] font-bold text-secondary uppercase tracking-widest">
-                                                {booking.bookingNumber} · {formatDate(booking.bookingDate)}
+                                                {formatDate(booking.bookingDate)}
                                             </p>
                                             <p className="text-xs text-secondary/60">
                                                 {booking.startTime?.substring(0, 5)} - {booking.endTime?.substring(0, 5)}
@@ -138,16 +138,6 @@ const StaffBookingManager = () => {
                                         }`}>
                                             {booking.status}
                                         </div>
-                                        
-                                        {booking.status === 'CONFIRMED' && (
-                                            <button
-                                                onClick={() => handleUpdateStatus(booking.id)}
-                                                disabled={updating}
-                                                className="px-4 py-2 bg-black-deep text-gold text-[10px] font-black uppercase tracking-widest rounded-lg hover:shadow-lg transition-all active:scale-95 disabled:opacity-50"
-                                            >
-                                                Start Session
-                                            </button>
-                                        )}
                                     </div>
                                 </div>
                             ))
@@ -192,9 +182,6 @@ const StaffBookingManager = () => {
                             <div className="bg-white rounded-2xl border border-gold/10 shadow-sm overflow-hidden animate-in fade-in duration-500">
                                 <div className="px-6 py-4 bg-[#FDFBF7] border-b border-gold/10 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <span className="px-2 py-0.5 bg-black-deep text-gold text-[9px] font-black tracking-widest rounded uppercase">
-                                            {searchedBooking.bookingNumber}
-                                        </span>
                                         <span className="text-xs font-bold text-secondary">
                                             {formatDate(searchedBooking.bookingDate)}
                                         </span>

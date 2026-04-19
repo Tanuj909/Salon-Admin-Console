@@ -8,6 +8,8 @@ import Login from "@/features/auth/pages/Login";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard";
 import SuperAdminDashboard from "@/features/dashboard/pages/SuperAdminDashboard";
+import StaffDashboard from "@/features/dashboard/pages/StaffDashboard";
+import Analyze from "@/features/dashboard/pages/Analyze";
 import ReceptionistDashboard from "@/features/dashboard/pages/ReceptionistDashboard";
 import PendingSalons from "@/features/salons/pages/PendingSalons";
 import AllSalons from "@/features/salons/pages/AllSalons";
@@ -47,61 +49,63 @@ const AppRoutes = () => {
                   <Login />
                 </AuthLayout>
               ) : (
-                <Navigate to="/" replace />
+                <Navigate to="/admin" replace />
               )
             }
           />
 
-          {/* Authenticated Routes */}
+          {/* Authenticated Routes - All start with /admin */}
           <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
-              <Route path="/" element={<Navigate to="/dashboard-redirect" replace />} />
+            <Route path="/admin" element={<DashboardLayout />}>
+              <Route index element={<Navigate to="/admin/dashboard-redirect" replace />} />
               
               {/* Common Redirect based on role */}
-              <Route path="/dashboard-redirect" element={<DashboardRedirect />} />
+              <Route path="dashboard-redirect" element={<DashboardRedirect />} />
 
               {/* Super Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["SUPER_ADMIN"]} />}>
-                <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
-                <Route path="/super-admin/pending-salons" element={<PendingSalons />} />
-                <Route path="/super-admin/all-salons" element={<AllSalons />} />
-                <Route path="/super-admin/verified-salons" element={<VerifiedSalons />} />
-                <Route path="/super-admin/salons/:id" element={<SalonDetails />} />
-                <Route path="/super-admin/categories" element={<Categories />} />
-                <Route path="/super-admin/admins" element={<Admins />} />
+                <Route path="super-admin/dashboard" element={<SuperAdminDashboard />} />
+                <Route path="super-admin/analyze" element={<Analyze />} />
+                <Route path="super-admin/pending-salons" element={<PendingSalons />} />
+                <Route path="super-admin/all-salons" element={<AllSalons />} />
+                <Route path="super-admin/verified-salons" element={<VerifiedSalons />} />
+                <Route path="super-admin/salons/:id" element={<SalonDetails />} />
+                <Route path="super-admin/categories" element={<Categories />} />
+                <Route path="super-admin/admins" element={<Admins />} />
               </Route>
 
               {/* Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/my-salon" element={<MyAdminSalon />} />
-                <Route path="/admin/timings" element={<BusinessTimings />} />
-                <Route path="/admin/services" element={<Services />} />
-                <Route path="/admin/staff" element={<Staff />} />
-                <Route path="/admin/reviews" element={<SalonReviews />} />
-                <Route path="/admin/bookings" element={<Bookings />} />
-                <Route path="/admin/complete-booking" element={<CompleteBooking />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="my-salon" element={<MyAdminSalon />} />
+                <Route path="timings" element={<BusinessTimings />} />
+                <Route path="services" element={<Services />} />
+                <Route path="staff" element={<Staff />} />
+                <Route path="reviews" element={<SalonReviews />} />
+                <Route path="bookings" element={<Bookings />} />
+                <Route path="complete-booking" element={<CompleteBooking />} />
               </Route>
 
               {/* Receptionist Routes */}
               <Route element={<ProtectedRoute allowedRoles={["RECEPTIONIST"]} />}>
-                <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
-                <Route path="/receptionist/timings" element={<BusinessTimings />} />
-                <Route path="/receptionist/reviews" element={<SalonReviews />} />
-                <Route path="/receptionist/bookings" element={<Bookings />} />
-                <Route path="/receptionist/complete-booking" element={<CompleteBooking />} />
+                <Route path="receptionist/dashboard" element={<ReceptionistDashboard />} />
+                <Route path="receptionist/timings" element={<BusinessTimings />} />
+                <Route path="receptionist/reviews" element={<SalonReviews />} />
+                <Route path="receptionist/bookings" element={<Bookings />} />
+                <Route path="receptionist/complete-booking" element={<CompleteBooking />} />
               </Route>
 
               {/* Staff Routes */}
               <Route element={<ProtectedRoute allowedRoles={["STAFF"]} />}>
-                <Route path="/staff/dashboard" element={<Navigate to="/staff/my-bookings" replace />} />
-                <Route path="/staff/my-bookings" element={<StaffBookingManager />} />
-                <Route path="/staff/reviews" element={<StaffReviews />} />
+                <Route path="staff/dashboard" element={<StaffDashboard />} />
+                <Route path="staff/my-bookings" element={<StaffBookingManager />} />
+                <Route path="staff/reviews" element={<StaffReviews />} />
               </Route>
             </Route>
           </Route>
 
           {/* Fallback */}
+          <Route path="/" element={<Navigate to="/admin" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </MainLayout>
@@ -117,13 +121,13 @@ const DashboardRedirect = () => {
   
   switch (user.role) {
     case "SUPER_ADMIN":
-      return <Navigate to="/super-admin/dashboard" replace />;
+      return <Navigate to="/admin/super-admin/dashboard" replace />;
     case "ADMIN":
       return <Navigate to="/admin/dashboard" replace />;
     case "RECEPTIONIST":
-      return <Navigate to="/receptionist/dashboard" replace />;
+      return <Navigate to="/admin/receptionist/dashboard" replace />;
     case "STAFF":
-      return <Navigate to="/staff/my-bookings" replace />;
+      return <Navigate to="/admin/staff/my-bookings" replace />;
     default:
       return <Navigate to="/login" replace />;
   }
