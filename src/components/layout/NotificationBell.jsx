@@ -68,7 +68,7 @@ const NotificationBell = () => {
 
       {/* ── Dropdown — matches Topbar dropdown dark style ── */}
       {open && (
-        <div className="absolute right-0 top-16 w-80 bg-black-deep/95 backdrop-blur-xl border border-gold/10 rounded-3xl shadow-luxe overflow-hidden z-[70]">
+        <div className="fixed sm:absolute top-20 sm:top-16 left-1/2 sm:left-auto right-auto sm:right-0 -translate-x-1/2 sm:translate-x-0 w-[calc(100vw-32px)] sm:w-80 bg-black-deep backdrop-blur-3xl border border-gold/20 rounded-3xl shadow-2xl overflow-hidden z-[100] sm:z-[70]">
 
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">

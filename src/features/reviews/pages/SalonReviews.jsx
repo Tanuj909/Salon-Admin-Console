@@ -19,6 +19,9 @@ const SalonReviews = () => {
     const [editForm, setEditForm] = useState({ rating: 5, comment: "", isAnonymous: false });
     const [isUpdating, setIsUpdating] = useState(false);
 
+    // Mobile View State
+    const [mobileReviewDetails, setMobileReviewDetails] = useState(null);
+
     const fetchReviews = async (sid, p) => {
         try {
             const reviewsData = await getReviewsByBusinessApi(sid, { page: p, size: pageSize });
@@ -128,7 +131,7 @@ const SalonReviews = () => {
 
     return (
         <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-            <div className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
+            <div className="container mx-auto px-4 sm:px-6 pb-12 pt-4 bg-transparent max-w-5xl">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
                     <div>
                         <h1 className="font-display text-4xl italic text-black-deep mb-2">Customer Reviews</h1>
@@ -160,8 +163,9 @@ const SalonReviews = () => {
                 ) : (
                     <div className="grid gap-6">
                         {reviews.map((review) => (
-                            <div key={review.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-gold/30 group">
-                                <div className="flex flex-col md:flex-row gap-5">
+                            <div key={review.id} className="bg-white rounded-[20px] md:rounded-2xl p-4 md:p-6 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-gold/30 group">
+                                {/* Desktop Layout */}
+                                <div className="hidden md:flex flex-row gap-5">
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="flex items-center gap-3">
@@ -205,7 +209,7 @@ const SalonReviews = () => {
                                         )}
                                     </div>
 
-                                    <div className="md:w-[280px] shrink-0 flex flex-col gap-3 pt-4 md:pt-0 md:border-l md:pl-5 border-slate-100 justify-center">
+                                    <div className="w-[280px] shrink-0 flex flex-col gap-3 border-l pl-5 border-slate-100 justify-center">
                                         <div className="flex items-center gap-3 bg-slate-50/50 p-2.5 rounded-xl border border-slate-50">
                                             <div className="w-10 h-10 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
                                                 <img src={review.customer?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (review.isAnonymous ? "A" : (review.customer?.fullName || "A")) + "&background=FDFBF7&color=C8A951"} className="w-full h-full object-cover" alt="Customer" />
@@ -245,6 +249,35 @@ const SalonReviews = () => {
                                         </div>
                                     </div>
                                 </div>
+                                 {/* Mobile Layout - Premium Card Style */}
+                                 <div className="md:hidden flex flex-col gap-4">
+                                     <div className="flex items-center justify-between">
+                                         <div className="flex items-center gap-3">
+                                             <div className="w-10 h-10 rounded-full border-2 border-gold/10 overflow-hidden bg-slate-50 shrink-0 shadow-sm">
+                                                 <img src={review.customer?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (review.isAnonymous ? "A" : (review.customer?.fullName || "A")) + "&background=FDFBF7&color=C8A951"} className="w-full h-full object-cover" alt="Customer" />
+                                             </div>
+                                             <div>
+                                                 <div className="text-sm font-bold text-black-deep leading-tight">{review.isAnonymous ? "Anonymous User" : review.customer?.fullName}</div>
+                                                 <div className="text-[10px] text-secondary font-bold uppercase tracking-wider mt-0.5">{formatDate(review.createdAt)}</div>
+                                             </div>
+                                         </div>
+                                         <div className="flex items-center gap-1 bg-gold/10 px-2.5 py-1 rounded-lg border border-gold/20">
+                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-gold"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                             <span className="font-bold text-xs text-black-deep">{Number(review.rating).toFixed(1)}</span>
+                                         </div>
+                                     </div>
+                                     
+                                     <p className="text-secondary text-sm leading-relaxed line-clamp-2 italic font-medium bg-slate-50/50 p-3 rounded-xl border border-slate-50">
+                                         "{review.comment}"
+                                     </p>
+                                     
+                                     <button
+                                         onClick={() => setMobileReviewDetails(review)}
+                                         className="w-full py-3.5 bg-black-deep text-gold rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] hover:brightness-125 transition-all shadow-md active:scale-[0.98]"
+                                     >
+                                         View Full Feedback
+                                     </button>
+                                 </div>
                             </div>
                         ))}
 
@@ -271,75 +304,95 @@ const SalonReviews = () => {
                     </div>
                 )}
 
-                {/* Edit Modal Overlay */}
-                {editingReview && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-deep/60 backdrop-blur-sm transition-opacity">
-                        <div className="bg-white rounded-[24px] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-                            <div className="px-8 py-6 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7] shrink-0">
-                                <div>
-                                    <h3 className="font-display text-2xl italic text-black-deep m-0">Update Review</h3>
-                                    <p className="text-sm text-secondary mt-1">Modify the customer feedback</p>
-                                </div>
-                                <button onClick={() => setEditingReview(null)} className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+
+
+                {/* Mobile View Details Modal */}
+                {mobileReviewDetails && (
+                    <div className="fixed inset-0 z-[9999] md:hidden flex items-center justify-center p-4">
+                        <div 
+                            className="absolute inset-0 bg-black-deep/80 backdrop-blur-md animate-in fade-in duration-300" 
+                            onClick={() => setMobileReviewDetails(null)} 
+                        />
+                        <div 
+                            className="bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col z-10 relative overflow-hidden" 
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6 shrink-0">
+                                <h3 className="font-bold text-black-deep text-lg">Review Details</h3>
+                                <button onClick={() => setMobileReviewDetails(null)} className="p-2 bg-slate-100 text-slate-500 rounded-full">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                 </button>
                             </div>
-
-                            <form onSubmit={handleUpdate} className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-                                <div className="p-8 pb-4">
-                                    <div className="mb-8">
-                                        <label className="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-4">Overall Rating</label>
-                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 inline-block">
-                                            {renderStars(editForm.rating, true, (val) => setEditForm(prev => ({ ...prev, rating: val })))}
+                            
+                            <div className="space-y-6 overflow-y-auto custom-scrollbar pb-4">
+                                <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <div>
+                                        <div className="text-sm font-bold text-black-deep">{mobileReviewDetails.isAnonymous ? "Anonymous User" : mobileReviewDetails.customer?.fullName}</div>
+                                        <div className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">
+                                            {formatDate(mobileReviewDetails.createdAt)}
                                         </div>
                                     </div>
-                                    <div className="mb-6">
-                                        <label className="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-3">Review Comment</label>
-                                        <textarea
-                                            className="w-full h-36 px-5 py-4 rounded-xl border border-slate-200 focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-sm text-black-deep resize-none placeholder:text-slate-400"
-                                            value={editForm.comment}
-                                            onChange={(e) => setEditForm(prev => ({ ...prev, comment: e.target.value }))}
-                                            placeholder="Write your updated feedback here..."
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-4 flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer" onClick={(e) => {
-                                        // Toggle checkbox logically if clicking row, except if clicking input directly
-                                        if (e.target.tagName !== 'INPUT') {
-                                            setEditForm(prev => ({ ...prev, isAnonymous: !prev.isAnonymous }))
-                                        }
-                                    }}>
-                                        <div>
-                                            <div className="text-sm font-bold text-black-deep">Anonymous Review</div>
-                                            <div className="text-xs text-secondary mt-0.5">Hide customer name publicly</div>
+                                    <div className="flex flex-col items-end">
+                                        <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200">
+                                            <span className="text-gold">★</span>
+                                            <span className="font-bold text-black-deep">{Number(mobileReviewDetails.rating).toFixed(1)}</span>
                                         </div>
-                                        <input
-                                            type="checkbox"
-                                            id="isAnon"
-                                            checked={editForm.isAnonymous}
-                                            onChange={(e) => setEditForm(prev => ({ ...prev, isAnonymous: e.target.checked }))}
-                                            className="w-5 h-5 rounded border-gray-300 text-gold focus:ring-gold pointer-events-auto"
-                                        />
                                     </div>
+                                </div>
+                                
+                                <div>
+                                    <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Comment</p>
+                                    <p className="text-sm text-black-deep leading-relaxed">"{mobileReviewDetails.comment}"</p>
                                 </div>
 
-                                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 mt-auto shrink-0 flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setEditingReview(null)}
-                                        className="flex-1 px-6 py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-100 transition-colors bg-white uppercase tracking-wider text-xs"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isUpdating}
-                                        className="flex-1 px-6 py-3 rounded-xl bg-gold text-black-deep font-bold hover:bg-gold/80 transition-all shadow-lg shadow-gold/20 disabled:opacity-50 border-0 uppercase tracking-wider text-xs"
-                                    >
-                                        {isUpdating ? "Updating..." : "Save Changes"}
-                                    </button>
-                                </div>
-                            </form>
+                                {(mobileReviewDetails.staff || mobileReviewDetails.booking) && (
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {mobileReviewDetails.staff && (
+                                            <div className="flex items-center gap-2 p-3 rounded-xl border border-slate-100 bg-white">
+                                                <div className="w-8 h-8 rounded-full border border-slate-200 overflow-hidden bg-white shrink-0">
+                                                    <img src={mobileReviewDetails.staff?.profileImageUrl || "https://ui-avatars.com/api/?name=" + (mobileReviewDetails.staff?.fullName || "S") + "&background=F8FAFC&color=64748B"} className="w-full h-full object-cover" alt="Staff" />
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <div className="text-xs font-bold text-black-deep truncate">{mobileReviewDetails.staff.fullName}</div>
+                                                    <div className="text-[9px] text-secondary uppercase font-bold tracking-widest mt-0.5">Specialist</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {mobileReviewDetails.booking && (
+                                            <div className="flex items-center gap-2 p-3 rounded-xl border border-gold/20 bg-[#FDFBF7]">
+                                                <div className="overflow-hidden">
+                                                    <div className="text-xs font-bold text-black-deep truncate">{mobileReviewDetails.booking.bookingNumber}</div>
+                                                    <div className="text-[9px] text-secondary uppercase font-bold tracking-widest mt-0.5">Booking Ref</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                
+                                {mobileReviewDetails.imageUrls && mobileReviewDetails.imageUrls.length > 0 && (
+                                    <div>
+                                        <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Attachments</p>
+                                        <div className="flex gap-2 overflow-x-auto pb-1">
+                                            {mobileReviewDetails.imageUrls.map((url, idx) => (
+                                                <div key={idx} className="w-20 h-20 rounded-xl overflow-hidden border border-slate-100 shrink-0">
+                                                    <img src={url} alt="Review attachment" className="w-full h-full object-cover" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2 shrink-0">
+                                <button onClick={() => { setMobileReviewDetails(null); openEditModal(mobileReviewDetails); }} className="flex-1 py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                    Edit
+                                </button>
+                                <button onClick={() => { setMobileReviewDetails(null); handleDelete(mobileReviewDetails.id); }} className="flex-1 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

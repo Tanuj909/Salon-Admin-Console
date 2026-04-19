@@ -134,8 +134,8 @@ const CompleteBooking = () => {
 
                 {/* Search Section */}
                 <div className="bg-white rounded-2xl border border-gold/10 shadow-sm p-6 mb-8">
-                    <form onSubmit={handleSearch} className="flex gap-3 items-center">
-                        <div className="relative flex-1">
+                    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 items-center w-full">
+                        <div className="relative flex-1 w-full">
                             <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -150,7 +150,7 @@ const CompleteBooking = () => {
                         <button
                             type="submit"
                             disabled={loading || !bookingNumber.trim()}
-                            className="px-8 py-3.5 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg active:scale-95 transition-all disabled:opacity-40 disabled:active:scale-100 shrink-0 flex items-center gap-2"
+                            className="w-full sm:w-auto px-8 py-3.5 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg active:scale-95 transition-all disabled:opacity-40 disabled:active:scale-100 shrink-0 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>

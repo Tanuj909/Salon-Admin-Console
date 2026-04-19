@@ -1186,6 +1186,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { getMyBusinessApi, updateMyBusinessApi, uploadBannerApi, uploadSalonImagesApi, deleteSalonImageApi } from "../services/salonService";
 import { getHolidaysByBusinessApi, addHolidayApi, updateHolidayApi, deleteHolidayApi } from "../services/holidayService";
+import LocationPickerMap from "../components/LocationPickerMap";
 
 // ─── Custom Hooks ────────────────────────────────────────────────────────────
 function useReveal() {
@@ -1279,7 +1280,9 @@ const MyAdminSalon = () => {
     const [activeTab, setActiveTab] = useState("overview");
 
     // Edit Modal State
+    // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isMapExpanded, setIsMapExpanded] = useState(false);
     const [formData, setFormData] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
@@ -2085,190 +2088,232 @@ const MyAdminSalon = () => {
 
             {/* Edit Modal */}
             {!isReadOnly && isEditModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto">
-                    <div className="bg-white rounded-[40px] w-full max-w-4xl shadow-2xl relative my-8 animate-in fade-in zoom-in duration-300">
-                        {/* Header */}
-                        <div className="sticky top-0 bg-white/90 backdrop-blur-md px-10 py-8 border-b border-gold/10 flex justify-between items-center rounded-t-[40px] z-10">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-hidden">
+                    <div className="bg-white rounded-[24px] sm:rounded-[32px] w-full max-w-4xl shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh]">
+                        {/* Fixed Header */}
+                        <div className="flex-none bg-white px-6 sm:px-10 py-6 sm:py-8 border-b border-gold/10 flex justify-between items-center rounded-t-[24px] sm:rounded-t-[32px] z-30">
                             <div>
-                                <h3 className="font-display text-3xl text-black-deep">Edit Business</h3>
-                                <p className="text-secondary text-xs uppercase tracking-widest font-bold mt-1">Refine your salon presence</p>
+                                <h3 className="font-display text-2xl sm:text-3xl text-black-deep">Edit Business</h3>
+                                <p className="text-secondary text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold mt-1">Refine your salon presence</p>
                             </div>
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold hover:bg-gold hover:text-black-deep transition-all"
+                                className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold hover:bg-gold hover:text-black-deep transition-all"
                             >
-                                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                                     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                             </button>
                         </div>
 
-                        {/* Form */}
-                        <form onSubmit={handleUpdateSubmit} className="p-10">
-                            <div className="grid md:grid-cols-2 gap-8 mb-12">
-                                {/* Basic Info */}
-                                <div className="space-y-6">
-                                    <h4 className="text-xs uppercase tracking-[0.3em] text-gold font-bold border-b border-gold/20 pb-2">Basic Info</h4>
-                                    <div>
-                                        <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Salon Name</label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={formData.name || ''}
-                                            onChange={handleInputChange}
-                                            className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Description</label>
-                                        <textarea
-                                            name="description"
-                                            value={formData.description || ''}
-                                            onChange={handleInputChange}
-                                            className="w-full h-32 px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-3 bg-beige p-5 rounded-xl">
-                                        <input
-                                            type="checkbox"
-                                            id="isOpen"
-                                            name="isOpen"
-                                            checked={formData.isOpen || false}
-                                            onChange={handleInputChange}
-                                            className="w-5 h-5 rounded accent-gold"
-                                        />
-                                        <label htmlFor="isOpen" className="text-sm font-bold text-black-deep cursor-pointer">Business is currently Open</label>
-                                    </div>
-                                </div>
-
-                                {/* Contact Info */}
-                                <div className="space-y-6">
-                                    <h4 className="text-xs uppercase tracking-[0.3em] text-black-deep font-bold border-b border-black-deep/10 pb-2">Contact Details</h4>
-                                    <div>
-                                        <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={formData.phoneNumber || ''}
-                                            onChange={handleInputChange}
-                                            className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Business Email</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email || ''}
-                                            onChange={handleInputChange}
-                                            className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                        {/* Scrollable Form Content */}
+                        <div className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar">
+                            <form onSubmit={handleUpdateSubmit} id="edit-business-form">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
+                                    {/* Basic Info */}
+                                    <div className="space-y-6">
+                                        <h4 className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gold font-bold border-b border-gold/20 pb-2">Basic Info</h4>
                                         <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Latitude</label>
+                                            <label className="block text-[10px] font-black text-black-deep uppercase tracking-widest mb-2">Salon Name</label>
                                             <input
-                                                type="number"
-                                                step="any"
-                                                name="latitude"
-                                                value={formData.latitude || ''}
+                                                type="text"
+                                                name="name"
+                                                value={formData.name || ''}
                                                 onChange={handleInputChange}
-                                                className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
+                                                className="w-full px-5 py-3.5 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-sm font-medium"
+                                                required
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Longitude</label>
+                                            <label className="block text-[10px] font-black text-black-deep uppercase tracking-widest mb-2">Description</label>
+                                            <textarea
+                                                name="description"
+                                                value={formData.description || ''}
+                                                onChange={handleInputChange}
+                                                className="w-full h-32 px-5 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none text-sm font-medium leading-relaxed"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                                             <input
-                                                type="number"
-                                                step="any"
-                                                name="longitude"
-                                                value={formData.longitude || ''}
+                                                type="checkbox"
+                                                id="isOpen"
+                                                name="isOpen"
+                                                checked={formData.isOpen || false}
                                                 onChange={handleInputChange}
-                                                className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
+                                                className="w-5 h-5 rounded accent-gold cursor-pointer"
                                             />
+                                            <label htmlFor="isOpen" className="text-xs sm:text-sm font-bold text-black-deep cursor-pointer">Business is currently Open</label>
+                                        </div>
+                                    </div>
+
+                                    {/* Contact Info */}
+                                    <div className="space-y-8">
+                                        <h4 className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-black-deep font-bold border-b border-black-deep/10 pb-2">Contact Details</h4>
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Phone Number</label>
+                                            <input
+                                                type="tel"
+                                                name="phoneNumber"
+                                                value={formData.phoneNumber || ''}
+                                                onChange={handleInputChange}
+                                                className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-base font-medium shadow-sm"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Business Email</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email || ''}
+                                                onChange={handleInputChange}
+                                                className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-base font-medium shadow-sm"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Location Info */}
+                                    <div className="md:col-span-2 space-y-8 pt-4">
+                                        <h4 className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gold font-bold border-b border-gold/20 pb-2">Location & SEO</h4>
+
+                                        {/* Interactive Map Picker */}
+                                        <div className="pt-2">
+                                            <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-4 flex items-center justify-between">
+                                                Salon Location Map
+                                                <span className="text-[10px] text-gold font-bold">
+                                                    {formData.latitude && formData.longitude 
+                                                        ? `${Number(formData.latitude).toFixed(4)}, ${Number(formData.longitude).toFixed(4)}` 
+                                                        : 'No location set'}
+                                                </span>
+                                            </label>
+                                            
+                                            {!isMapExpanded ? (
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => setIsMapExpanded(true)}
+                                                    className="w-full h-32 rounded-[24px] border-2 border-dashed border-gold/30 bg-gold/5 flex flex-col items-center justify-center gap-3 hover:bg-gold/10 hover:border-gold/50 transition-all group cursor-pointer"
+                                                >
+                                                    <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold group-hover:scale-110 transition-transform shadow-inner">
+                                                        <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                                            <circle cx="12" cy="10" r="3" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-xs sm:text-sm font-black text-black-deep uppercase tracking-widest">Open Interactive Map</span>
+                                                </button>
+                                            ) : (
+                                                <LocationPickerMap 
+                                                    initialLat={formData.latitude || 28.6139}
+                                                    initialLng={formData.longitude || 77.2090}
+                                                    onLocationSelect={(lat, lng) => {
+                                                        setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+                                                    }}
+                                                    onConfirm={(lat, lng, addressData) => {
+                                                        if (addressData) {
+                                                            const streetAddress = [addressData.house_number, addressData.road, addressData.suburb]
+                                                                .filter(Boolean).join(", ");
+                                                                
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                latitude: lat,
+                                                                longitude: lng,
+                                                                address: streetAddress || addressData.neighbourhood || prev.address || '',
+                                                                city: addressData.city || addressData.town || addressData.county || addressData.state_district || prev.city || '',
+                                                                state: addressData.state || prev.state || '',
+                                                                postalCode: addressData.postcode || prev.postalCode || '',
+                                                                country: addressData.country || prev.country || ''
+                                                            }));
+                                                        } else {
+                                                            setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
+                                                        }
+                                                        setIsMapExpanded(false);
+                                                    }}
+                                                    onClose={() => setIsMapExpanded(false)}
+                                                />
+                                            )}
+                                            
+                                            {/* Hidden inputs */}
+                                            <input type="hidden" name="latitude" value={formData.latitude || ''} />
+                                            <input type="hidden" name="longitude" value={formData.longitude || ''} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Street Address</label>
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={formData.address || ''}
+                                                onChange={handleInputChange}
+                                                className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-base font-medium shadow-sm"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">City</label>
+                                                <input type="text" name="city" value={formData.city || ''} onChange={handleInputChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-sm font-medium" required />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">State</label>
+                                                <input type="text" name="state" value={formData.state || ''} onChange={handleInputChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-sm font-medium" required />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Postal Code</label>
+                                                <input type="text" name="postalCode" value={formData.postalCode || ''} onChange={handleInputChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-sm font-medium" required />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Country</label>
+                                                <input type="text" name="country" value={formData.country || ''} onChange={handleInputChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep text-sm font-medium" required />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Meta Description (SEO)</label>
+                                                <textarea
+                                                    name="metaDescription"
+                                                    value={formData.metaDescription || ''}
+                                                    onChange={handleInputChange}
+                                                    className="w-full h-28 px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none text-sm font-medium leading-relaxed shadow-sm"
+                                                    placeholder="Brief description for search engines"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs sm:text-sm font-black text-black-deep uppercase tracking-[0.1em] mb-3">Meta Keywords</label>
+                                                <textarea
+                                                    name="metaKeywords"
+                                                    value={formData.metaKeywords || ''}
+                                                    onChange={handleInputChange}
+                                                    className="w-full h-28 px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none text-sm font-medium shadow-sm"
+                                                    placeholder="e.g. hair, nails, spa, luxury (comma separated)"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                            </form>
+                        </div>
 
-                                {/* Location Info */}
-                                <div className="md:col-span-2 space-y-6">
-                                    <h4 className="text-xs uppercase tracking-[0.3em] text-gold font-bold border-b border-gold/20 pb-2">Location & SEO</h4>
-                                    <div>
-                                        <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Street Address</label>
-                                        <input
-                                            type="text"
-                                            name="address"
-                                            value={formData.address || ''}
-                                            onChange={handleInputChange}
-                                            className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">City</label>
-                                            <input type="text" name="city" value={formData.city || ''} onChange={handleInputChange} className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep" required />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">State</label>
-                                            <input type="text" name="state" value={formData.state || ''} onChange={handleInputChange} className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep" required />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Postal Code</label>
-                                            <input type="text" name="postalCode" value={formData.postalCode || ''} onChange={handleInputChange} className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep" required />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Country</label>
-                                            <input type="text" name="country" value={formData.country || ''} onChange={handleInputChange} className="w-full px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep" required />
-                                        </div>
-                                    </div>
-                                    <div className="grid md:grid-cols-2 gap-8">
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Meta Description (SEO)</label>
-                                            <textarea
-                                                name="metaDescription"
-                                                value={formData.metaDescription || ''}
-                                                onChange={handleInputChange}
-                                                className="w-full h-24 px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none"
-                                                placeholder="Brief description for search engines"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-secondary uppercase tracking-widest mb-2">Meta Keywords</label>
-                                            <textarea
-                                                name="metaKeywords"
-                                                value={formData.metaKeywords || ''}
-                                                onChange={handleInputChange}
-                                                className="w-full h-24 px-5 py-4 rounded-xl bg-beige border border-transparent focus:border-gold focus:bg-white transition-all outline-none text-black-deep resize-none"
-                                                placeholder="e.g. hair, nails, spa, luxury (comma separated)"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex gap-4 sticky bottom-0 bg-white/90 backdrop-blur-md py-6 border-t border-gold/10 rounded-b-[40px]">
+                        {/* Fixed Actions Footer */}
+                        <div className="flex-none bg-white p-6 sm:px-10 py-6 border-t border-gold/10 rounded-b-[24px] sm:rounded-b-[32px] z-30">
+                            <div className="flex flex-col sm:flex-row gap-4">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditModalOpen(false)}
-                                    className="flex-1 px-8 py-4 rounded-full border-2 border-black-deep/10 text-black-deep text-xs font-bold tracking-widest uppercase hover:bg-gray-50 transition-all"
+                                    className="w-full sm:flex-1 px-8 py-3.5 sm:py-4 rounded-full border-2 border-black-deep/10 text-black-deep text-[10px] sm:text-xs font-bold tracking-widest uppercase hover:bg-slate-50 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button
+                                    form="edit-business-form"
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="flex-1 px-8 py-4 rounded-full bg-gold text-black-deep text-xs font-bold tracking-widest uppercase shadow-lg hover:bg-gold/80 transition-all disabled:opacity-50"
+                                    className="w-full sm:flex-1 px-8 py-3.5 sm:py-4 rounded-full bg-black-deep text-gold text-[10px] sm:text-xs font-bold tracking-widest uppercase shadow-lg hover:shadow-black-deep/20 transition-all disabled:opacity-50"
                                 >
                                     {isSubmitting ? "Saving..." : "Save Changes"}
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             )}

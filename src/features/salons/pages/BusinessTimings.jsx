@@ -144,7 +144,7 @@ const BusinessTimings = () => {
                     <div className="absolute top-0 right-0 w-48 h-48 bg-gold/5 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
 
                     {/* Column Headers */}
-                    <div className="grid grid-cols-12 gap-4 px-5 py-2.5 bg-[#FDFBF7] border-b border-gold/10 text-[9px] uppercase tracking-[0.2em] text-secondary font-extrabold">
+                    <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-2.5 bg-[#FDFBF7] border-b border-gold/10 text-[9px] uppercase tracking-[0.2em] text-secondary font-extrabold">
                         <div className="col-span-3">Day</div>
                         <div className="col-span-3">Status</div>
                         <div className="col-span-3 text-center">Opens At</div>
@@ -156,20 +156,38 @@ const BusinessTimings = () => {
                         {timings.map((timing, index) => (
                             <div
                                 key={timing.dayOfWeek}
-                                className={`grid grid-cols-12 gap-4 items-center px-5 py-3 transition-all hover:bg-[#FDFBF7] ${timing.isClosed ? 'opacity-60' : ''}`}
+                                className={`flex flex-col sm:grid sm:grid-cols-12 gap-4 sm:gap-4 items-start sm:items-center px-5 py-4 sm:py-3 transition-all hover:bg-[#FDFBF7] ${timing.isClosed ? 'opacity-60' : ''}`}
                             >
-                                {/* Day Name */}
-                                <div className="col-span-3 flex items-center gap-2">
-                                    <span className="w-8 h-8 shrink-0 rounded-xl bg-gradient-to-br from-gold/10 to-gold/25 flex items-center justify-center text-[9px] font-extrabold text-gold uppercase tracking-wider">
-                                        {timing.dayOfWeek.slice(0, 3)}
-                                    </span>
-                                    <span className="text-sm font-bold text-black-deep capitalize hidden sm:block">
-                                        {timing.dayOfWeek.charAt(0) + timing.dayOfWeek.slice(1).toLowerCase()}
-                                    </span>
+                                {/* Mobile Header: Day + Status */}
+                                <div className="flex w-full items-center justify-between sm:col-span-3 sm:w-auto">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-8 h-8 shrink-0 rounded-xl bg-gradient-to-br from-gold/10 to-gold/25 flex items-center justify-center text-[9px] font-extrabold text-gold uppercase tracking-wider">
+                                            {timing.dayOfWeek.slice(0, 3)}
+                                        </span>
+                                        <span className="text-sm font-bold text-black-deep capitalize">
+                                            {timing.dayOfWeek.charAt(0) + timing.dayOfWeek.slice(1).toLowerCase()}
+                                        </span>
+                                    </div>
+                                    
+                                    {/* Mobile Status Toggle */}
+                                    <div className="sm:hidden flex items-center">
+                                        <label className="relative inline-flex items-center cursor-pointer gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="sr-only peer"
+                                                checked={timing.isClosed}
+                                                onChange={(e) => handleChange(index, "isClosed", e.target.checked)}
+                                            />
+                                            <div className="w-9 h-5 bg-green-500/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-400/30 shadow-inner"></div>
+                                            <span className={`text-[10px] font-extrabold uppercase tracking-widest ${timing.isClosed ? 'text-red-500' : 'text-green-600'}`}>
+                                                {timing.isClosed ? 'Closed' : 'Open'}
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
 
-                                {/* Status Toggle */}
-                                <div className="col-span-3 flex items-center">
+                                {/* Desktop Status Toggle */}
+                                <div className="hidden sm:flex col-span-3 items-center">
                                     <label className="relative inline-flex items-center cursor-pointer gap-2">
                                         <input
                                             type="checkbox"
@@ -184,26 +202,28 @@ const BusinessTimings = () => {
                                     </label>
                                 </div>
 
-                                {/* Open Time */}
-                                <div className="col-span-3">
-                                    <input
-                                        type="time"
-                                        value={timing.openTime || ""}
-                                        disabled={timing.isClosed}
-                                        onChange={(e) => handleChange(index, "openTime", e.target.value)}
-                                        className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
-                                    />
-                                </div>
-
-                                {/* Close Time */}
-                                <div className="col-span-3">
-                                    <input
-                                        type="time"
-                                        value={timing.closeTime || ""}
-                                        disabled={timing.isClosed}
-                                        onChange={(e) => handleChange(index, "closeTime", e.target.value)}
-                                        className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
-                                    />
+                                {/* Times */}
+                                <div className="flex w-full items-center gap-2 sm:col-span-6 sm:grid sm:grid-cols-2 sm:gap-4">
+                                    <div className="flex-1 sm:col-span-1">
+                                        <span className="text-[10px] sm:hidden uppercase font-bold text-secondary mb-1 block">Opens At</span>
+                                        <input
+                                            type="time"
+                                            value={timing.openTime || ""}
+                                            disabled={timing.isClosed}
+                                            onChange={(e) => handleChange(index, "openTime", e.target.value)}
+                                            className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
+                                        />
+                                    </div>
+                                    <div className="flex-1 sm:col-span-1">
+                                        <span className="text-[10px] sm:hidden uppercase font-bold text-secondary mb-1 block">Closes At</span>
+                                        <input
+                                            type="time"
+                                            value={timing.closeTime || ""}
+                                            disabled={timing.isClosed}
+                                            onChange={(e) => handleChange(index, "closeTime", e.target.value)}
+                                            className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         ))}

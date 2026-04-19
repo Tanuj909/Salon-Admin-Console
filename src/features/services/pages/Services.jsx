@@ -42,6 +42,9 @@ const Services = () => {
   const [deletingServiceName, setDeletingServiceName] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  // Mobile Details Modal State
+  const [mobileServiceDetails, setMobileServiceDetails] = useState(null);
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -657,15 +660,138 @@ const Services = () => {
           color: #6B7280;
           font-size: 13.5px;
         }
+
+        @media (max-width: 768px) {
+          table, thead, tbody, th, td, tr { display: block; width: 100%; }
+          thead tr { position: absolute; top: -9999px; left: -9999px; }
+          tbody tr { margin-bottom: 20px; border: 1px solid rgba(200, 169, 81, 0.1); border-radius: 24px; padding: 20px; background: #FFFFFF; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.02); }
+          tbody td { padding: 10px 0; border: none; display: flex; justify-content: space-between; align-items: center; text-align: right; position: relative; border-bottom: 1px solid #f8f8f8; }
+          tbody td:last-child { border-bottom: none; padding-top: 15px; }
+          tbody td::before { content: attr(data-label); font-weight: 800; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #7a7065; flex-shrink: 0; text-align: left; }
+          .action-buttons { width: 100%; justify-content: flex-start; margin-top: 8px; flex-wrap: wrap; }
+          .svc-desc { max-width: 100%; white-space: normal; }
+          tbody td[data-label="Image"] { flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F4F6; padding-bottom: 12px; margin-bottom: 8px; }
+          tbody td[data-label="Image"]::before { content: none; }
+          .table-container { background: transparent; border: none; box-shadow: none; border-radius: 0; }
+          .page-header { flex-direction: column; gap: 16px; align-items: stretch; }
+          .btn-primary { width: 100%; justify-content: center; }
+          .filter-bar { flex-direction: column; align-items: stretch; }
+          .search-wrap { max-width: none; }
+          .filter-select { width: 100%; }
+          .toggle-pill { width: 100%; justify-content: center; }
+          
+          /* Show Image, Name, and Actions on mobile */
+          tbody td[data-label="Category"],
+          tbody td[data-label="Duration"],
+          tbody td[data-label="Pricing"],
+          tbody td[data-label="Status"],
+          tbody td[data-label="Bookings"],
+          tbody td[data-label="Staff"] {
+            display: none !important;
+          }
+          
+          tbody td[data-label="Image"] {
+            display: flex !important;
+            padding: 0;
+            border: none;
+            width: 50px;
+          }
+          
+          tbody td[data-label="Service Name"] {
+            display: flex !important;
+            flex: 1;
+            padding: 0 12px;
+            border: none;
+            justify-content: flex-start;
+            text-align: left;
+          }
+          
+          tbody td[data-label="Actions"] {
+            display: flex !important;
+            padding: 0;
+            border: none;
+            width: auto;
+          }
+          
+          tbody tr {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center;
+            gap: 0;
+            padding: 12px 16px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            background: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+          }
+          
+          tbody td::before {
+            display: none !important;
+          }
+          
+          .svc-image {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: cover;
+          }
+          
+          .img-placeholder {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FDFBF7;
+            color: #C8A951;
+            border: 1px solid rgba(200, 169, 81, 0.1);
+          }
+          
+          .svc-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1C1C1C;
+          }
+          
+          .svc-desc { display: none; }
+
+          .btn-view-details {
+            display: flex !important;
+            background: #1C1C1C;
+            color: #C8A951;
+            padding: 8px 20px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          .btn-view-details:hover {
+            background: #000000;
+            transform: translateY(-1px);
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .btn-view-details {
+            padding: 10px 24px;
+            font-size: 11px;
+          }
+        }
         `}
       </style>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="services-container container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* ── Page Header ── */}
         <div className="page-header">
           <div className="page-header-left">
-            <h1>Services — Desert Pearl Beauty Lounge</h1>
-            <p>Manage all services offered by this business &nbsp;·&nbsp; Business ID: {businessId || '...'} &nbsp;·&nbsp; Dubai</p>
+            <h1>Services <span className="hidden md:inline">— Desert Pearl Beauty Lounge</span></h1>
+            <p className="hidden md:block text-secondary text-sm">Review and manage the list of services for your business.</p>
           </div>
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -741,7 +867,7 @@ const Services = () => {
               ) : (
                 filteredServices.map(service => (
                   <tr key={service.id}>
-                    <td>
+                    <td data-label="Image">
                       {service.imageUrl ? (
                         <img className="svc-image" src={service.imageUrl} alt={service.name} />
                       ) : (
@@ -750,24 +876,24 @@ const Services = () => {
                         </div>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Service Name">
                       <div className="svc-name">{service.name}</div>
                       <div className="svc-desc">{service.description}</div>
                     </td>
-                    <td>
+                    <td data-label="Category">
                       <span className="badge badge-gray">{service.category}</span>
                     </td>
-                    <td style={{ whiteSpace: 'nowrap', color: '#111827', fontWeight: '500' }}>
+                    <td data-label="Duration" style={{ whiteSpace: 'nowrap', color: '#111827', fontWeight: '500' }}>
                       {service.durationMinutes} min
                     </td>
-                    <td>
+                    <td data-label="Pricing">
                       {service.discountedPrice < service.price && (
                         <span className="price-original">₹{service.price.toFixed(2)}</span>
                       )}
                       <span className="price-main">₹{service.effectivePrice.toFixed(2)}</span>
                       <div className="price-label">Effective: ₹{service.effectivePrice.toFixed(2)}</div>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <div className="status-badges">
                         {service.isActive
                           ? <span className="badge badge-green"><span className="badge-dot"></span>Active</span>
@@ -778,8 +904,8 @@ const Services = () => {
                         )}
                       </div>
                     </td>
-                    <td style={{ fontWeight: '500', color: '#111827' }}>{service.totalBookings || 0}</td>
-                    <td>
+                    <td data-label="Bookings" style={{ fontWeight: '500', color: '#111827' }}>{service.totalBookings || 0}</td>
+                    <td data-label="Staff">
                       {(service.staffCount || 0) === 0 ? (
                         <span className="staff-zero">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
@@ -789,13 +915,10 @@ const Services = () => {
                         <span style={{ fontWeight: '500', color: '#111827' }}>{service.staffCount} Staff</span>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Actions">
                       <div className="action-buttons">
-                        <button className="btn-update" onClick={() => openUpdateModal(service)}>
-                          Update
-                        </button>
-                        <button className="btn-delete" onClick={() => openDeleteModal(service)}>
-                          Delete
+                        <button className="btn-view-details" onClick={() => setMobileServiceDetails(service)}>
+                          View Details
                         </button>
                       </div>
                     </td>
@@ -1084,26 +1207,85 @@ const Services = () => {
         </div>
       )}
 
-      {/* Modal - Delete Confirmation */}
-      {isDeleteModalOpen && (
-        <div className="delete-modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
-          <div className="delete-modal" onClick={e => e.stopPropagation()}>
-            <div className="delete-modal-body">
-              <div className="delete-modal-icon">
-                <svg width="28" height="28" fill="none" stroke="#DC2626" strokeWidth="2" viewBox="0 0 24 24">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  <line x1="10" y1="11" x2="10" y2="17" />
-                  <line x1="14" y1="11" x2="14" y2="17" />
-                </svg>
-              </div>
-              <h3>Delete Service</h3>
-              <p>Are you sure you want to delete <span className="service-name-highlight">{deletingServiceName}</span>? This action cannot be undone.</p>
+      {/* Mobile Details Modal */}
+      {mobileServiceDetails && (
+        <div className="fixed inset-0 z-[9999] md:hidden flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black-deep/80 backdrop-blur-md animate-in fade-in duration-300" 
+            onClick={() => setMobileServiceDetails(null)} 
+          />
+          <div 
+            className="bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[85vh] flex flex-col z-10 relative overflow-hidden" 
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6 shrink-0">
+              <h3 className="font-bold text-black-deep text-lg">Service Details</h3>
+              <button onClick={() => setMobileServiceDetails(null)} className="p-2 bg-slate-100 text-slate-500 rounded-full">
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
             </div>
-            <div className="delete-modal-actions">
-              <button className="btn-cancel-delete" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
-              <button className="btn-confirm-delete" disabled={deleting} onClick={handleDeleteService}>
-                {deleting ? "Deleting..." : "Delete"}
+            
+            <div className="space-y-6 overflow-y-auto custom-scrollbar pb-4">
+              {/* Image & Basic Info */}
+              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
+                  {mobileServiceDetails.imageUrl ? (
+                    <img src={mobileServiceDetails.imageUrl} alt={mobileServiceDetails.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gold/5 text-gold">
+                      <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-black-deep leading-tight">{mobileServiceDetails.name}</div>
+                  <div className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-1">{mobileServiceDetails.category}</div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Description</p>
+                <p className="text-xs text-secondary leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-50 italic">
+                  "{mobileServiceDetails.description || "No description available."}"
+                </p>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[#FDFBF7] p-3 rounded-2xl border border-gold/10">
+                  <div className="text-[9px] text-secondary/50 uppercase font-bold tracking-widest mb-1">Pricing</div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-sm font-bold text-black-deep">₹{mobileServiceDetails.effectivePrice}</span>
+                    {mobileServiceDetails.discountedPrice < mobileServiceDetails.price && (
+                      <span className="text-[10px] text-secondary/40 line-through">₹{mobileServiceDetails.price}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <div className="text-[9px] text-secondary/50 uppercase font-bold tracking-widest mb-1">Duration</div>
+                  <div className="text-sm font-bold text-black-deep">{mobileServiceDetails.durationMinutes} min</div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <div className="text-[9px] text-secondary/50 uppercase font-bold tracking-widest mb-1">Status</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${mobileServiceDetails.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+                    <span className="text-sm font-bold text-black-deep">{mobileServiceDetails.isActive ? 'Active' : 'Inactive'}</span>
+                  </div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <div className="text-[9px] text-secondary/50 uppercase font-bold tracking-widest mb-1">Total Bookings</div>
+                  <div className="text-sm font-bold text-black-deep">{mobileServiceDetails.totalBookings || 0}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2 shrink-0">
+              <button onClick={() => { setMobileServiceDetails(null); openUpdateModal(mobileServiceDetails); }} className="flex-1 py-3.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
+                Edit
+              </button>
+              <button onClick={() => { setMobileServiceDetails(null); openDeleteModal(mobileServiceDetails); }} className="flex-1 py-3.5 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2">
+                Delete
               </button>
             </div>
           </div>

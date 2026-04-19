@@ -154,8 +154,8 @@ const StaffBookingManager = () => {
                     <div className="space-y-6">
                         {/* Search Bar */}
                         <div className="bg-white rounded-2xl border border-gold/10 shadow-sm p-6">
-                            <form onSubmit={handleSearch} className="flex gap-3 items-center">
-                                <div className="relative flex-1">
+                            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                                <div className="relative w-full sm:flex-1">
                                     <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
@@ -170,7 +170,7 @@ const StaffBookingManager = () => {
                                 <button
                                     type="submit"
                                     disabled={loading || !searchQuery.trim()}
-                                    className="px-8 py-3.5 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg transition-all disabled:opacity-40"
+                                    className="w-full sm:w-auto px-8 py-3.5 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-[10px] hover:shadow-lg transition-all disabled:opacity-40"
                                 >
                                     {loading ? "Searching..." : "Search"}
                                 </button>

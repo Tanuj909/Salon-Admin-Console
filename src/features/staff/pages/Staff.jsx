@@ -146,6 +146,9 @@ const Staff = () => {
   const [deletingStaffName, setDeletingStaffName] = useState("");
   const [deletingStaff, setDeletingStaff] = useState(false);
 
+  // Mobile Action Menu State
+  const [mobileActionStaff, setMobileActionStaff] = useState(null);
+
   const openDeleteStaffModal = (staff) => {
     setDeletingStaffId(staff.id);
     setDeletingStaffName(staff.userFullName);
@@ -463,9 +466,10 @@ const Staff = () => {
                 <thead>
                   <tr className="bg-[#FDFBF7] border-b border-gold/10">
                     <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Team Member</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-center">Stats</th>
-                    <th className="px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+                    <th className="hidden md:table-cell px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest">Status</th>
+                    <th className="hidden md:table-cell px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-center">Stats</th>
+                    <th className="hidden md:table-cell px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Actions</th>
+                    <th className="md:hidden px-6 py-4 text-[10px] font-bold text-secondary uppercase tracking-widest text-right">Options</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -488,13 +492,13 @@ const Staff = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="hidden md:table-cell px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${staff.isAvailable ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
                             <span className={`w-1 h-1 rounded-full ${staff.isAvailable ? 'bg-green-500' : 'bg-slate-400'}`}></span>
                             {staff.isAvailable ? "Available" : "Off Duty"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="hidden md:table-cell px-6 py-4 text-center">
                           <div className="flex items-center justify-center gap-4 text-[11px]">
                             <div className="flex flex-col items-center">
                               <span className="font-bold text-black-deep">{staff.totalBookings ?? 0}</span>
@@ -510,7 +514,7 @@ const Staff = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="hidden md:table-cell px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               title="Generate Slots"
@@ -541,6 +545,14 @@ const Staff = () => {
                               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                             </button>
                           </div>
+                        </td>
+                        <td className="md:hidden px-6 py-4 text-right">
+                          <button
+                            className="px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-100 active:scale-95 transition-all"
+                            onClick={() => setMobileActionStaff(staff)}
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
                     );
@@ -1152,6 +1164,87 @@ const Staff = () => {
                   {generatingSlots ? "Generating…" : "Generate Slots"}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Action Modal */}
+      {mobileActionStaff && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1100] flex flex-col justify-end md:hidden" onClick={() => setMobileActionStaff(null)}>
+          <div className="bg-white w-full rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg overflow-hidden bg-gold/10 text-gold shadow-sm">
+                  {mobileActionStaff.userProfileImageUrl
+                    ? <img src={mobileActionStaff.userProfileImageUrl} alt={mobileActionStaff.userFullName} className="w-full h-full object-cover" />
+                    : getInitials(mobileActionStaff.userFullName)}
+                </div>
+                <div>
+                  <h3 className="font-bold text-black-deep text-lg leading-tight">{mobileActionStaff.userFullName}</h3>
+                  <p className="text-xs text-secondary">{mobileActionStaff.designation}</p>
+                </div>
+              </div>
+              <button className="p-2 bg-slate-100 text-slate-500 rounded-full" onClick={() => setMobileActionStaff(null)}>
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <div className="mb-6 space-y-4">
+              <div>
+                <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Status</p>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${mobileActionStaff.isAvailable ? "bg-green-50 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${mobileActionStaff.isAvailable ? 'bg-green-500' : 'bg-slate-400'}`}></span>
+                  {mobileActionStaff.isAvailable ? "Available" : "Off Duty"}
+                </span>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Stats</p>
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <div className="flex flex-col items-center">
+                    <span className="font-bold text-black-deep text-lg">{mobileActionStaff.totalBookings ?? 0}</span>
+                    <span className="text-[9px] text-secondary uppercase font-bold tracking-tighter">Bookings</span>
+                  </div>
+                  <div className="flex flex-col items-center border-x border-slate-200">
+                    <span className="font-bold text-black-deep text-lg">★ {(mobileActionStaff.averageRating ?? 0).toFixed(1)}</span>
+                    <span className="text-[9px] text-secondary uppercase font-bold tracking-tighter">Rating</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="font-bold text-black-deep text-lg">{mobileActionStaff.serviceCount ?? 0}</span>
+                    <span className="text-[9px] text-secondary uppercase font-bold tracking-tighter">Services</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                className="col-span-2 py-3 bg-gold/10 text-gold border border-gold/20 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-gold/20"
+                onClick={() => { setMobileActionStaff(null); openSlotModal(mobileActionStaff); }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                Generate Slots
+              </button>
+              <button
+                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest"
+                onClick={() => { setMobileActionStaff(null); openProfileModal(mobileActionStaff); }}
+              >
+                View Profile
+              </button>
+              <button
+                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest"
+                onClick={() => { setMobileActionStaff(null); openUpdateModal(mobileActionStaff); }}
+              >
+                Manage
+              </button>
+              <button
+                className="col-span-2 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                onClick={() => { setMobileActionStaff(null); openDeleteStaffModal(mobileActionStaff); }}
+              >
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                Delete Staff
+              </button>
             </div>
           </div>
         </div>
