@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getMyBookingsApi, getBookingDetailsByNumberApi, updateBookingStatusApi } from "../services/bookingService";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 const StaffBookingManager = () => {
     const [activeTab, setActiveTab] = useState("my-bookings");

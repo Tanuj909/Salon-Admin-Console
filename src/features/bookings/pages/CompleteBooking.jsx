@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { getBookingDetailsByNumberApi, processPaymentApi, getBillDetailsApi, updateBookingStatusApi } from "../services/bookingService";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import BillModal from "../components/BillModal";
 
 const PAYMENT_METHODS = [
