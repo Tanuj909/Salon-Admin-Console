@@ -5,6 +5,8 @@ import AuthLayout from "@/components/layout/AuthLayout";
 
 // Features
 import Login from "@/features/auth/pages/Login";
+import ForgotPassword from "@/features/auth/pages/ForgotPassword";
+import ResetPassword from "@/features/auth/pages/ResetPassword";
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import AdminDashboard from "@/features/dashboard/pages/AdminDashboard";
 import SuperAdminDashboard from "@/features/dashboard/pages/SuperAdminDashboard";
@@ -47,6 +49,30 @@ const AppRoutes = () => {
               !isAuthenticated ? (
                 <AuthLayout>
                   <Login />
+                </AuthLayout>
+              ) : (
+                <Navigate to="/admin" replace />
+              )
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              !isAuthenticated ? (
+                <AuthLayout>
+                  <ForgotPassword />
+                </AuthLayout>
+              ) : (
+                <Navigate to="/admin" replace />
+              )
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              !isAuthenticated ? (
+                <AuthLayout>
+                  <ResetPassword />
                 </AuthLayout>
               ) : (
                 <Navigate to="/admin" replace />

@@ -14,9 +14,21 @@ export const getMeApi = async () => {
   return response.data;
 };
 
+export const forgotPasswordApi = async (email) => {
+  const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async (data) => {
+  const response = await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
+  return response.data;
+};
+
 const authService = {
   login: loginApi,
-  getMe: getMeApi
+  getMe: getMeApi,
+  forgotPassword: forgotPasswordApi,
+  resetPassword: resetPasswordApi
 };
 
 export default authService;

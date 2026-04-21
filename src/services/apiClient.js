@@ -14,8 +14,11 @@ const apiClient = axios.create({
 // Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Skip adding token for login requests
-    const isAuthRequest = config.url?.includes("/auth/login") || config.url?.includes("/login");
+    // Skip adding token for login and password reset requests
+    const isAuthRequest = config.url?.includes("/auth/login") || 
+                         config.url?.includes("/login") ||
+                         config.url?.includes("/auth/forgot-password") ||
+                         config.url?.includes("/auth/reset-password");
     
     if (!isAuthRequest) {
       const token = getToken();
@@ -34,7 +37,10 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status, config } = error.response;
-      const isAuthRequest = config.url?.includes("/auth/login") || config.url?.includes("/login");
+      const isAuthRequest = config.url?.includes("/auth/login") || 
+                           config.url?.includes("/login") ||
+                           config.url?.includes("/auth/forgot-password") ||
+                           config.url?.includes("/auth/reset-password");
       const isMeRequest = config.url?.includes("/auth/me");
 
       // Handle 401 Unauthorized errors

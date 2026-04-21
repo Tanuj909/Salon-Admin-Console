@@ -382,7 +382,7 @@ const Services = () => {
           color: #374151;
         }
 
-        .svc-image {
+        /* .svc-image {
           width: 58px; height: 58px;
           border-radius: 8px;
           object-fit: cover;
@@ -390,7 +390,6 @@ const Services = () => {
           background: #F9FAFB;
           display: block;
         }
-
         .img-placeholder {
           width: 58px; height: 58px;
           border-radius: 8px;
@@ -398,7 +397,7 @@ const Services = () => {
           background: #F9FAFB;
           display: flex; align-items: center; justify-content: center;
           color: #9CA3AF;
-        }
+        } */
 
         .svc-name {
           font-weight: 600;
@@ -670,8 +669,8 @@ const Services = () => {
           tbody td::before { content: attr(data-label); font-weight: 800; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #7a7065; flex-shrink: 0; text-align: left; }
           .action-buttons { width: 100%; justify-content: flex-start; margin-top: 8px; flex-wrap: wrap; }
           .svc-desc { max-width: 100%; white-space: normal; }
-          tbody td[data-label="Image"] { flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F4F6; padding-bottom: 12px; margin-bottom: 8px; }
-          tbody td[data-label="Image"]::before { content: none; }
+          /* tbody td[data-label="Image"] { flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #F3F4F6; padding-bottom: 12px; margin-bottom: 8px; } */
+          /* tbody td[data-label="Image"]::before { content: none; } */
           .table-container { background: transparent; border: none; box-shadow: none; border-radius: 0; }
           .page-header { flex-direction: column; gap: 16px; align-items: stretch; }
           .btn-primary { width: 100%; justify-content: center; }
@@ -690,12 +689,12 @@ const Services = () => {
             display: none !important;
           }
           
-          tbody td[data-label="Image"] {
+          /* tbody td[data-label="Image"] {
             display: flex !important;
             padding: 0;
             border: none;
             width: 50px;
-          }
+          } */
           
           tbody td[data-label="Service Name"] {
             display: flex !important;
@@ -729,7 +728,7 @@ const Services = () => {
             display: none !important;
           }
           
-          .svc-image {
+          /* .svc-image {
             width: 44px;
             height: 44px;
             border-radius: 12px;
@@ -746,7 +745,7 @@ const Services = () => {
             background: #FDFBF7;
             color: #C8A951;
             border: 1px solid rgba(200, 169, 81, 0.1);
-          }
+          } */
           
           .svc-name {
             font-size: 14px;
@@ -844,7 +843,7 @@ const Services = () => {
           <table>
             <thead>
               <tr>
-                <th style={{ width: '74px' }}>Image</th>
+                {/* <th style={{ width: '74px' }}>Image</th> */}
                 <th>Service Name</th>
                 <th>Category</th>
                 <th>Duration</th>
@@ -858,16 +857,16 @@ const Services = () => {
             <tbody>
               {loading ? (
                 <tr className="empty-row">
-                  <td colSpan="9">Loading services...</td>
+                  <td colSpan="8">Loading services...</td>
                 </tr>
               ) : filteredServices.length === 0 ? (
                 <tr className="empty-row">
-                  <td colSpan="9">No services match your filters.</td>
+                  <td colSpan="8">No services match your filters.</td>
                 </tr>
               ) : (
                 filteredServices.map(service => (
                   <tr key={service.id}>
-                    <td data-label="Image">
+                    {/* <td data-label="Image">
                       {service.imageUrl ? (
                         <img className="svc-image" src={service.imageUrl} alt={service.name} />
                       ) : (
@@ -875,7 +874,7 @@ const Services = () => {
                           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                         </div>
                       )}
-                    </td>
+                    </td> */}
                     <td data-label="Service Name">
                       <div className="svc-name">{service.name}</div>
                       <div className="svc-desc">{service.description}</div>
@@ -1035,7 +1034,7 @@ const Services = () => {
                   />
                 </div>
 
-                <div className="col-span-2">
+                {/* <div className="col-span-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
                   <input
                     type="url"
@@ -1045,7 +1044,7 @@ const Services = () => {
                     className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
                     placeholder="https://..."
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="flex gap-6 py-2">
@@ -1160,7 +1159,7 @@ const Services = () => {
                   />
                 </div>
 
-                <div className="col-span-2">
+                {/* <div className="col-span-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Image URL</label>
                   <input
                     type="url"
@@ -1170,7 +1169,7 @@ const Services = () => {
                     className="w-full bg-slate-50 border-transparent border focus:border-[#1B3F6E] outline-none p-3 rounded-xl transition-all text-sm"
                     placeholder="https://..."
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="flex gap-6 py-2">
@@ -1227,7 +1226,7 @@ const Services = () => {
             
             <div className="space-y-6 overflow-y-auto custom-scrollbar pb-4">
               {/* Image & Basic Info */}
-              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              {/* <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                 <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
                   {mobileServiceDetails.imageUrl ? (
                     <img src={mobileServiceDetails.imageUrl} alt={mobileServiceDetails.name} className="w-full h-full object-cover" />
@@ -1241,7 +1240,7 @@ const Services = () => {
                   <div className="text-sm font-bold text-black-deep leading-tight">{mobileServiceDetails.name}</div>
                   <div className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-1">{mobileServiceDetails.category}</div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Description */}
               <div>

@@ -120,6 +120,7 @@ const Login = () => {
                   </label>
                   <button
                     type="button"
+                    onClick={() => navigate("/forgot-password")}
                     className="text-[10px] font-bold text-gold hover:text-gold/80 transition-colors uppercase tracking-wider"
                   >
                     Forgot?
@@ -198,7 +199,7 @@ const Login = () => {
               {/* Security note */}
               <div className="text-center">
                 <p className="text-[10px] text-secondary/60 uppercase tracking-wider">
-                  🔒 Secured by SalonFlow • SSL Encrypted
+                  🔒 Secured
                 </p>
               </div>
             </form>
@@ -207,7 +208,7 @@ const Login = () => {
           {/* Footer */}
           <div className="relative px-8 py-4 bg-gradient-to-r from-black-deep/5 to-black-deep/10 border-t border-white/50">
             <p className="text-[10px] text-secondary/60 uppercase tracking-wider text-center">
-              Authorized Personnel Only • Powered by SalonFlow
+              Authorized Personnel Only •
             </p>
           </div>
         </div>

@@ -8,11 +8,16 @@ export const BusinessProvider = ({ children }) => {
     const { user } = useAuth();
     const [businessId, setBusinessId] = useState(null);
     const [businessData, setBusinessData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    // Start loading=true for roles that need business data, so pages don't flash "no data"
+    const needsBusiness = user && user.role !== "SUPER_ADMIN" && user.role !== "STAFF";
+    const [loading, setLoading] = useState(needsBusiness);
 
     useEffect(() => {
         // Only fetch for roles that have a business (ADMIN, RECEPTIONIST)
-        if (!user || user.role === "SUPER_ADMIN") return;
+        if (!user || user.role === "SUPER_ADMIN" || user.role === "STAFF") {
+            setLoading(false);
+            return;
+        }
 
         const fetchBusiness = async () => {
             try {

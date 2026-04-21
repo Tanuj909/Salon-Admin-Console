@@ -952,9 +952,9 @@ import { useBusiness } from "@/context/BusinessContext";
 
 const Bookings = () => {
   const { user } = useAuth();
-  const { businessId } = useBusiness();
+  const { businessId, loading: businessLoading } = useBusiness();
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0);
@@ -1362,7 +1362,7 @@ const Bookings = () => {
 
         {/* Bookings List - Card Layout */}
         <div className="space-y-4">
-          {loading ? (
+          {(loading || businessLoading) ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gold/10 p-20 text-center text-secondary">
               <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-4"></div>
               <span>Loading bookings...</span>
@@ -1534,14 +1534,14 @@ const Bookings = () => {
                             </button>
                           </>
                         )}
-                        {(booking.status === 'CONFIRMED' || booking.status === 'PENDING' || booking.status === 'BROADCASTED' || booking.status === 'RESCHEDULED') && (
+{/* {(booking.status === 'CONFIRMED' || booking.status === 'PENDING' || booking.status === 'BROADCASTED' || booking.status === 'RESCHEDULED') && (
                           <button
                             className="px-4 py-2 bg-white text-black-deep border border-slate-200 rounded-xl font-bold uppercase tracking-widest text-[9px] hover:border-gold hover:text-gold transition-all active:scale-95 shadow-sm"
                             onClick={() => handleOpenRescheduleModal(booking)}
                           >
                             Reschedule
                           </button>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
@@ -1769,7 +1769,7 @@ const Bookings = () => {
       )}
 
       {/* Reschedule Booking Modal - Fixed z-index */}
-      {isRescheduleModalOpen && (
+      {/* {isRescheduleModalOpen && (
         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 transition-opacity" onClick={() => !isRescheduling && setIsRescheduleModalOpen(false)}>
           <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
@@ -1838,7 +1838,6 @@ const Bookings = () => {
                   )}
                 </div>
 
-                {/* Slot Picker — shown after staff is selected */}
                 {rescheduleData.alternativeStaffId && (
                   <div className="space-y-3">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Pick a Slot</label>
@@ -1854,7 +1853,6 @@ const Bookings = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {/* Date Tabs */}
                         <div className="flex gap-2 overflow-x-auto pb-1">
                           {Object.keys(slotsByDate).sort().map(date => {
                             const d = new Date(date);
@@ -1880,7 +1878,6 @@ const Bookings = () => {
                           })}
                         </div>
 
-                        {/* Time Pills for selected date - NOW SCROLLABLE */}
                         {selectedSlotDate && slotsByDate[selectedSlotDate]?.length > 0 ? (
                           <div className="max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                             <div className="grid grid-cols-4 gap-2">
@@ -1937,7 +1934,7 @@ const Bookings = () => {
             </form>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

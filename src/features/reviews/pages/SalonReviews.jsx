@@ -3,9 +3,9 @@ import { getReviewsByBusinessApi, deleteReviewApi, updateReviewApi } from "@/fea
 import { useBusiness } from "@/context/BusinessContext";
 
 const SalonReviews = () => {
-    const { businessId } = useBusiness();
+    const { businessId, loading: businessLoading } = useBusiness();
     const [reviews, setReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // Pagination State
@@ -118,7 +118,7 @@ const SalonReviews = () => {
         });
     };
 
-    if (loading && page === 0) {
+    if ((loading || businessLoading) && page === 0) {
         return (
             <div className="w-full flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center justify-center gap-4">

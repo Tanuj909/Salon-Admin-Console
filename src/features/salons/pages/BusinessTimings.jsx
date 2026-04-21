@@ -7,9 +7,9 @@ const DAYS_OF_WEEK = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "S
 
 const BusinessTimings = () => {
     const { user } = useAuth();
-    const { businessId } = useBusiness();
+    const { businessId, loading: businessLoading } = useBusiness();
     const [salon, setSalon] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [timings, setTimings] = useState([]);
 
@@ -99,7 +99,7 @@ const BusinessTimings = () => {
         }
     };
 
-    if (loading) {
+    if (loading || businessLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-beige to-cream font-jost">
                 <div className="w-12 h-12 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />

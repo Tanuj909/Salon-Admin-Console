@@ -1524,6 +1524,7 @@ const MyAdminSalon = () => {
         { id: "gallery", label: "Gallery", icon: "🖼️" },
         { id: "business", label: "Business", icon: "💼" },
         { id: "contact", label: "Contact", icon: "📞" },
+        { id: "qr", label: "My QR", icon: "📱" },
         { id: "seo", label: "SEO", icon: "🔍" },
         { id: "holidays", label: "Holidays", icon: "🎉" },
     ];
@@ -1871,6 +1872,237 @@ const MyAdminSalon = () => {
                                         <p className="text-secondary text-sm mt-2 max-w-sm">Upload your first set of images to showcase your business.</p>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    </Reveal>
+                )}
+
+                {activeTab === "qr" && (
+                    <Reveal>
+                        <div className="max-w-lg mx-auto">
+                            <SectionHeading 
+                                subtitle="Scan & Share" 
+                                title="Your Salon QR" 
+                                description="Display this QR code at your salon. Customers can scan it to instantly access your booking page."
+                                align="center"
+                                mb="mb-10"
+                            />
+
+                            {/* Single QR Card */}
+                            <div className="bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gold/10">
+                                <div className="p-6 sm:p-10 flex flex-col items-center">
+                                    <div className="relative group mb-6 sm:mb-8">
+                                        <div className="absolute -inset-4 sm:-inset-6 bg-gradient-to-tr from-gold/20 via-gold/5 to-gold/20 rounded-[28px] sm:rounded-[32px] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                        <div className="relative bg-white p-5 sm:p-8 rounded-[20px] sm:rounded-[28px] shadow-lg border-2 border-gold/20">
+                                            <img 
+                                                src={salon.qrCodeUrl} 
+                                                alt={`${salon.name} QR Code`}
+                                                className="w-[180px] h-[180px] sm:w-[250px] sm:h-[250px] object-contain"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Salon Info */}
+                                    <div className="text-center mb-5 sm:mb-6">
+                                        <p className="font-display text-xl sm:text-2xl text-black-deep font-bold">{salon.name}</p>
+                                        <p className="text-[10px] text-secondary uppercase tracking-widest mt-2">Scan to Book</p>
+                                    </div>
+
+                                    {/* Redirect URL */}
+                                    <div className="w-full bg-beige/50 p-3 sm:p-4 rounded-xl border border-gold/10 mb-5 sm:mb-6">
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[9px] sm:text-[10px] font-mono text-black-deep/50 truncate flex-1">
+                                                {salon.qrCodeRedirectUrl}
+                                            </p>
+                                            <button 
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(salon.qrCodeRedirectUrl);
+                                                    alert("Link copied!");
+                                                }}
+                                                className="text-gold hover:text-gold/80 transition-colors shrink-0"
+                                                title="Copy URL"
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Stats */}
+                                    <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full mb-5 sm:mb-6">
+                                        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-gold/10 text-center">
+                                            <p className="text-[9px] uppercase tracking-[0.2em] text-secondary font-bold mb-1">Status</p>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <div className={`w-2.5 h-2.5 rounded-full ${salon.isQrCodeActive ? 'bg-green-500 animate-pulse' : 'bg-red-400'}`}></div>
+                                                <span className="text-xs sm:text-sm font-bold text-black-deep">{salon.isQrCodeActive ? 'Active' : 'Inactive'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-gold/10 text-center">
+                                            <p className="text-[9px] uppercase tracking-[0.2em] text-secondary font-bold mb-1">Total Scans</p>
+                                            <span className="text-lg sm:text-xl font-display font-bold text-black-deep">{salon.qrCodeScanCount || 0}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Print Button - uses hidden iframe, no new tab */}
+                                    <button 
+                                        onClick={() => {
+                                            const qrImageUrl = salon.qrCodeUrl;
+
+                                            // Remove old iframe if exists
+                                            const oldFrame = document.getElementById('qr-print-frame');
+                                            if (oldFrame) oldFrame.remove();
+
+                                            const iframe = document.createElement('iframe');
+                                            iframe.id = 'qr-print-frame';
+                                            iframe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;border:none;visibility:hidden;';
+                                            document.body.appendChild(iframe);
+
+                                            const doc = iframe.contentDocument || iframe.contentWindow.document;
+                                            doc.open();
+                                            doc.write(`
+                                                <!DOCTYPE html>
+                                                <html>
+                                                <head>
+                                                    <title>${salon.name} - QR Code</title>
+                                                    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                                                    <style>
+                                                        @page {
+                                                            size: A4;
+                                                            margin: 0;
+                                                        }
+                                                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                                                        body {
+                                                            width: 210mm;
+                                                            height: 297mm;
+                                                            font-family: 'Jost', sans-serif;
+                                                            display: flex;
+                                                            flex-direction: column;
+                                                            align-items: center;
+                                                            justify-content: center;
+                                                            background: #fff;
+                                                            color: #1a1a1a;
+                                                        }
+                                                        .poster {
+                                                            width: 100%;
+                                                            height: 100%;
+                                                            display: flex;
+                                                            flex-direction: column;
+                                                            align-items: center;
+                                                            justify-content: center;
+                                                            padding: 60px 40px;
+                                                            text-align: center;
+                                                        }
+                                                        .gold-line {
+                                                            width: 80px;
+                                                            height: 3px;
+                                                            background: #C8A951;
+                                                            margin: 0 auto 40px;
+                                                            border-radius: 2px;
+                                                        }
+                                                        .salon-name {
+                                                            font-family: 'Cormorant Garamond', serif;
+                                                            font-size: 52px;
+                                                            font-weight: 600;
+                                                            letter-spacing: 2px;
+                                                            margin-bottom: 12px;
+                                                            color: #1a1a1a;
+                                                        }
+                                                        .subtitle {
+                                                            font-size: 13px;
+                                                            letter-spacing: 6px;
+                                                            text-transform: uppercase;
+                                                            color: #C8A951;
+                                                            font-weight: 600;
+                                                            margin-bottom: 50px;
+                                                        }
+                                                        .qr-frame {
+                                                            border: 3px solid #C8A951;
+                                                            border-radius: 24px;
+                                                            padding: 32px;
+                                                            display: inline-block;
+                                                            margin-bottom: 40px;
+                                                            background: #fff;
+                                                        }
+                                                        .qr-frame img {
+                                                            display: block;
+                                                            width: 280px;
+                                                            height: 280px;
+                                                            object-fit: contain;
+                                                        }
+                                                        .scan-text {
+                                                            font-size: 24px;
+                                                            font-weight: 500;
+                                                            margin-bottom: 8px;
+                                                            color: #1a1a1a;
+                                                        }
+                                                        .scan-desc {
+                                                            font-size: 14px;
+                                                            color: #888;
+                                                            max-width: 380px;
+                                                            line-height: 1.6;
+                                                            margin-bottom: 40px;
+                                                        }
+                                                        .address {
+                                                            font-size: 12px;
+                                                            color: #aaa;
+                                                            letter-spacing: 1px;
+                                                            max-width: 400px;
+                                                            line-height: 1.5;
+                                                        }
+                                                        .footer-line {
+                                                            width: 40px;
+                                                            height: 2px;
+                                                            background: #C8A951;
+                                                            margin: 24px auto 16px;
+                                                            border-radius: 2px;
+                                                        }
+                                                        .powered {
+                                                            font-size: 9px;
+                                                            letter-spacing: 4px;
+                                                            text-transform: uppercase;
+                                                            color: #ccc;
+                                                        }
+                                                    </style>
+                                                </head>
+                                                <body>
+                                                    <div class="poster">
+                                                        <div class="gold-line"></div>
+                                                        <div class="salon-name">${salon.name}</div>
+                                                        <div class="subtitle">Beauty & Wellness</div>
+                                                        <div class="qr-frame">
+                                                            <img src="${qrImageUrl}" alt="QR Code" />
+                                                        </div>
+                                                        <div class="scan-text">Scan to Book</div>
+                                                        <div class="scan-desc">Point your phone camera at the QR code above to book an appointment instantly</div>
+                                                        <div class="address">${[salon.address, salon.city, salon.state, salon.postalCode].filter(Boolean).join(', ')}</div>
+                                                        ${salon.phoneNumber ? '<div style="margin-top:8px;font-size:13px;color:#C8A951;font-weight:600;">📞 ' + salon.phoneNumber + '</div>' : ''}
+                                                        <div class="footer-line"></div>
+                                                        <div class="powered">Powered by FastBooking</div>
+                                                    </div>
+                                                </body>
+                                                </html>
+                                            `);
+                                            doc.close();
+                                            
+                                            // Wait for fonts + image to load, then print via iframe
+                                            setTimeout(() => {
+                                                iframe.contentWindow.focus();
+                                                iframe.contentWindow.print();
+                                            }, 1000);
+                                        }}
+                                        className="w-full px-6 py-4 rounded-2xl bg-black-deep text-gold text-[10px] font-bold uppercase tracking-widest text-center hover:bg-black transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                                            <polyline points="6 9 6 2 18 2 18 9" />
+                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                            <rect x="6" y="14" width="12" height="8" />
+                                        </svg>
+                                        Print A4 QR Poster
+                                    </button>
+                                </div>
+
+
                             </div>
                         </div>
                     </Reveal>
