@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getSalonByIdApi } from "../services/salonService";
+import { getSalonByIdApi, getSalonQrCodeApi } from "../services/salonService";
 
 const SalonDetails = () => {
     const { id } = useParams();
@@ -8,6 +8,8 @@ const SalonDetails = () => {
     const [salon, setSalon] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [qrCodeImage, setQrCodeImage] = useState(null);
+    const [qrLoading, setQrLoading] = useState(false);
 
     useEffect(() => {
         const fetchSalon = async () => {
@@ -25,6 +27,34 @@ const SalonDetails = () => {
 
         fetchSalon();
     }, [id]);
+
+    const fetchQrCode = async (salonId) => {
+        if (!salonId || qrCodeImage) return;
+        try {
+            setQrLoading(true);
+            const blob = await getSalonQrCodeApi(salonId);
+            const url = URL.createObjectURL(blob);
+            setQrCodeImage(url);
+        } catch (err) {
+            console.error("Failed to fetch QR code:", err);
+        } finally {
+            setQrLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (salon?.id) {
+            fetchQrCode(salon.id);
+        }
+    }, [salon?.id]);
+
+    useEffect(() => {
+        return () => {
+            if (qrCodeImage) {
+                URL.revokeObjectURL(qrCodeImage);
+            }
+        };
+    }, [qrCodeImage]);
 
     if (loading) return (
         <div className="w-full font-jost font-light min-h-[calc(100vh-80px)] flex flex-col items-center justify-center">
@@ -245,10 +275,15 @@ const SalonDetails = () => {
                         <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 border-dashed p-8 text-center bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=')]">
                             <h3 className="text-[10px] font-bold uppercase tracking-widest mb-6 text-slate-500 bg-white inline-block px-2">Access Key Profile</h3>
                             <div className="w-36 h-36 bg-white mx-auto rounded-[20px] mb-6 flex items-center justify-center p-3 border border-slate-200 shadow-sm relative group">
-                                {salon.qrCodeUrl ? (
+                                {qrLoading ? (
+                                    <div className="w-8 h-8 border-3 border-gold/20 border-t-gold rounded-full animate-spin"></div>
+                                ) : qrCodeImage || salon.qrCodeUrl ? (
                                     <>
-                                        <img src={salon.qrCodeUrl} alt="QR Code" className="w-full h-full object-contain relative z-10" />
-                                        <div className="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[20px] flex items-center justify-center backdrop-blur-[1px] cursor-pointer">
+                                        <img src={qrCodeImage || salon.qrCodeUrl} alt="QR Code" className="w-full h-full object-contain relative z-10" />
+                                        <div 
+                                            onClick={() => window.open(qrCodeImage || salon.qrCodeUrl, '_blank')}
+                                            className="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-[20px] flex items-center justify-center backdrop-blur-[1px] cursor-pointer z-20"
+                                        >
                                             <span className="bg-white text-gold text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-lg">Enlarge</span>
                                         </div>
                                     </>
@@ -256,10 +291,6 @@ const SalonDetails = () => {
                                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-slate-300"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><rect x="7" y="7" width="3" height="3" /><rect x="14" y="7" width="3" height="3" /><rect x="7" y="14" width="3" height="3" /><rect x="14" y="14" width="3" height="3" /></svg>
                                 )}
                             </div>
-                            <button className="w-full py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 hover:text-black-deep hover:border-slate-300 transition-all uppercase tracking-widest text-[10px] shadow-sm flex items-center justify-center gap-2">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
-                                Regenerate Profile
-                            </button>
                         </div>
                     </div>
 

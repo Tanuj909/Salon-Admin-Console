@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/services/axiosInstance";
 import { NOTIFICATION_ENDPOINTS } from "./notificationEndpoints";
 
 // Your VAPID public key from application.properties → webpush.public-key

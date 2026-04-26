@@ -333,7 +333,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                                     <th className="py-4 px-3 text-left text-[11px] font-black uppercase tracking-widest text-zinc-600">Ref No.</th>
                                     <th className="py-4 px-3 text-left text-[11px] font-black uppercase tracking-widest text-zinc-600">Method</th>
                                     <th className="py-4 px-3 text-left text-[11px] font-black uppercase tracking-widest text-zinc-600">Date</th>
-                                    <th className="py-4 px-3 text-right text-[11px] font-black uppercase tracking-widest text-zinc-600">Amount (₹)</th>
+                                    <th className="py-4 px-3 text-right text-[11px] font-black uppercase tracking-widest text-zinc-600">Amount (AED )</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -343,7 +343,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                                         <td className="py-4 px-3 text-[12px] font-bold text-black uppercase">{p.bookingNumber}</td>
                                         <td className="py-4 px-3 text-[12px] font-bold text-zinc-700 uppercase">{p.paymentMethod}</td>
                                         <td className="py-4 px-3 text-[12px] font-medium text-zinc-500">{new Date(p.paymentDate).toLocaleDateString('en-GB')}</td>
-                                        <td className="py-4 px-3 text-right text-[14px] font-bold text-black">₹{p.amount.toFixed(2)}</td>
+                                        <td className="py-4 px-3 text-right text-[14px] font-bold text-black">AED {p.amount.toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -364,15 +364,15 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-[13px] font-medium text-zinc-500">
                                     <span>Subtotal</span>
-                                    <span className="text-black">₹{billData.subtotal.toFixed(2)}</span>
+                                    <span className="text-black">AED {billData.subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[13px] font-medium text-zinc-500">
                                     <span>Discount</span>
-                                    <span className="text-black">- ₹{billData.discount.toFixed(2)}</span>
+                                    <span className="text-black">- AED {billData.discount.toFixed(2)}</span>
                                 </div>
                                 <div className="border-t-2 border-black pt-4 mt-4 flex justify-between items-center">
                                     <span className="text-[12px] font-black uppercase tracking-widest text-black">Grand Total</span>
-                                    <span className="text-2xl font-bold text-black">₹{billData.total.toFixed(2)}</span>
+                                    <span className="text-2xl font-bold text-black">AED {billData.total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

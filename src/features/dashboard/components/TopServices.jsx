@@ -58,7 +58,7 @@ const TopServices = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-slate-900 leading-none">₹{service.revenue.toLocaleString()}</p>
+                <p className="text-sm font-bold text-slate-900 leading-none">AED {service.revenue.toLocaleString()}</p>
                 <div className="flex items-center justify-end gap-0.5 text-[10px] font-bold text-green-600 mt-1">
                    {service.trend}
                 </div>

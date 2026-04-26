@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     storage.remove(STORAGE_KEYS.USER);
     setAuthToken(null);
     setUser(null);
-    window.location.href = "/login";
+    window.location.href = "/admin/login";
   }, []);
 
   const value = useMemo(() => ({

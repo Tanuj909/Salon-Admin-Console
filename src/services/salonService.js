@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/services/axiosInstance";
 import { API_ENDPOINTS } from "@/services/apiEndpoints";
 
 export const getPendingSalonsApi = async (page = 0, size = 10) => {
@@ -73,3 +73,14 @@ export const verifySalonApi = async (id, status) => {
   });
   return response.data;
 };
+
+export const getSalonQrCodeApi = async (id) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_QR_CODE(id), {
+    responseType: "blob",
+    headers: {
+      Accept: "image/png",
+    },
+  });
+  return response.data;
+};
+

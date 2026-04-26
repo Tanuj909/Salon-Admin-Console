@@ -31,7 +31,7 @@ const DashboardLayout = () => {
             />
 
             {/* Right Side - Main Content Area */}
-            <div className={`flex-1 flex flex-col min-w-0 w-full h-full overflow-hidden transition-all duration-300 ease-in-out ${!isMobile ? (collapsed ? 'ml-20' : 'ml-72') : 'ml-0'}`}>
+            <div className={`flex-1 flex flex-col min-w-0 w-full h-full overflow-hidden transition-all duration-300 ease-in-out ${!isMobile ? (collapsed ? 'ml-20' : 'ml-64') : 'ml-0'}`}>
                 {/* Topbar */}
                 <Topbar onMenuClick={() => setMobileOpen(true)} isMobile={isMobile} />
 

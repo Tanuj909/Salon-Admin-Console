@@ -46,7 +46,7 @@ const RevenueTrendChart = () => {
               axisLine={false} 
               tickLine={false} 
               tick={{fill: '#94a3b8', fontSize: 12}} 
-              tickFormatter={(value) => `₹${value}`}
+              tickFormatter={(value) => `AED ${value}`}
             />
             <Tooltip 
               contentStyle={{ 
@@ -56,7 +56,7 @@ const RevenueTrendChart = () => {
                 fontSize: '14px',
                 fontWeight: '600'
               }}
-              formatter={(value) => [`₹${value}`, 'Revenue']}
+              formatter={(value) => [`AED ${value}`, 'Revenue']}
             />
             <Area 
               type="monotone" 

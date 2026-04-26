@@ -1,220 +1,318 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, 
   Clock, 
-  CreditCard, 
   CheckCircle2, 
-  PlusCircle, 
-  Search,
   Calendar,
-  AlertCircle,
-  ArrowRight,
+  Activity,
+  ArrowUpRight,
   TrendingUp,
   Star,
-  Coffee,
-  IndianRupee,
+  Zap,
+  ShoppingBag,
+  Target,
   UserCheck
 } from 'lucide-react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
+import { useAuth } from "@/hooks/useAuth";
+import dashboardService from "@/services/dashboardService";
 
 const ReceptionistDashboard = () => {
-  const stats = [
-    { label: "Today's Check-ins", value: "24", icon: Users, color: "bg-blue-500" },
-    { label: "Pending Payments", value: "5", icon: AlertCircle, color: "bg-red-500" },
-    { label: "Staff Available", value: "12 / 15", icon: CheckCircle2, color: "bg-emerald-500" },
-    { label: "Est. Revenue", value: "₹18,500", icon: TrendingUp, color: "bg-gold" },
-  ];
+  const { user } = useAuth();
+  const [range, setRange] = useState("LAST_30_DAYS");
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
-  const liveQueue = [
-    { name: "Ananya Kapoor", service: "Facial + Waxing", time: "Arriving in 5m", status: "In Transit" },
-    { name: "Vikram Malhotra", service: "Men's Styling", time: "Due Now", status: "Delayed" },
-    { name: "Sanya Gupta", service: "Nail Extension", time: "12:15 PM", status: "Upcoming" },
-  ];
+  const businessId = user?.businessId || user?.business?.id;
+
+  useEffect(() => {
+    if (businessId) {
+      fetchDashboardData();
+    }
+  }, [range, businessId]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const dashboardData = await dashboardService.getFullDashboard(range, businessId);
+      setData(dashboardData);
+    } catch (err) {
+      console.error("Error fetching receptionist dashboard data:", err);
+      setError("Failed to load dashboard metrics.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const kpiCards = useMemo(() => {
+    if (!data?.kpiCards) return [];
+    
+    return [
+      { 
+        label: "Total Bookings", 
+        value: data.kpiCards.totalBookings, 
+        growth: data.kpiCards.bookingsGrowth, 
+        icon: Calendar, 
+        color: "blue"
+      },
+      { 
+        label: "Active Customers", 
+        value: data.kpiCards.activeCustomers, 
+        growth: data.kpiCards.customerGrowth, 
+        icon: Users, 
+        color: "purple"
+      },
+      { 
+        label: "Completion Rate", 
+        value: `${data.kpiCards.completionRate}%`, 
+        sub: `${data.kpiCards.completedBookings} Done`, 
+        icon: CheckCircle2, 
+        color: "emerald"
+      },
+      { 
+        label: "Average Rating", 
+        value: data.kpiCards.averageRating, 
+        icon: Star, 
+        color: "amber"
+      },
+    ];
+  }, [data]);
+
+  if (loading && !data) {
+    return (
+      <div className="p-6 lg:p-10 flex items-center justify-center min-h-[80vh] bg-[#FDFBF7]">
+        <div className="w-12 h-12 border-4 border-gold/20 border-t-gold rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 lg:p-10 space-y-8 bg-[#FDFBF7] min-h-screen font-jost">
+    <div className="p-4 lg:p-8 space-y-8 bg-[#FDFBF7] min-h-screen font-jost pb-20">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gold/10 pb-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-display text-black-deep mb-2 italic">Receptionist Command Center</h1>
-          <p className="text-secondary/60 text-sm font-medium uppercase tracking-widest">Managing guest flow and daily operations</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 bg-black-deep rounded-xl flex items-center justify-center text-gold shadow-lg">
+              <Zap size={16} fill="currentColor" />
+            </div>
+            <p className="text-secondary/60 text-[10px] font-black uppercase tracking-[0.4em]">Operations Terminal</p>
+          </div>
+          <h1 className="text-4xl font-display text-black-deep italic tracking-tight">Receptionist View</h1>
         </div>
-        <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-3 bg-white border border-gold/10 text-black-deep rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:shadow-md transition-all">
-                <Search size={14} /> Find Booking
-            </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-black-deep text-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:shadow-xl transition-all">
-                <PlusCircle size={14} /> New Appointment
-            </button>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex bg-white p-1 rounded-2xl border border-gold/10 shadow-sm overflow-hidden">
+            {[
+              { id: "LAST_7_DAYS", label: "7D" },
+              { id: "LAST_30_DAYS", label: "30D" },
+              { id: "LAST_90_DAYS", label: "90D" }
+            ].map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setRange(p.id)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${
+                  range === p.id 
+                    ? 'bg-black-deep text-gold shadow-lg' 
+                    : 'text-secondary/40 hover:text-black-deep hover:bg-gold/5'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-3xl border border-gold/10 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-            <div className={`absolute top-0 right-0 w-16 h-16 ${stat.color} opacity-[0.03] -mr-8 -mt-8 rounded-full`}></div>
-            <div className="flex items-center gap-4 relative z-10">
-                <div className={`w-12 h-12 rounded-2xl ${stat.color} bg-opacity-10 flex items-center justify-center text-current`}>
-                    <stat.icon size={24} className={stat.color.replace('bg-', 'text-')} />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpiCards.map((card, idx) => (
+          <div key={idx} className="bg-white p-6 rounded-[32px] border border-gold/5 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
+            <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${card.color}-500/10 opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`}></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-10 h-10 rounded-xl bg-${card.color}-50 flex items-center justify-center text-${card.color}-600 shadow-sm group-hover:rotate-6 transition-transform`}>
+                  <card.icon size={20} />
                 </div>
-                <div>
-                    <p className="text-[10px] font-bold text-secondary uppercase tracking-widest opacity-50">{stat.label}</p>
-                    <h3 className="text-2xl font-display font-bold text-black-deep">{stat.value}</h3>
+                <div className="flex flex-col items-end">
+                  <span className="text-[9px] font-black text-secondary/30 uppercase tracking-[0.2em]">{card.label}</span>
+                  {card.growth !== undefined && (
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded mt-1 flex items-center gap-1 ${
+                      card.growth >= 0 ? 'text-emerald-500 bg-emerald-50' : 'text-red-500 bg-red-50'
+                    }`}>
+                      {card.growth >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                      {Math.abs(card.growth)}%
+                    </span>
+                  )}
                 </div>
+              </div>
+              <h3 className="text-2xl font-display font-bold text-black-deep mb-1">{card.value}</h3>
+              <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                <span className="text-[8px] font-bold text-secondary/40 uppercase tracking-widest">{card.sub || 'Current Period'}</span>
+                <ArrowUpRight size={12} />
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Live Customer Queue */}
-        <div className="lg:col-span-2 bg-white rounded-[32px] border border-gold/10 shadow-sm p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-                <h3 className="text-xl font-display italic text-black-deep">Live Arrival Queue</h3>
-                <span className="px-2 py-0.5 bg-emerald-500 text-white text-[8px] font-black uppercase rounded animate-pulse">Live</span>
+        {/* Booking Trends Chart */}
+        <div className="lg:col-span-2 bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col min-h-[500px]">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h3 className="text-2xl font-display italic text-black-deep">Booking flow</h3>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Daily appointment volume</p>
             </div>
-            <button className="text-[10px] font-bold uppercase tracking-widest text-gold hover:text-black-deep transition-colors">Manage All</button>
           </div>
-
-          <div className="space-y-4">
-            {liveQueue.map((guest, i) => (
-              <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl bg-[#FDFBF7] border border-gold/5 hover:border-gold/20 transition-all gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-gold/10 flex items-center justify-center text-secondary">
-                        <Clock size={20} />
-                    </div>
-                    <div>
-                        <p className="font-bold text-sm text-black-deep">{guest.name}</p>
-                        <p className="text-[10px] text-secondary opacity-60 uppercase tracking-widest">{guest.service}</p>
-                    </div>
-                </div>
-                <div className="flex items-center justify-between sm:justify-end gap-8">
-                    <div className="text-right">
-                        <p className="text-sm font-bold text-black-deep">{guest.time}</p>
-                        <span className={`text-[9px] font-black uppercase ${guest.status === 'Delayed' ? 'text-red-500' : 'text-emerald-500'}`}>
-                            {guest.status}
-                        </span>
-                    </div>
-                    <button className="px-4 py-2 bg-black-deep text-gold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:shadow-lg transition-all active:scale-95">
-                        Check In
-                    </button>
-                </div>
-              </div>
-            ))}
+          <div className="flex-1 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data?.bookingChart?.points || []}>
+                <defs>
+                  <linearGradient id="colorBookingRec" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}}
+                  tickFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', padding: '15px' }}
+                />
+                <Area type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorBookingRec)" />
+                <Area type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={3} fill="none" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Right Sidebar: Operations Detail */}
-        <div className="space-y-8">
-            {/* 1. Today's Financial Summary */}
-            <div className="bg-black-deep rounded-[32px] p-8 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gold opacity-[0.05] rounded-full -mr-16 -mt-16"></div>
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                    <h3 className="text-lg font-display italic text-gold">Today's Revenue</h3>
-                    <IndianRupee size={18} className="text-gold" />
-                </div>
-                <div className="relative z-10">
-                    <h4 className="text-3xl font-display font-bold text-white mb-1">₹18,500</h4>
-                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
-                        <TrendingUp size={12} /> +12% from yesterday
-                    </p>
-                    <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest">Services</p>
-                            <p className="text-xs font-bold text-white">₹14,200</p>
-                        </div>
-                        <div>
-                            <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest">Products</p>
-                            <p className="text-xs font-bold text-white">₹4,300</p>
-                        </div>
+        {/* Staff Pulse */}
+        <div className="bg-black-deep rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group">
+             <div className="absolute top-0 right-0 w-40 h-40 bg-gold opacity-5 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-1000"></div>
+             <h4 className="text-xl font-display italic text-gold mb-8 relative z-10">Staff Overview</h4>
+             <div className="space-y-6 relative z-10">
+                <div className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-default">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Active Staff</span>
+                        <span className="text-xl font-display font-bold text-white">{data?.kpiCards?.activeStaff} / {data?.kpiCards?.staffCount}</span>
+                    </div>
+                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-gold" style={{ width: `${(data?.kpiCards?.activeStaff / data?.kpiCards?.staffCount) * 100}%` }}></div>
                     </div>
                 </div>
-            </div>
-
-            {/* 2. Staff Status Summary */}
-            <div className="bg-white rounded-[32px] border border-gold/10 shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-black-deep uppercase tracking-widest">Staff Status</h3>
-                    <UserCheck size={16} className="text-gold" />
-                </div>
-                <div className="space-y-3">
-                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-emerald-700 uppercase">Available Now</span>
-                        <span className="text-xs font-black text-emerald-700">12</span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-amber-700 uppercase flex items-center gap-1">
-                                <Coffee size={12} /> On Leave Today
-                            </span>
-                            <span className="text-xs font-black text-amber-700">3</span>
-                        </div>
-                        <div className="flex -space-x-2">
-                            {['R', 'K', 'M'].map((l, i) => (
-                                <div key={i} className="w-6 h-6 rounded-full bg-white border border-amber-200 flex items-center justify-center text-[8px] font-bold text-amber-700">
-                                    {l}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* 3. Recent Reviews */}
-            <div className="bg-white rounded-[32px] border border-gold/10 shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-black-deep uppercase tracking-widest">Recent Feedback</h3>
-                    <Star size={16} className="text-gold fill-gold" />
-                </div>
-                <div className="space-y-4">
-                    {[
-                        { name: "Pooja D.", rating: 5, text: "Amazing service by Kunal!" },
-                        { name: "Aman R.", rating: 4, text: "Great styling, timely check-in." },
-                    ].map((rev, i) => (
-                        <div key={i} className="p-3 rounded-2xl bg-[#FDFBF7] border border-gold/5">
-                            <div className="flex items-center justify-between mb-1">
-                                <p className="text-[10px] font-bold text-black-deep">{rev.name}</p>
-                                <div className="flex">
-                                    {[...Array(rev.rating)].map((_, j) => <Star key={j} size={8} className="fill-gold text-gold" />)}
-                                </div>
+                
+                <div className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-default">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
+                                <Clock size={20} />
                             </div>
-                            <p className="text-[10px] text-secondary opacity-60 leading-tight italic">"{rev.text}"</p>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Pending Bookings</span>
                         </div>
-                    ))}
+                        <span className="text-xl font-display font-bold text-white">{data?.kpiCards?.pendingBookings}</span>
+                    </div>
                 </div>
-            </div>
+             </div>
         </div>
       </div>
 
-      {/* Staff Availability Quick View */}
-      <div className="bg-white p-8 rounded-[40px] border border-gold/10 shadow-sm">
-        <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-display italic text-black-deep">Staff Availability Overview</h3>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-secondary opacity-50">Filter by Specialty</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[
-                { name: "Rohan", status: "Active", service: "Hair" },
-                { name: "Sania", status: "Busy", service: "Nails" },
-                { name: "Kunal", status: "Active", service: "Skin" },
-                { name: "Meera", status: "Break", service: "Hair" },
-                { name: "Ishaan", status: "Active", service: "Style" },
-                { name: "Zoya", status: "Active", service: "Skin" },
-            ].map((staff, i) => (
-                <div key={i} className="p-4 rounded-2xl border border-[#FDFBF7] bg-[#FDFBF7] flex flex-col items-center gap-2 text-center group hover:bg-white hover:border-gold/20 hover:shadow-md transition-all">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-xs font-bold text-black-deep border border-gold/10 group-hover:bg-black-deep group-hover:text-gold transition-all">
-                        {staff.name[0]}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Popular Services */}
+        <div className="bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col h-[600px]">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h3 className="text-2xl font-display italic text-black-deep">Popular Services</h3>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Booking volume analysis</p>
+            </div>
+            <Target className="text-gold" size={24} />
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+            <div className="space-y-4">
+              {(data?.topServices?.byPopularity || []).map((service, i) => (
+                <div key={i} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl hover:bg-slate-50 transition-all group">
+                  <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-gold/10 flex items-center justify-center text-black-deep font-display font-bold text-xl shadow-sm group-hover:rotate-6 transition-transform">
+                      {service.serviceName.charAt(0)}
                     </div>
                     <div>
-                        <p className="text-[11px] font-bold text-black-deep">{staff.name}</p>
-                        <div className="flex items-center justify-center gap-1.5">
-                            <span className={`w-1 h-1 rounded-full ${staff.status === 'Active' ? 'bg-emerald-500' : staff.status === 'Busy' ? 'bg-red-500' : 'bg-amber-500'}`}></span>
-                            <span className="text-[8px] font-bold text-secondary uppercase tracking-widest">{staff.status}</span>
-                        </div>
+                      <h5 className="font-bold text-sm text-black-deep mb-1 group-hover:text-gold transition-colors">{service.serviceName}</h5>
+                      <p className="text-[9px] font-black text-secondary/40 uppercase tracking-widest">{service.bookingCount} Bookings</p>
                     </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="w-20 h-1 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                      <div className="h-full bg-gold" style={{ width: `${service.percentageOfTotal}%` }}></div>
+                    </div>
+                    <p className="text-[10px] font-black text-secondary/40 mt-2 uppercase tracking-widest">{service.percentageOfTotal}% Demand</p>
+                  </div>
                 </div>
-            ))}
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Matrix */}
+        <div className="bg-black-deep rounded-[48px] p-10 text-white shadow-2xl flex flex-col h-[600px]">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h3 className="text-2xl font-display italic text-gold">Customer segments</h3>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mt-2">Acquisition vs Retention</p>
+            </div>
+            <Users size={24} className="text-gold" />
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center">
+             <div className="w-full h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={[
+                                { name: 'Repeat', value: data?.customerInsights?.repeatCustomers || 0 },
+                                { name: 'One-Time', value: data?.customerInsights?.oneTimeCustomers || 0 }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={70}
+                            outerRadius={100}
+                            paddingAngle={8}
+                            dataKey="value"
+                        >
+                            <Cell fill="#C5A358" />
+                            <Cell fill="rgba(255,255,255,0.05)" />
+                        </Pie>
+                        <Tooltip />
+                    </PieChart>
+                </ResponsiveContainer>
+             </div>
+             <div className="grid grid-cols-2 gap-10 w-full mt-8">
+                <div className="text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Retention Rate</p>
+                    <h4 className="text-3xl font-display font-bold text-gold">{data?.customerInsights?.customerRetentionRate}%</h4>
+                </div>
+                <div className="text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">New Clients</p>
+                    <h4 className="text-3xl font-display font-bold text-white">{data?.customerInsights?.newCustomers}</h4>
+                </div>
+             </div>
+          </div>
         </div>
       </div>
     </div>

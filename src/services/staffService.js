@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/axiosInstance";
+import axiosInstance from "@/services/axiosInstance";
 import { API_ENDPOINTS } from "@/services/apiEndpoints";
 
 export const getStaffByBusinessApi = async (businessId, page = 0, size = 10) => {

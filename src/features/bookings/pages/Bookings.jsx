@@ -466,7 +466,7 @@
 //                           <div className="space-y-1.5">
 //                             <div className="flex justify-between items-center bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-100">
 //                               <span className="text-[10px] font-bold text-secondary uppercase tracking-tight">Final Amount</span>
-//                               <span className="font-extrabold text-black-deep text-base">₹{booking.finalAmount?.toFixed(0)}</span>
+//                               <span className="font-extrabold text-black-deep text-base">AED {booking.finalAmount?.toFixed(0)}</span>
 //                             </div>
 //                             <div className="flex items-center gap-1.5 flex-wrap">
 //                               {booking.services?.map(svc => (
@@ -1475,7 +1475,7 @@ const Bookings = () => {
                           <div className="space-y-1.5">
                             <div className="flex justify-between items-center bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-100">
                               <span className="text-[10px] font-bold text-secondary uppercase tracking-tight">Final Amount</span>
-                              <span className="font-extrabold text-black-deep text-base">₹{booking.finalAmount?.toFixed(0)}</span>
+                              <span className="font-extrabold text-black-deep text-base">AED {booking.finalAmount?.toFixed(0)}</span>
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {booking.services?.map(svc => (

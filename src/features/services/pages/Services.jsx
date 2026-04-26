@@ -789,7 +789,7 @@ const Services = () => {
         {/* ── Page Header ── */}
         <div className="page-header">
           <div className="page-header-left">
-            <h1>Services <span className="hidden md:inline">— Desert Pearl Beauty Lounge</span></h1>
+            <h1>Services</h1>
             <p className="hidden md:block text-secondary text-sm">Review and manage the list of services for your business.</p>
           </div>
           <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
@@ -887,10 +887,10 @@ const Services = () => {
                     </td>
                     <td data-label="Pricing">
                       {service.discountedPrice < service.price && (
-                        <span className="price-original">₹{service.price.toFixed(2)}</span>
+                        <span className="price-original">AED {service.price.toFixed(2)}</span>
                       )}
-                      <span className="price-main">₹{service.effectivePrice.toFixed(2)}</span>
-                      <div className="price-label">Effective: ₹{service.effectivePrice.toFixed(2)}</div>
+                      <span className="price-main">AED {service.effectivePrice.toFixed(2)}</span>
+                      <div className="price-label">Effective: AED {service.effectivePrice.toFixed(2)}</div>
                     </td>
                     <td data-label="Status">
                       <div className="status-badges">
@@ -1013,7 +1013,7 @@ const Services = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (AED)</label>
                   <input
                     type="number"
                     name="price"
@@ -1024,7 +1024,7 @@ const Services = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (AED)</label>
                   <input
                     type="number"
                     name="discountedPrice"
@@ -1138,7 +1138,7 @@ const Services = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (₹)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price (AED)</label>
                   <input
                     type="number"
                     name="price"
@@ -1149,7 +1149,7 @@ const Services = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (₹)</label>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Offer Price (AED)</label>
                   <input
                     type="number"
                     name="discountedPrice"
@@ -1255,9 +1255,9 @@ const Services = () => {
                 <div className="bg-[#FDFBF7] p-3 rounded-2xl border border-gold/10">
                   <div className="text-[9px] text-secondary/50 uppercase font-bold tracking-widest mb-1">Pricing</div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-sm font-bold text-black-deep">₹{mobileServiceDetails.effectivePrice}</span>
+                    <span className="text-sm font-bold text-black-deep">AED {mobileServiceDetails.effectivePrice}</span>
                     {mobileServiceDetails.discountedPrice < mobileServiceDetails.price && (
-                      <span className="text-[10px] text-secondary/40 line-through">₹{mobileServiceDetails.price}</span>
+                      <span className="text-[10px] text-secondary/40 line-through">AED {mobileServiceDetails.price}</span>
                     )}
                   </div>
                 </div>

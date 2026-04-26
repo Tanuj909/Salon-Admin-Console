@@ -39,7 +39,7 @@ const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/admin">
       <MainLayout>
         <Routes>
           {/* Public Routes */}
@@ -51,7 +51,7 @@ const AppRoutes = () => {
                   <Login />
                 </AuthLayout>
               ) : (
-                <Navigate to="/admin" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -63,7 +63,7 @@ const AppRoutes = () => {
                   <ForgotPassword />
                 </AuthLayout>
               ) : (
-                <Navigate to="/admin" replace />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -75,15 +75,15 @@ const AppRoutes = () => {
                   <ResetPassword />
                 </AuthLayout>
               ) : (
-                <Navigate to="/admin" replace />
+                <Navigate to="/" replace />
               )
             }
           />
 
           {/* Authenticated Routes - All start with /admin */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="/admin/dashboard-redirect" replace />} />
+            <Route path="/" element={<DashboardLayout />}>
+              <Route index element={<Navigate to="/dashboard-redirect" replace />} />
               
               {/* Common Redirect based on role */}
               <Route path="dashboard-redirect" element={<DashboardRedirect />} />
@@ -131,7 +131,7 @@ const AppRoutes = () => {
           </Route>
 
           {/* Fallback */}
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="/" element={<Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </MainLayout>
@@ -147,13 +147,13 @@ const DashboardRedirect = () => {
   
   switch (user.role) {
     case "SUPER_ADMIN":
-      return <Navigate to="/admin/super-admin/dashboard" replace />;
+      return <Navigate to="/super-admin/dashboard" replace />;
     case "ADMIN":
-      return <Navigate to="/admin/dashboard" replace />;
+      return <Navigate to="/dashboard" replace />;
     case "RECEPTIONIST":
-      return <Navigate to="/admin/receptionist/dashboard" replace />;
+      return <Navigate to="/receptionist/dashboard" replace />;
     case "STAFF":
-      return <Navigate to="/admin/staff/my-bookings" replace />;
+      return <Navigate to="/staff/my-bookings" replace />;
     default:
       return <Navigate to="/login" replace />;
   }

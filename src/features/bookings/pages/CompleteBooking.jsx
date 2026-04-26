@@ -192,11 +192,11 @@ const CompleteBooking = () => {
                             </div>
                             <div>
                                 <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Amount Paid</p>
-                                <p className="font-bold text-sm text-emerald-600">₹{paymentSuccess.amountPaid}</p>
+                                <p className="font-bold text-sm text-emerald-600">AED {paymentSuccess.amountPaid}</p>
                             </div>
                             <div>
                                 <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Discount</p>
-                                <p className="font-bold text-sm text-black-deep">₹{paymentSuccess.discountAmount}</p>
+                                <p className="font-bold text-sm text-black-deep">AED {paymentSuccess.discountAmount}</p>
                             </div>
                             {paymentSuccess.notes && (
                                 <div className="col-span-full pt-3 border-t border-slate-100">
@@ -254,9 +254,9 @@ const CompleteBooking = () => {
                                                 <div key={idx} className="flex items-center justify-between px-3 py-2 bg-[#FDFBF7] rounded-lg border border-gold/5">
                                                     <div>
                                                         <p className="font-bold text-xs text-black-deep">{svc.name}</p>
-                                                        <p className="text-[9px] text-secondary/50 font-medium">{svc.quantity} × ₹{svc.price}</p>
+                                                        <p className="text-[9px] text-secondary/50 font-medium">{svc.quantity} × AED {svc.price}</p>
                                                     </div>
-                                                    <p className="font-bold text-xs text-black-deep">₹{svc.subtotal}</p>
+                                                    <p className="font-bold text-xs text-black-deep">AED {svc.subtotal}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -270,16 +270,16 @@ const CompleteBooking = () => {
                                             <div className="space-y-2 relative z-10">
                                                 <div className="flex justify-between items-center text-xs">
                                                     <span className="text-white/50">Total</span>
-                                                    <span className="font-bold">₹{booking.totalAmount}</span>
+                                                    <span className="font-bold">AED {booking.totalAmount}</span>
                                                 </div>
                                                 <div className="flex justify-between items-center text-xs">
                                                     <span className="text-gold/60">Discount</span>
-                                                    <span className="font-bold text-gold/80">- ₹{booking.discountAmount}</span>
+                                                    <span className="font-bold text-gold/80">- AED {booking.discountAmount}</span>
                                                 </div>
                                                 <div className="h-px bg-white/10 my-1"></div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="text-[9px] font-bold text-gold/40 uppercase tracking-widest">Payable</span>
-                                                    <span className="text-xl font-display italic text-gold">₹{booking.finalAmount}</span>
+                                                    <span className="text-xl font-display italic text-gold">AED {booking.finalAmount}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -381,7 +381,7 @@ const CompleteBooking = () => {
                             <div className="px-6 py-4 border-b border-slate-100 bg-[#FDFBF7] flex justify-between items-center shrink-0">
                                 <div>
                                     <h3 className="font-display text-xl italic text-black-deep">Process Payment</h3>
-                                    <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{booking.bookingNumber} · ₹{booking.finalAmount}</p>
+                                    <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mt-0.5">{booking.bookingNumber} · AED {booking.finalAmount}</p>
                                 </div>
                                 <button
                                     className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-lg transition-colors"
@@ -421,7 +421,7 @@ const CompleteBooking = () => {
                                     {/* Amount & Discount - side by side */}
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="text-[9px] font-bold text-secondary uppercase tracking-widest block mb-1.5">Amount (₹)</label>
+                                            <label className="text-[9px] font-bold text-secondary uppercase tracking-widest block mb-1.5">Amount (AED )</label>
                                             <input
                                                 type="number"
                                                 value={amountPaid}
@@ -432,10 +432,10 @@ const CompleteBooking = () => {
                                                 step="0.01"
                                                 disabled={processing}
                                             />
-                                            <p className="text-[8px] text-secondary/40 mt-1">Auto-filled: ₹{booking.finalAmount}</p>
+                                            <p className="text-[8px] text-secondary/40 mt-1">Auto-filled: AED {booking.finalAmount}</p>
                                         </div>
                                         <div>
-                                            <label className="text-[9px] font-bold text-secondary uppercase tracking-widest block mb-1.5">Discount (₹)</label>
+                                            <label className="text-[9px] font-bold text-secondary uppercase tracking-widest block mb-1.5">Discount (AED )</label>
                                             <input
                                                 type="number"
                                                 value={discountAmount}
@@ -470,7 +470,7 @@ const CompleteBooking = () => {
                                                 <p className="text-xs font-bold text-white">{booking.bookingNumber}</p>
                                             </div>
                                         </div>
-                                        <span className="text-xl font-display italic text-gold">₹{amountPaid || '0'}</span>
+                                        <span className="text-xl font-display italic text-gold">AED {amountPaid || '0'}</span>
                                     </div>
                                 </div>
 

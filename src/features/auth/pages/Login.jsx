@@ -62,7 +62,7 @@ const Login = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-2xl bg-white shadow-luxe p-2 flex items-center justify-center">
-              <img src="/logo/fastbooking.png" alt="FastBooking Logo" className="w-full h-full object-contain" />
+              <img src="/admin/logo/fastbooking.png" alt="FastBooking Logo" className="w-full h-full object-contain" />
             </div>
           </div>
           <h1 className="font-display text-5xl italic text-black-deep mb-2">FastBooking</h1>

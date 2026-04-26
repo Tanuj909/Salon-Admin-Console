@@ -108,3 +108,14 @@ export const sendVerificationMessageApi = async (businessId, message, attachment
   });
   return response.data;
 };
+
+export const getSalonQrCodeApi = async (id) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_QR_CODE(id), {
+    responseType: "blob",
+    headers: {
+      Accept: "image/png",
+    },
+  });
+  return response.data;
+};
+

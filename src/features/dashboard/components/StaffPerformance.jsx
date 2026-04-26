@@ -50,10 +50,10 @@ const StaffPerformance = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-purple-600">₹{staff.revenue.toLocaleString()}</p>
+                <p className="text-sm font-bold text-purple-600">AED {staff.revenue.toLocaleString()}</p>
                 <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 font-medium mt-0.5">
                   <Target size={10} />
-                  ₹{staff.target.toLocaleString()}
+                  AED {staff.target.toLocaleString()}
                 </div>
               </div>
             </div>

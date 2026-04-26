@@ -53,8 +53,8 @@ apiClient.interceptors.response.use(
           removeToken();
           storage.remove(STORAGE_KEYS.USER);
           
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
+          if (window.location.pathname !== "/admin/login") {
+            window.location.href = "/admin/login";
           }
         }
       }
