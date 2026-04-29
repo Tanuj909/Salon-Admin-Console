@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getReviewsByStaffApi } from "@/features/reviews/services/reviewService";
+import { getStaffByUserIdApi } from "@/services/staffService";
 import { useAuth } from "@/hooks/useAuth";
 
 const StaffReviews = () => {
@@ -35,11 +36,19 @@ const StaffReviews = () => {
         const fetchReviewsPage = async () => {
             try {
                 setLoading(true);
-                // `user.id` or `user.userId` is expected to map to the staff id for STAFF role users
-                const staffId = user.id || user.userId;
-                if (!staffId) {
-                    throw new Error("Staff ID not found in user profile");
+                const userId = user.id || user.userId;
+                if (!userId) {
+                    throw new Error("User ID not found in profile");
                 }
+                
+                // Flow: Map User ID -> Staff ID -> Reviews
+                const staffRes = await getStaffByUserIdApi(userId);
+                const staffId = staffRes?.body?.id;
+                
+                if (!staffId) {
+                    throw new Error("Staff ID could not be mapped from User Profile");
+                }
+                
                 await fetchReviews(staffId, page);
             } catch (err) {
                 console.error("Error fetching reviews:", err);
@@ -94,10 +103,10 @@ const StaffReviews = () => {
 
     return (
         <div className="w-full font-jost font-light min-h-[calc(100vh-80px)]">
-            <div className="container mx-auto pb-12 pt-4 bg-transparent max-w-5xl">
+            <div className="mx-auto px-4 md:px-6 pb-12 pt-4 bg-transparent max-w-5xl">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
                     <div>
-                        <h1 className="font-display text-4xl italic text-black-deep mb-2">My Reviews</h1>
+                        <h1 className="font-display text-3xl md:text-4xl italic text-black-deep mb-2">My Reviews</h1>
                         <p className="text-secondary text-base">Monitor what customers are saying about your service.</p>
                     </div>
                     <div className="text-right bg-white px-6 py-3 rounded-2xl border border-gold/10 shadow-sm flex items-center gap-4">

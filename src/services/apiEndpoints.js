@@ -47,6 +47,7 @@ export const API_ENDPOINTS = {
     GET_BY_BUSINESS: (businessId) => `/staff/business/${businessId}`,
     GET_BY_SERVICE: (serviceId) => `/staff/service/${serviceId}`,
     GET_BY_ID: (id) => `/staff/${id}`,
+    GET_BY_USER_ID: (userId) => `/staff/user/${userId}`,
     UPDATE_BY_ID: (id) => `/staff/${id}`,
     DELETE_BY_ID: (id) => `/staff/${id}`,
     ASSIGN_SERVICES: (id) => `/staff/${id}/services`,

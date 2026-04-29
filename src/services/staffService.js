@@ -18,6 +18,11 @@ export const getStaffByIdApi = async (staffId) => {
   return response.data;
 };
 
+export const getStaffByUserIdApi = async (userId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_BY_USER_ID(userId));
+  return response.data;
+};
+
 export const createStaffApi = async (staffData) => {
   const response = await axiosInstance.post(API_ENDPOINTS.STAFF.BASE, staffData);
   return response.data;

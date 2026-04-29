@@ -1,95 +1,115 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Users, 
-  Clock, 
+  Calendar, 
   CheckCircle2, 
-  Calendar,
+  Users, 
+  Star, 
+  TrendingUp, 
+  TrendingDown, 
   Activity,
-  ArrowUpRight,
-  TrendingUp,
-  Star,
   Zap,
-  ShoppingBag,
   Target,
-  UserCheck
+  Users2,
+  Clock,
+  UserCheck,
+  XCircle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
+  Legend
 } from 'recharts';
 import { useAuth } from "@/hooks/useAuth";
+import { useBusiness } from "@/context/BusinessContext";
 import dashboardService from "@/services/dashboardService";
 
 const ReceptionistDashboard = () => {
   const { user } = useAuth();
+  const { businessId } = useBusiness();
+  
+  // Global Range
   const [range, setRange] = useState("LAST_30_DAYS");
+  
+  // Independent Section Filters
+  const [bookingRange, setBookingRange] = useState("LAST_30_DAYS");
+  const [servicesRange, setServicesRange] = useState("LAST_30_DAYS");
+  const [servicesLimit, setServicesLimit] = useState(5);
+
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null); // Full data
+  const [bookingData, setBookingData] = useState(null);
+  const [servicesData, setServicesData] = useState(null);
+  
+  const [showAllKpis, setShowAllKpis] = useState(false);
   const [error, setError] = useState(null);
 
-  const businessId = user?.businessId || user?.business?.id;
-
   useEffect(() => {
-    if (businessId) {
-      fetchDashboardData();
-    }
+    fetchFullDashboard();
   }, [range, businessId]);
 
-  const fetchDashboardData = async () => {
+  useEffect(() => {
+    fetchBookingTrends();
+  }, [bookingRange, businessId]);
+
+  useEffect(() => {
+    fetchTopServices();
+  }, [servicesRange, servicesLimit, businessId]);
+
+  const fetchFullDashboard = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const dashboardData = await dashboardService.getFullDashboard(range, businessId);
-      setData(dashboardData);
+      const res = await dashboardService.getFullDashboard(range, businessId);
+      setData(res);
+      if (range === bookingRange) setBookingData(res.bookingChart);
+      if (range === servicesRange) setServicesData(res.topServices);
     } catch (err) {
-      console.error("Error fetching receptionist dashboard data:", err);
-      setError("Failed to load dashboard metrics.");
+      console.error(err);
+      setError("Failed to load dashboard.");
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchBookingTrends = async () => {
+    try {
+      const res = await dashboardService.getBookingTrends(bookingRange, businessId);
+      setBookingData(res);
+    } catch (err) { console.error(err); }
+  };
+
+  const fetchTopServices = async () => {
+    try {
+      const res = await dashboardService.getTopServices(servicesRange, businessId, servicesLimit);
+      setServicesData(res);
+    } catch (err) { console.error(err); }
+  };
+
   const kpiCards = useMemo(() => {
     if (!data?.kpiCards) return [];
-    
+    const k = data.kpiCards;
     return [
-      { 
-        label: "Total Bookings", 
-        value: data.kpiCards.totalBookings, 
-        growth: data.kpiCards.bookingsGrowth, 
-        icon: Calendar, 
-        color: "blue"
-      },
-      { 
-        label: "Active Customers", 
-        value: data.kpiCards.activeCustomers, 
-        growth: data.kpiCards.customerGrowth, 
-        icon: Users, 
-        color: "purple"
-      },
-      { 
-        label: "Completion Rate", 
-        value: `${data.kpiCards.completionRate}%`, 
-        sub: `${data.kpiCards.completedBookings} Done`, 
-        icon: CheckCircle2, 
-        color: "emerald"
-      },
-      { 
-        label: "Average Rating", 
-        value: data.kpiCards.averageRating, 
-        icon: Star, 
-        color: "amber"
-      },
+      { label: "Total Bookings", value: k.totalBookings, icon: Calendar, color: "blue", growth: k.bookingsGrowth },
+      { label: "Completed", value: k.completedBookings, icon: CheckCircle2, color: "emerald" },
+      { label: "Completion Rate", value: `${k.completionRate}%`, icon: Target, color: "emerald" },
+      { label: "Pending Bookings", value: k.pendingBookings, icon: Clock, color: "amber" },
+      { label: "Confirmed", value: k.confirmedBookings, icon: UserCheck, color: "blue" },
+      { label: "Active Customers", value: k.activeCustomers, icon: Users, color: "purple", growth: k.customerGrowth },
+      { label: "Cancelled", value: k.cancelledBookings, icon: XCircle, color: "red" },
+      { label: "Cancellation Rate", value: `${k.cancellationRate}%`, icon: Activity, color: "red" },
+      { label: "Total Staff", value: k.staffCount, icon: Users2, color: "slate" },
+      { label: "Active Staff", value: k.activeStaff, icon: Zap, color: "blue" },
+      { label: "Average Rating", value: k.averageRating, icon: Star, color: "amber" },
     ];
   }, [data]);
+
+  const displayedKpis = showAllKpis ? kpiCards : kpiCards.slice(0, 6);
 
   if (loading && !data) {
     return (
@@ -99,34 +119,60 @@ const ReceptionistDashboard = () => {
     );
   }
 
+  const RangeFilter = ({ current, onChange }) => (
+    <div className="flex bg-slate-100 p-1 rounded-lg">
+      {[
+        { id: "LAST_7_DAYS", label: "7D" },
+        { id: "LAST_30_DAYS", label: "30D" },
+        { id: "LAST_90_DAYS", label: "90D" }
+      ].map((p) => (
+        <button
+          key={p.id}
+          onClick={() => onChange(p.id)}
+          className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${
+            current === p.id ? 'bg-black-deep text-white shadow-sm' : 'text-slate-500 hover:text-black-deep'
+          }`}
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const LimitFilter = ({ current, onChange }) => (
+    <select 
+      value={current} 
+      onChange={(e) => onChange(Number(e.target.value))}
+      className="bg-slate-100 text-[10px] font-bold px-2 py-1 rounded-lg border-none outline-none"
+    >
+      {[5, 10, 20].map(val => (
+        <option key={val} value={val}>Limit: {val}</option>
+      ))}
+    </select>
+  );
+
   return (
-    <div className="p-4 lg:p-8 space-y-8 bg-[#FDFBF7] min-h-screen font-jost pb-20">
+    <div className="p-4 lg:p-8 space-y-8 bg-[#FDFBF7] min-h-screen font-sans pb-20">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gold/10 pb-8">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-black-deep rounded-xl flex items-center justify-center text-gold shadow-lg">
-              <Zap size={16} fill="currentColor" />
-            </div>
-            <p className="text-secondary/60 text-[10px] font-black uppercase tracking-[0.4em]">Operations Terminal</p>
-          </div>
-          <h1 className="text-4xl font-display text-black-deep italic tracking-tight">Receptionist View</h1>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex bg-white p-1 rounded-2xl border border-gold/10 shadow-sm overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gold/10 pb-6">
+        <h1 className="text-3xl font-extrabold text-black-deep italic">Receptionist Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Global Filter:</span>
+          <div className="flex bg-white p-1 rounded-xl border border-gold/10 shadow-sm">
             {[
-              { id: "LAST_7_DAYS", label: "7D" },
-              { id: "LAST_30_DAYS", label: "30D" },
-              { id: "LAST_90_DAYS", label: "90D" }
+              { id: "LAST_7_DAYS", label: "7 Days" },
+              { id: "LAST_30_DAYS", label: "30 Days" },
+              { id: "LAST_90_DAYS", label: "90 Days" }
             ].map((p) => (
               <button
                 key={p.id}
-                onClick={() => setRange(p.id)}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all ${
-                  range === p.id 
-                    ? 'bg-black-deep text-gold shadow-lg' 
-                    : 'text-secondary/40 hover:text-black-deep hover:bg-gold/5'
+                onClick={() => {
+                  setRange(p.id);
+                  setBookingRange(p.id);
+                  setServicesRange(p.id);
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                  range === p.id ? 'bg-black-deep text-white shadow-md' : 'text-slate-600 hover:text-black-deep hover:bg-slate-50'
                 }`}
               >
                 {p.label}
@@ -137,181 +183,143 @@ const ReceptionistDashboard = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((card, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-[32px] border border-gold/5 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
-            <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${card.color}-500/10 opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700`}></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-10 h-10 rounded-xl bg-${card.color}-50 flex items-center justify-center text-${card.color}-600 shadow-sm group-hover:rotate-6 transition-transform`}>
-                  <card.icon size={20} />
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-[9px] font-black text-secondary/30 uppercase tracking-[0.2em]">{card.label}</span>
-                  {card.growth !== undefined && (
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded mt-1 flex items-center gap-1 ${
-                      card.growth >= 0 ? 'text-emerald-500 bg-emerald-50' : 'text-red-500 bg-red-50'
-                    }`}>
-                      {card.growth >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                      {Math.abs(card.growth)}%
-                    </span>
-                  )}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {displayedKpis.map((card, idx) => (
+            <div key={idx} className="bg-white p-4 rounded-2xl border border-gold/10 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">{card.label}</span>
+                <div className={`w-7 h-7 rounded-lg bg-${card.color}-50 flex items-center justify-center text-${card.color}-600`}>
+                  <card.icon size={14} />
                 </div>
               </div>
-              <h3 className="text-2xl font-display font-bold text-black-deep mb-1">{card.value}</h3>
-              <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                <span className="text-[8px] font-bold text-secondary/40 uppercase tracking-widest">{card.sub || 'Current Period'}</span>
-                <ArrowUpRight size={12} />
+              <div>
+                <h3 className="text-lg font-extrabold text-black-deep leading-tight">{card.value}</h3>
+                {card.growth !== undefined && (
+                  <div className={`flex items-center gap-1 mt-1 text-[10px] font-bold ${
+                    card.growth >= 0 ? 'text-emerald-600' : 'text-red-600'
+                  }`}>
+                    {card.growth >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                    <span>{Math.abs(card.growth)}%</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        {kpiCards.length > 6 && (
+          <button 
+            onClick={() => setShowAllKpis(!showAllKpis)}
+            className="flex items-center gap-2 mx-auto px-6 py-2 bg-white border border-gold/20 rounded-full text-xs font-bold text-gold hover:bg-gold/5 transition-all shadow-sm"
+          >
+            {showAllKpis ? (
+              <>Show Less <ChevronUp size={14} /></>
+            ) : (
+              <>Show All Metrics ({kpiCards.length}) <ChevronDown size={14} /></>
+            )}
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Booking Trends Chart */}
-        <div className="lg:col-span-2 bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col min-h-[500px]">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h3 className="text-2xl font-display italic text-black-deep">Booking flow</h3>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Daily appointment volume</p>
-            </div>
-          </div>
-          <div className="flex-1 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data?.bookingChart?.points || []}>
-                <defs>
-                  <linearGradient id="colorBookingRec" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}}
-                  tickFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#94a3b8'}} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', padding: '15px' }}
-                />
-                <Area type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorBookingRec)" />
-                <Area type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={3} fill="none" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Booking Chart */}
+      <div className="bg-white rounded-[24px] border border-gold/10 shadow-sm p-6 flex flex-col h-[400px]">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-black-deep">Booking Chart</h3>
+          <RangeFilter current={bookingRange} onChange={setBookingRange} />
         </div>
-
-        {/* Staff Pulse */}
-        <div className="bg-black-deep rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden group">
-             <div className="absolute top-0 right-0 w-40 h-40 bg-gold opacity-5 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-1000"></div>
-             <h4 className="text-xl font-display italic text-gold mb-8 relative z-10">Staff Overview</h4>
-             <div className="space-y-6 relative z-10">
-                <div className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-default">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Active Staff</span>
-                        <span className="text-xl font-display font-bold text-white">{data?.kpiCards?.activeStaff} / {data?.kpiCards?.staffCount}</span>
-                    </div>
-                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-gold" style={{ width: `${(data?.kpiCards?.activeStaff / data?.kpiCards?.staffCount) * 100}%` }}></div>
-                    </div>
-                </div>
-                
-                <div className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-default">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center text-gold">
-                                <Clock size={20} />
-                            </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Pending Bookings</span>
-                        </div>
-                        <span className="text-xl font-display font-bold text-white">{data?.kpiCards?.pendingBookings}</span>
-                    </div>
-                </div>
-             </div>
+        <div className="flex-1 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={bookingData?.points || []}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis 
+                dataKey="date" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{fontSize: 10, fontWeight: 700, fill: '#475569'}}
+                tickFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+              />
+              <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700, fill: '#475569'}} />
+              <Tooltip 
+                cursor={{fill: '#f8fafc'}}
+                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontWeight: 'bold', fontSize: '10px' }}
+              />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+              <Bar dataKey="completed" name="Completed" stackId="a" fill="#10b981" />
+              <Bar dataKey="cancelled" name="Cancelled" stackId="a" fill="#ef4444" />
+              <Bar dataKey="noShow" name="No Show" stackId="a" fill="#f59e0b" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Popular Services */}
-        <div className="bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col h-[600px]">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h3 className="text-2xl font-display italic text-black-deep">Popular Services</h3>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Booking volume analysis</p>
+        <div className="bg-white rounded-[24px] border border-gold/10 shadow-sm p-6 flex flex-col h-[500px]">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-black-deep italic">Popular Services</h3>
+            <div className="flex items-center gap-2">
+              <RangeFilter current={servicesRange} onChange={setServicesRange} />
+              <LimitFilter current={servicesLimit} onChange={setServicesLimit} />
             </div>
-            <Target className="text-gold" size={24} />
           </div>
-          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-            <div className="space-y-4">
-              {(data?.topServices?.byPopularity || []).map((service, i) => (
-                <div key={i} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl hover:bg-slate-50 transition-all group">
-                  <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-gold/10 flex items-center justify-center text-black-deep font-display font-bold text-xl shadow-sm group-hover:rotate-6 transition-transform">
-                      {service.serviceName.charAt(0)}
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-sm text-black-deep mb-1 group-hover:text-gold transition-colors">{service.serviceName}</h5>
-                      <p className="text-[9px] font-black text-secondary/40 uppercase tracking-widest">{service.bookingCount} Bookings</p>
-                    </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+            {servicesData?.byPopularity?.map((service, i) => (
+              <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-300 flex items-center justify-center text-black-deep font-bold text-sm shadow-sm">
+                    {i + 1}
                   </div>
-                  <div className="text-right">
-                    <div className="w-20 h-1 bg-slate-100 rounded-full mt-2 overflow-hidden">
-                      <div className="h-full bg-gold" style={{ width: `${service.percentageOfTotal}%` }}></div>
-                    </div>
-                    <p className="text-[10px] font-black text-secondary/40 mt-2 uppercase tracking-widest">{service.percentageOfTotal}% Demand</p>
+                  <div>
+                    <h5 className="font-bold text-sm text-black-deep">{service.serviceName}</h5>
+                    <p className="text-xs font-semibold text-slate-600">{service.bookingCount} Bookings</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="text-right">
+                    <p className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{service.percentageOfTotal}% Demand</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Customer Matrix */}
-        <div className="bg-black-deep rounded-[48px] p-10 text-white shadow-2xl flex flex-col h-[600px]">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h3 className="text-2xl font-display italic text-gold">Customer segments</h3>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mt-2">Acquisition vs Retention</p>
-            </div>
-            <Users size={24} className="text-gold" />
+        {/* Customer Segments */}
+        <div className="bg-white rounded-[24px] border border-gold/10 shadow-sm p-6 flex flex-col h-[500px]">
+          <div className="flex items-center gap-2 mb-8">
+            <Users2 className="text-gold" size={20} />
+            <h3 className="text-lg font-bold text-black-deep">Customer Segments</h3>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center">
-             <div className="w-full h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={[
-                                { name: 'Repeat', value: data?.customerInsights?.repeatCustomers || 0 },
-                                { name: 'One-Time', value: data?.customerInsights?.oneTimeCustomers || 0 }
-                            ]}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={70}
-                            outerRadius={100}
-                            paddingAngle={8}
-                            dataKey="value"
-                        >
-                            <Cell fill="#C5A358" />
-                            <Cell fill="rgba(255,255,255,0.05)" />
-                        </Pie>
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
-             </div>
-             <div className="grid grid-cols-2 gap-10 w-full mt-8">
-                <div className="text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Retention Rate</p>
-                    <h4 className="text-3xl font-display font-bold text-gold">{data?.customerInsights?.customerRetentionRate}%</h4>
+          
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            {[
+              { label: "Retention Rate", value: `${data?.customerInsights?.customerRetentionRate?.toFixed(1)}%` },
+              { label: "Total Customers", value: data?.customerInsights?.totalCustomers },
+              { label: "New Customers", value: data?.customerInsights?.newCustomers },
+              { label: "Repeat Customers", value: data?.customerInsights?.repeatCustomers }
+            ].map((item, i) => (
+              <div key={i} className="p-5 bg-slate-50 border border-slate-200 rounded-2xl shadow-sm text-center">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{item.label}</p>
+                <h4 className="text-2xl font-extrabold text-black-deep">{item.value || 0}</h4>
+              </div>
+            ))}
+          </div>
+
+          <h4 className="text-md font-bold text-black-deep mb-4 px-1">Top Clients (By Bookings)</h4>
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+            {(data?.customerInsights?.topSpenders || []).map((customer, i) => (
+              <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                    {customer.customerName?.charAt(0) || 'C'}
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-sm text-black-deep">{customer.customerName}</h5>
+                    <p className="text-xs font-bold text-slate-600">{customer.bookingsCount} Bookings</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">New Clients</p>
-                    <h4 className="text-3xl font-display font-bold text-white">{data?.customerInsights?.newCustomers}</h4>
-                </div>
-             </div>
+                <p className="text-[10px] font-extrabold text-amber-700 bg-amber-100 px-2 py-0.5 rounded uppercase tracking-wide border border-amber-200">{customer.membershipLevel}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
