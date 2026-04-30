@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import MainLayout from "@/components/layout/MainLayout";
 import AuthLayout from "@/components/layout/AuthLayout";
 
@@ -29,6 +29,8 @@ import CompleteBooking from "@/features/bookings/pages/CompleteBooking";
 import StaffBookingManager from "@/features/bookings/pages/StaffBookingManager";
 import StaffSearchBooking from "@/features/bookings/pages/StaffSearchBooking";
 import StaffReviews from "@/features/reviews/pages/StaffReviews";
+import BusinessSalaries from "@/features/staff/pages/BusinessSalaries";
+import MySalary from "@/features/staff/pages/MySalary";
 
 // Layouts
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -111,6 +113,7 @@ const AppRoutes = () => {
                 <Route path="reviews" element={<SalonReviews />} />
                 <Route path="bookings" element={<Bookings />} />
                 <Route path="complete-booking" element={<CompleteBooking />} />
+                <Route path="salaries" element={<BusinessSalaries />} />
               </Route>
 
               {/* Receptionist Routes */}
@@ -128,6 +131,7 @@ const AppRoutes = () => {
                 <Route path="staff/my-bookings" element={<StaffBookingManager />} />
                 <Route path="staff/search-booking" element={<StaffSearchBooking />} />
                 <Route path="staff/reviews" element={<StaffReviews />} />
+                <Route path="staff/my-salary" element={<MySalary />} />
               </Route>
             </Route>
           </Route>

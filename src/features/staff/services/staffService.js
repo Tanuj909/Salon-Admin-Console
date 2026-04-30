@@ -58,3 +58,24 @@ export const getStaffSlotsApi = async (staffId, startDate, endDate) => {
   });
   return response.data;
 };
+
+export const getStaffSalaryApi = async (staffId, yearMonth) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_SALARY(staffId), {
+    params: { yearMonth }
+  });
+  return response.data;
+};
+
+export const getBusinessSalariesApi = async (businessId, yearMonth) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.GET_BUSINESS_SALARIES(businessId), {
+    params: { yearMonth }
+  });
+  return response.data;
+};
+
+export const getMySalaryApi = async (yearMonth) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.STAFF.MY_SALARY, {
+    params: { yearMonth }
+  });
+  return response.data;
+};

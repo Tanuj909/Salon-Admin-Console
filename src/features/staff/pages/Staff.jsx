@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi, getStaffSlotsApi } from "@/features/staff/services/staffService";
+import { getStaffByBusinessApi, createStaffApi, updateStaffApi, getStaffByIdApi, deleteStaffApi, assignServicesToStaffApi, removeServicesFromStaffApi, generateStaffSlotsApi, getStaffSlotsApi, getStaffSalaryApi } from "@/features/staff/services/staffService";
 import { getServicesByBusinessApi } from "@/features/services/services/serviceService";
 import { getUserByEmailApi } from "@/features/users/services/userService";
 import { useBusiness } from "@/context/BusinessContext";
@@ -23,6 +23,7 @@ const Staff = () => {
     role: "STAFF",
     userId: "",
     serviceIds: [],
+    monthlySalary: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -62,6 +63,7 @@ const Staff = () => {
     workEndTime: "18:00",
     weeklyOffDays: ["SUNDAY"],
     serviceIds: [],
+    monthlySalary: "",
   });
   const [updating, setUpdating] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
@@ -123,7 +125,7 @@ const Staff = () => {
         workEndTime: form.workEndTime + ":00",
       });
       setIsModalOpen(false);
-      setForm({ designation: "", bio: "", commission: 10.0, isAvailable: true, workStartTime: "09:00", workEndTime: "18:00", weeklyOffDays: ["SUNDAY"], role: "STAFF", userId: "", serviceIds: [] });
+      setForm({ designation: "", bio: "", commission: 10.0, isAvailable: true, workStartTime: "09:00", workEndTime: "18:00", weeklyOffDays: ["SUNDAY"], role: "STAFF", userId: "", serviceIds: [], monthlySalary: "" });
       setLookupEmail("");
       setLookupUser(null);
       setLookupError("");
@@ -190,6 +192,35 @@ const Staff = () => {
   const [slotLoading, setSlotLoading] = useState(false);
   const [showGenerateUI, setShowGenerateUI] = useState(false);
   const [slotStaffName, setSlotStaffName] = useState("");
+
+  // Salary state
+  const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+  const [salaryStaff, setSalaryStaff] = useState(null);
+  const [salaryData, setSalaryData] = useState(null);
+  const [salaryLoading, setSalaryLoading] = useState(false);
+  const [salaryMonth, setSalaryMonth] = useState(new Date().toISOString().substring(0, 7));
+
+  const openSalaryModal = async (staff, month = salaryMonth) => {
+    setSalaryStaff(staff);
+    setIsSalaryModalOpen(true);
+    setSalaryLoading(true);
+    try {
+      const data = await getStaffSalaryApi(staff.id, month);
+      setSalaryData(data.body || data);
+    } catch (err) {
+      console.error("Error fetching staff salary", err);
+    } finally {
+      setSalaryLoading(false);
+    }
+  };
+
+  const handleSalaryMonthChange = (e) => {
+    const newMonth = e.target.value;
+    setSalaryMonth(newMonth);
+    if (salaryStaff) {
+      openSalaryModal(salaryStaff, newMonth);
+    }
+  };
 
   const handleGenerateSlots = async () => {
     if (!slotForm.staffId) {
@@ -321,6 +352,7 @@ const Staff = () => {
       workEndTime: staff.workEndTime ? staff.workEndTime.substring(0, 5) : "18:00",
       weeklyOffDays: staff.weeklyOffDays || ["SUNDAY"],
       serviceIds: staff.specializedServices ? staff.specializedServices.map(s => s.id || s) : [],
+      monthlySalary: staff.monthlySalary || "",
     });
     setIsUpdateModalOpen(true);
 
@@ -524,6 +556,13 @@ const Staff = () => {
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                             </button>
                             <button
+                              title="Salary Details"
+                              className="p-2 bg-green-50 text-green-600 border border-green-100 rounded-lg hover:bg-green-100 transition-all"
+                              onClick={() => openSalaryModal(staff)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 1v22m5-18H8.5a4.5 4.5 0 0 0 0 9h7a4.5 4.5 0 0 1 0 9H7" /></svg>
+                            </button>
+                            <button
                               title="View Profile"
                               className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg text-[10px] font-bold uppercase hover:bg-slate-100 transition-colors"
                               onClick={() => openProfileModal(staff)}
@@ -675,6 +714,10 @@ const Staff = () => {
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Commission (%)</label>
                     <input type="number" name="commission" step="0.1" value={form.commission} onChange={handleChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Monthly Salary (AED)</label>
+                    <input type="number" name="monthlySalary" value={form.monthlySalary} onChange={handleChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" placeholder="e.g. 5000" />
+                  </div>
                 </div>
 
                 <div className="pt-2">
@@ -768,6 +811,10 @@ const Staff = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Commission (%)</label>
                     <input type="number" name="commission" step="0.1" value={updateForm.commission} onChange={handleUpdateChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Monthly Salary (AED)</label>
+                    <input type="number" name="monthlySalary" value={updateForm.monthlySalary} onChange={handleUpdateChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep" placeholder="e.g. 5000" />
                   </div>
                 </div>
 
@@ -1244,6 +1291,101 @@ const Staff = () => {
               >
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                 Delete Staff
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Salary Modal */}
+      {isSalaryModalOpen && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 transition-opacity" onClick={() => setIsSalaryModalOpen(false)}>
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-md overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <h3 className="font-display text-2xl italic text-black-deep m-0">Staff Salary</h3>
+              <button className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors" onClick={() => setIsSalaryModalOpen(false)}>
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gold/10 text-gold flex items-center justify-center font-bold text-lg border border-gold/20 shadow-inner shrink-0">
+                   {salaryStaff?.userProfileImageUrl 
+                     ? <img src={salaryStaff.userProfileImageUrl} alt="" className="w-full h-full object-cover rounded-xl" />
+                     : (salaryStaff?.userFullName ? salaryStaff.userFullName.substring(0, 2).toUpperCase() : 'S')}
+                </div>
+                <div>
+                  <h4 className="font-bold text-black-deep m-0">{salaryStaff?.userFullName}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">ID: #{salaryStaff?.id}</span>
+                    <span className="text-[10px] text-secondary font-medium uppercase tracking-tight">{salaryStaff?.designation}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest block mb-2">Select Month</label>
+                  <input 
+                    type="month" 
+                    value={salaryMonth}
+                    onChange={handleSalaryMonthChange}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 font-medium"
+                  />
+                </div>
+
+                {salaryLoading ? (
+                  <div className="py-12 text-center">
+                    <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-sm text-secondary">Fetching salary data...</p>
+                  </div>
+                ) : salaryData ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-bold text-secondary uppercase tracking-widest mb-1">Base Salary</p>
+                        <p className="text-lg font-bold text-black-deep">AED {salaryData.monthlySalary || 0}</p>
+                      </div>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-bold text-secondary uppercase tracking-widest mb-1">Commission</p>
+                        <p className="text-lg font-bold text-black-deep">AED {salaryData.totalCommissionEarned || 0}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-black-deep p-5 rounded-2xl shadow-lg shadow-black-deep/10">
+                      <div className="flex justify-between items-center mb-1">
+                        <p className="text-[10px] font-bold text-gold/80 uppercase tracking-widest">Total Payout</p>
+                        <span className="bg-gold/20 text-gold text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">
+                          {salaryData.yearMonth}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-display italic text-white">AED {salaryData.totalAmount || 0}</p>
+                      
+                      <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                         <div className="flex flex-col">
+                           <span className="text-[9px] text-white/50 uppercase font-bold tracking-widest">Bookings</span>
+                           <span className="text-sm font-bold text-white">{salaryData.completedBookingsCount || 0}</span>
+                         </div>
+                         <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22m5-18H8.5a4.5 4.5 0 0 0 0 9h7a4.5 4.5 0 0 1 0 9H7" /></svg>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-8 text-center bg-red-50 rounded-2xl border border-red-100">
+                    <p className="text-sm text-red-600 font-medium">No salary data available for this period</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-5 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button 
+                className="px-6 py-2.5 bg-black-deep text-white font-bold rounded-xl hover:bg-black transition-colors uppercase text-xs tracking-widest"
+                onClick={() => setIsSalaryModalOpen(false)}
+              >
+                Close
               </button>
             </div>
           </div>

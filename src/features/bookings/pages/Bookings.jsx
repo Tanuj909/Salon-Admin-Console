@@ -1,17 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   getBookingsByBusinessApi,
   acceptBookingApi,
   rejectBookingApi,
   rescheduleBookingApi
-} from "@/features/bookings/services/bookingService";
-import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from "@/features/staff/services/staffService";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useBusiness } from "@/context/BusinessContext";
+} from '@/features/bookings/services/bookingService';
+import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from '@/features/staff/services/staffService';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const Bookings = () => {
-  const { user } = useAuth();
-  const { businessId, loading: businessLoading } = useBusiness();
+  const { user, isLoading: authLoading } = useAuth();
+  const businessId = user?.businessId;
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -421,7 +420,7 @@ const Bookings = () => {
 
         {/* Bookings List - Card Layout */}
         <div className="space-y-4">
-          {(loading || businessLoading) ? (
+          {(loading || authLoading) ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gold/10 p-20 text-center text-secondary">
               <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-4"></div>
               <span>Loading bookings...</span>

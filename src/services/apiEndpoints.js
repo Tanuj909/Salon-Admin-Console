@@ -54,6 +54,9 @@ export const API_ENDPOINTS = {
     REMOVE_SERVICES: (id) => `/staff/${id}/services`,
     GENERATE_SLOTS: (id) => `/slots/staff/${id}/generate`,
     GET_SLOTS: (id) => `/slots/staff/${id}`,
+    GET_SALARY: (id) => `/staff/${id}/salary`,
+    GET_BUSINESS_SALARIES: (businessId) => `/staff/salary/business/${businessId}`,
+    MY_SALARY: "/staff/my/salary",
   },
   REVIEWS: {
     GET_BY_BUSINESS: (businessId) => `/reviews/business/${businessId}`,

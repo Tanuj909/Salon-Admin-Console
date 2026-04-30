@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   DollarSign, 
   Calendar, 
@@ -38,6 +39,7 @@ import dashboardService from "@/services/dashboardService";
 const AdminDashboard = () => {
   const { user } = useAuth();
   const { businessId } = useBusiness();
+  const navigate = useNavigate();
   
   // Global Range
   const [range, setRange] = useState("LAST_30_DAYS");
@@ -468,6 +470,30 @@ const AdminDashboard = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Payroll Overview */}
+      <div className="bg-white rounded-[24px] border border-gold/10 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <DollarSign className="text-gold" size={20} />
+            <h3 className="text-lg font-bold text-black-deep">Payroll Overview</h3>
+          </div>
+          <button 
+            onClick={() => navigate('/salaries')}
+            className="text-xs font-bold text-gold hover:underline uppercase tracking-widest"
+          >
+            View Full Report
+          </button>
+        </div>
+        
+        <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-100">
+           <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">Total Monthly Payout Estimated</p>
+           <h4 className="text-4xl font-display italic text-black-deep mb-4">AED {data?.kpiCards?.totalRevenue ? (data.kpiCards.totalRevenue * 0.3).toFixed(0).toLocaleString() : '---'}</h4>
+           <p className="text-[10px] text-secondary max-w-sm mx-auto italic">
+             This is an estimate based on your revenue trends. For exact payroll breakdown including individual commissions, please visit the Salaries section.
+           </p>
         </div>
       </div>
     </div>
