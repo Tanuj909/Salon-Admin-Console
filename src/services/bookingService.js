@@ -59,3 +59,14 @@ export const getMyBookingsApi = async (page = 0, size = 20, sort = 'bookingDate,
     });
     return response.data;
 };
+
+export const getStaffMyBookingsApi = async (page = 0, size = 100, sort = 'bookingDate,desc') => {
+    const response = await axiosInstance.get(API_ENDPOINTS.BOOKINGS.STAFF_MY, {
+        params: {
+            page,
+            size,
+            sort
+        }
+    });
+    return response.data;
+};

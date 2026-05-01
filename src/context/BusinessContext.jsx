@@ -22,11 +22,24 @@ export const BusinessProvider = ({ children }) => {
         const fetchBusiness = async () => {
             try {
                 setLoading(true);
+                // Check if businessId is already on the user object
+                if (user?.businessId) {
+                    setBusinessId(user.businessId);
+                }
+                
                 const data = await getMyBusinessApi();
-                setBusinessId(data.id);
-                setBusinessData(data);
+                if (data && data.id) {
+                    setBusinessId(data.id);
+                    setBusinessData(data);
+                } else if (user?.businessId) {
+                    setBusinessId(user.businessId);
+                }
             } catch (err) {
                 console.error("Error fetching business data", err);
+                // If API fails but we have businessId in user, use that as fallback
+                if (user?.businessId) {
+                    setBusinessId(user.businessId);
+                }
             } finally {
                 setLoading(false);
             }

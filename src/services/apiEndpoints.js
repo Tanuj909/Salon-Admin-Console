@@ -77,6 +77,7 @@ export const API_ENDPOINTS = {
     RESCHEDULE: (bookingId) => `/bookings/${bookingId}/reschedule`,
     UPDATE_STATUS: (bookingId, status) => `/bookings/staff/${bookingId}/status?status=${status}`,
     MY: "/bookings/my",
+    STAFF_MY: "/bookings/staff/my",
   },
   TIMINGS: {
     GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,

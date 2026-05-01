@@ -36,7 +36,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         visibility: visible;
                     }
                     
-                    /* Position invoice properly on page */
+                    /* Position invoice properly on page - Half Page Focus */
                     #printable-invoice {
                         position: fixed !important;
                         top: 0 !important;
@@ -45,9 +45,11 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         margin: 0 auto !important;
                         width: 100% !important;
                         max-width: 210mm !important;
+                        max-height: 148.5mm !important; /* Half of A4 Height (297mm / 2) */
+                        overflow: hidden !important;
                         background: white !important;
                         box-shadow: none !important;
-                        padding: 15mm !important;
+                        padding: 10mm !important;
                         z-index: 999999 !important;
                     }
                     
@@ -67,171 +69,74 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         margin: 0;
                     }
                     
-                    /* Ensure table doesn't break */
-                    table {
-                        page-break-inside: avoid;
-                    }
-                    
-                    /* Better spacing for print */
+                    /* Better spacing for print - Compact Layout */
                     .invoice-content {
                         width: 100%;
                         margin: 0;
                         padding: 0;
                     }
                     
-                    /* ===== SPACING IMPROVEMENTS ===== */
+                    /* ===== COMPRESSED SPACING FOR HALF PAGE ===== */
                     
                     /* Header section spacing */
                     #printable-invoice .border-b-2 {
-                        margin-bottom: 20px !important;
-                        padding-bottom: 20px !important;
+                        margin-bottom: 12px !important;
+                        padding-bottom: 12px !important;
                     }
                     
                     /* Customer & Payment Details section */
                     #printable-invoice .grid-cols-2 {
-                        margin-bottom: 30px !important;
-                        gap: 30px !important;
+                        margin-bottom: 15px !important;
+                        gap: 15px !important;
                     }
                     
-                    /* Section dividers - add visual separation */
+                    /* Section dividers */
                     #printable-invoice .grid-cols-2 > div:first-child {
-                        padding-right: 20px !important;
+                        padding-right: 15px !important;
                         border-right: 1px solid #e5e5e5 !important;
-                    }
-                    
-                    /* Section headings spacing */
-                    #printable-invoice h3 {
-                        margin-bottom: 12px !important;
-                        padding-bottom: 6px !important;
                     }
                     
                     /* Table section spacing */
                     #printable-invoice .mb-10 {
-                        margin-bottom: 30px !important;
+                        margin-bottom: 15px !important;
                     }
                     
-                    /* Table header spacing */
-                    #printable-invoice thead tr {
-                        margin-bottom: 8px !important;
-                    }
-                    
-                    #printable-invoice th {
-                        padding-top: 12px !important;
-                        padding-bottom: 12px !important;
-                    }
-                    
-                    /* Table rows spacing */
-                    #printable-invoice td {
-                        padding-top: 12px !important;
-                        padding-bottom: 12px !important;
+                    /* Table rows spacing - tighter for half page */
+                    #printable-invoice th, #printable-invoice td {
+                        padding-top: 6px !important;
+                        padding-bottom: 6px !important;
                     }
                     
                     /* Summary section - top margin */
                     #printable-invoice .flex.justify-between.items-start {
-                        margin-top: 30px !important;
-                        padding-top: 20px !important;
+                        margin-top: 15px !important;
+                        padding-top: 10px !important;
                         border-top: 2px solid #000 !important;
-                    }
-                    
-                    /* Notes box spacing */
-                    #printable-invoice .bg-zinc-50 {
-                        padding: 15px !important;
-                        margin-right: 20px !important;
                     }
                     
                     /* Total section spacing */
                     #printable-invoice .space-y-3 {
-                        padding-left: 20px !important;
+                        padding-left: 15px !important;
                     }
                     
                     #printable-invoice .border-t-2 {
-                        padding-top: 15px !important;
-                        margin-top: 15px !important;
+                        padding-top: 8px !important;
+                        margin-top: 8px !important;
                     }
                     
-                    /* Footer spacing */
+                    /* Footer spacing - brought up to stay in half page */
                     #printable-invoice .mt-20 {
-                        margin-top: 40px !important;
-                        padding-top: 20px !important;
+                        margin-top: 20px !important;
+                        padding-top: 12px !important;
                     }
                     
+                    #printable-invoice .text-center p {
+                        margin-bottom: 4px !important;
+                    }
+
                     /* Individual section separators */
                     #printable-invoice > * + * {
-                        margin-top: 10px;
-                    }
-                    
-                    /* Page break control - keep sections together */
-                    #printable-invoice > div {
-                        page-break-inside: avoid;
-                    }
-                    
-                    /* Keep header with customer details */
-                    #printable-invoice .border-b-2:first-of-type {
-                        page-break-after: avoid;
-                    }
-                    
-                    /* Keep table rows together */
-                    #printable-invoice tbody tr {
-                        page-break-inside: avoid;
-                    }
-                    
-                    /* Extra spacing between major sections */
-                    #printable-invoice .border-b-2:first-of-type {
-                        margin-bottom: 30px !important;
-                        padding-bottom: 25px !important;
-                    }
-                    
-                    /* Ensure proper spacing for customer section */
-                    #printable-invoice .grid-cols-2 {
-                        margin-bottom: 35px !important;
-                        margin-top: 10px !important;
-                    }
-                    
-                    /* Payment status badge spacing */
-                    #printable-invoice .text-right .mt-1 {
-                        margin-top: 12px !important;
-                    }
-                    
-                    /* Table container spacing */
-                    #printable-invoice .mb-10 {
-                        margin-bottom: 35px !important;
-                    }
-                    
-                    /* Summary section spacing */
-                    #printable-invoice .flex.justify-between.items-start {
-                        margin-top: 25px !important;
-                    }
-                    
-                    /* Line item spacing in summary */
-                    #printable-invoice .space-y-3 > div {
-                        margin-bottom: 8px !important;
-                    }
-                    
-                    /* Grand total styling with spacing */
-                    #printable-invoice .border-t-2.border-black {
-                        padding-top: 18px !important;
-                        margin-top: 18px !important;
-                    }
-                    
-                    /* Footer disclaimer spacing */
-                    #printable-invoice .mt-20 {
-                        margin-top: 50px !important;
-                        padding-top: 25px !important;
-                    }
-                    
-                    /* Footer text spacing */
-                    #printable-invoice .text-center p:first-child {
-                        margin-bottom: 8px !important;
-                    }
-                    
-                    /* Ensure no content sticks together */
-                    #printable-invoice {
-                        line-height: 1.5 !important;
-                    }
-                    
-                    /* Section gap helper */
-                    .section-gap {
-                        margin-bottom: 25px !important;
+                        margin-top: 5px;
                     }
                 }
                 
@@ -293,15 +198,19 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         </div>
                         <div className="text-right">
                             <h2 className="text-2xl font-bold tracking-tight text-black m-0 mb-4">TAX INVOICE</h2>
-                            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
-                                <span className="text-zinc-500 font-bold text-left">Bill No:</span>
-                                <span className="font-bold text-black">{billData.billNumber}</span>
-                                
-                                <span className="text-zinc-500 font-bold text-left">Date:</span>
-                                <span className="font-bold text-black">{new Date(billData.generatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-                                
-                                <span className="text-zinc-500 font-bold text-left">Ref:</span>
-                                <span className="font-bold text-black uppercase">{billData.payments[0]?.bookingNumber || 'N/A'}</span>
+                            <div className="flex flex-col items-end gap-1 text-[13px]">
+                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                    <span className="text-zinc-500 font-bold">Bill No:</span>
+                                    <span className="font-bold text-black">{billData.billNumber}</span>
+                                </div>
+                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                    <span className="text-zinc-500 font-bold">Date:</span>
+                                    <span className="font-bold text-black">{new Date(billData.generatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                                </div>
+                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                    <span className="text-zinc-500 font-bold">Ref:</span>
+                                    <span className="font-bold text-black uppercase">{billData.payments[0]?.bookingNumber || 'N/A'}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -65,7 +65,7 @@ const Login = () => {
               <img src="/admin/logo/fastbooking.png" alt="FastBooking Logo" className="w-full h-full object-contain" />
             </div>
           </div>
-          <h1 className="font-display text-5xl italic text-black-deep mb-2">FastBooking</h1>
+          <h1 className="font-display text-5xl italic text-black-deep mb-2">FastBooking Service</h1>
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
             <p className="text-secondary font-medium tracking-[0.3em] uppercase text-[10px]">Administrative Console</p>

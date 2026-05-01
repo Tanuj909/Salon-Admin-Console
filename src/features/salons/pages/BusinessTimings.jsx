@@ -13,6 +13,8 @@ const BusinessTimings = () => {
     const [saving, setSaving] = useState(false);
     const [timings, setTimings] = useState([]);
 
+    const isReadOnly = user?.role === "RECEPTIONIST";
+
     useEffect(() => {
         if (businessId) fetchData();
     }, [businessId]);
@@ -23,7 +25,7 @@ const BusinessTimings = () => {
             setSalon({ id: businessId });
             const timingsData = await getBusinessTimingsApi(businessId);
 
-            const safeTimingsData = Array.isArray(timingsData) ? timingsData : [];
+            const safeTimingsData = Array.isArray(timingsData) ? timingsData : (timingsData?.body || []);
             const initialTimings = DAYS_OF_WEEK.map((day) => {
                 const existingTiming = safeTimingsData.find((t) => t.dayOfWeek === day);
                 if (existingTiming) {
@@ -58,6 +60,7 @@ const BusinessTimings = () => {
     };
 
     const handleChange = (index, field, value) => {
+        if (isReadOnly) return;
         const updatedTimings = [...timings];
         updatedTimings[index] = {
             ...updatedTimings[index],
@@ -74,6 +77,7 @@ const BusinessTimings = () => {
     };
 
     const handleSave = async () => {
+        if (isReadOnly) return;
         try {
             setSaving(true);
             const payload = {
@@ -125,18 +129,20 @@ const BusinessTimings = () => {
                             <p className="text-[10px] text-secondary uppercase tracking-widest font-semibold">Weekly Operating Schedule</p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-6 py-2 bg-gold text-black-deep text-[10px] font-extrabold uppercase tracking-widest rounded-full hover:brightness-105 hover:-translate-y-0.5 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                        {saving ? (
-                            <>
-                                <div className="w-3 h-3 border-2 border-black-deep/30 border-t-black-deep rounded-full animate-spin" />
-                                Saving...
-                            </>
-                        ) : "Save Timings"}
-                    </button>
+                    {!isReadOnly && (
+                        <button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="px-6 py-2 bg-gold text-black-deep text-[10px] font-extrabold uppercase tracking-widest rounded-full hover:brightness-105 hover:-translate-y-0.5 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            {saving ? (
+                                <>
+                                    <div className="w-3 h-3 border-2 border-black-deep/30 border-t-black-deep rounded-full animate-spin" />
+                                    Saving...
+                                </>
+                            ) : "Save Timings"}
+                        </button>
+                    )}
                 </div>
 
                 {/* Timings Card */}
@@ -171,11 +177,12 @@ const BusinessTimings = () => {
                                     
                                     {/* Mobile Status Toggle */}
                                     <div className="sm:hidden flex items-center">
-                                        <label className="relative inline-flex items-center cursor-pointer gap-2">
+                                        <label className={`relative inline-flex items-center cursor-pointer gap-2 ${isReadOnly ? 'pointer-events-none' : ''}`}>
                                             <input
                                                 type="checkbox"
                                                 className="sr-only peer"
                                                 checked={timing.isClosed}
+                                                disabled={isReadOnly}
                                                 onChange={(e) => handleChange(index, "isClosed", e.target.checked)}
                                             />
                                             <div className="w-9 h-5 bg-green-500/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-400/30 shadow-inner"></div>
@@ -188,11 +195,12 @@ const BusinessTimings = () => {
 
                                 {/* Desktop Status Toggle */}
                                 <div className="hidden sm:flex col-span-3 items-center">
-                                    <label className="relative inline-flex items-center cursor-pointer gap-2">
+                                    <label className={`relative inline-flex items-center cursor-pointer gap-2 ${isReadOnly ? 'pointer-events-none' : ''}`}>
                                         <input
                                             type="checkbox"
                                             className="sr-only peer"
                                             checked={timing.isClosed}
+                                            disabled={isReadOnly}
                                             onChange={(e) => handleChange(index, "isClosed", e.target.checked)}
                                         />
                                         <div className="w-9 h-5 bg-green-500/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-400/30 shadow-inner"></div>
@@ -209,7 +217,7 @@ const BusinessTimings = () => {
                                         <input
                                             type="time"
                                             value={timing.openTime || ""}
-                                            disabled={timing.isClosed}
+                                            disabled={timing.isClosed || isReadOnly}
                                             onChange={(e) => handleChange(index, "openTime", e.target.value)}
                                             className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
                                         />
@@ -219,7 +227,7 @@ const BusinessTimings = () => {
                                         <input
                                             type="time"
                                             value={timing.closeTime || ""}
-                                            disabled={timing.isClosed}
+                                            disabled={timing.isClosed || isReadOnly}
                                             onChange={(e) => handleChange(index, "closeTime", e.target.value)}
                                             className="w-full bg-white border border-gold/20 rounded-xl px-3 py-2 text-xs text-black-deep focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-slate-50 disabled:text-slate-300 transition-all font-semibold"
                                         />

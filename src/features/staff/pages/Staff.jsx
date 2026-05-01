@@ -1218,8 +1218,8 @@ const Staff = () => {
 
       {/* Mobile Action Modal */}
       {mobileActionStaff && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1100] flex flex-col justify-end md:hidden" onClick={() => setMobileActionStaff(null)}>
-          <div className="bg-white w-full rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-8" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1100] flex items-center justify-center p-4 md:hidden" onClick={() => setMobileActionStaff(null)}>
+          <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg overflow-hidden bg-gold/10 text-gold shadow-sm">
@@ -1267,26 +1267,33 @@ const Staff = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <button
-                className="col-span-2 py-3 bg-gold/10 text-gold border border-gold/20 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-gold/20"
+                className="col-span-2 py-3 bg-gold/10 text-gold border border-gold/20 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-gold/20 active:scale-[0.98] transition-all"
                 onClick={() => { setMobileActionStaff(null); openSlotModal(mobileActionStaff); }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                 Generate Slots
               </button>
               <button
-                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest"
+                className="col-span-2 py-3 bg-green-50 text-green-600 border border-green-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-green-100 active:scale-[0.98] transition-all"
+                onClick={() => { setMobileActionStaff(null); openSalaryModal(mobileActionStaff); }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 1v22m5-18H8.5a4.5 4.5 0 0 0 0 9h7a4.5 4.5 0 0 1 0 9H7" /></svg>
+                Salary Details
+              </button>
+              <button
+                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest active:scale-[0.98] transition-all"
                 onClick={() => { setMobileActionStaff(null); openProfileModal(mobileActionStaff); }}
               >
                 View Profile
               </button>
               <button
-                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest"
+                className="py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-bold uppercase text-[10px] tracking-widest active:scale-[0.98] transition-all"
                 onClick={() => { setMobileActionStaff(null); openUpdateModal(mobileActionStaff); }}
               >
                 Manage
               </button>
               <button
-                className="col-span-2 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                className="col-span-2 py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
                 onClick={() => { setMobileActionStaff(null); openDeleteStaffModal(mobileActionStaff); }}
               >
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
