@@ -27,6 +27,7 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Create service form state
   const [form, setForm] = useState({
@@ -205,9 +206,6 @@ const Services = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
           <div>
             <h1 className="font-display text-5xl italic text-black-deep mb-2">Services</h1>
-            <p className="text-secondary text-sm font-medium uppercase tracking-[0.2em] opacity-70">
-              Curate and manage your salon's service menu
-            </p>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -220,52 +218,64 @@ const Services = () => {
 
         {/* Filter Section */}
         <div className="bg-white rounded-[32px] shadow-sm border border-gold/10 overflow-hidden mb-8">
-          <div className="px-6 py-5 flex flex-col lg:flex-row justify-between items-center bg-[#FDFBF7]/50 gap-4">
-             <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                <div className="relative flex-1 lg:w-80">
-                   <input 
-                     type="text" 
-                     placeholder="Search services..."
-                     value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
-                     className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold/20 font-medium shadow-sm transition-all"
-                   />
-                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <div className="px-6 py-5 flex flex-col lg:flex-row justify-between items-start lg:items-center bg-[#FDFBF7]/50 gap-4">
+             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 w-full lg:w-auto">
+                <div className="flex w-full lg:w-auto gap-3 items-center">
+                    <div className="relative flex-1 lg:w-80">
+                       <input 
+                         type="text" 
+                         placeholder="Search services..."
+                         value={searchQuery}
+                         onChange={(e) => setSearchQuery(e.target.value)}
+                         className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold/20 font-medium shadow-sm transition-all"
+                       />
+                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    </div>
+                    <button 
+                       onClick={() => setShowMobileFilters(!showMobileFilters)}
+                       className={`lg:hidden p-3 border rounded-2xl transition-all flex items-center justify-center ${showMobileFilters ? 'bg-gold border-gold text-white' : 'bg-white border-slate-200 text-slate-500 hover:text-gold hover:border-gold'}`}
+                    >
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                       </svg>
+                    </button>
                 </div>
                 
-                <select 
-                   value={categoryFilter}
-                   onChange={(e) => setCategoryFilter(e.target.value)}
-                   className="px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-gold/20 cursor-pointer shadow-sm min-w-[160px]"
-                >
-                   <option value="">All Categories</option>
-                   {[...new Set(services.map(s => s.category))].map(cat => (
-                     <option key={cat} value={cat}>{cat}</option>
-                   ))}
-                </select>
+                <div className={`${showMobileFilters ? 'flex' : 'hidden'} lg:flex flex-col sm:flex-row flex-wrap items-center gap-4 w-full lg:w-auto mt-2 lg:mt-0`}>
+                    <select 
+                       value={categoryFilter}
+                       onChange={(e) => setCategoryFilter(e.target.value)}
+                       className="w-full sm:w-auto px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-gold/20 cursor-pointer shadow-sm min-w-[160px]"
+                    >
+                       <option value="">All Categories</option>
+                       {[...new Set(services.map(s => s.category))].map(cat => (
+                         <option key={cat} value={cat}>{cat}</option>
+                       ))}
+                    </select>
 
-                <select 
-                   value={statusFilter}
-                   onChange={(e) => setStatusFilter(e.target.value)}
-                   className="px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-gold/20 cursor-pointer shadow-sm min-w-[160px]"
-                >
-                   <option value="">All Statuses</option>
-                   <option value="active">Active</option>
-                   <option value="inactive">Inactive</option>
-                </select>
+                    <select 
+                       value={statusFilter}
+                       onChange={(e) => setStatusFilter(e.target.value)}
+                       className="w-full sm:w-auto px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-gold/20 cursor-pointer shadow-sm min-w-[160px]"
+                    >
+                       <option value="">All Statuses</option>
+                       <option value="active">Active</option>
+                       <option value="inactive">Inactive</option>
+                    </select>
+
+                    <button 
+                       onClick={() => setPopularOnly(!popularOnly)}
+                       className={`w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all duration-300 border ${
+                         popularOnly 
+                           ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20' 
+                           : 'bg-white border-slate-200 text-slate-500 hover:border-amber-500 hover:text-amber-500'
+                       }`}
+                     >
+                        <Star size={14} className={popularOnly ? 'fill-white' : ''} />
+                        Popular Only
+                     </button>
+                </div>
              </div>
-
-             <button 
-               onClick={() => setPopularOnly(!popularOnly)}
-               className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all duration-300 border ${
-                 popularOnly 
-                   ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20' 
-                   : 'bg-white border-slate-200 text-slate-500 hover:border-amber-500 hover:text-amber-500'
-               }`}
-             >
-                <Star size={14} className={popularOnly ? 'fill-white' : ''} />
-                Popular Only
-             </button>
           </div>
         </div>
 
@@ -428,9 +438,6 @@ const Services = () => {
              filteredServices.map((service) => (
                <div key={service.id} className="bg-white rounded-3xl p-5 border border-gold/10 shadow-sm flex items-center justify-between group active:bg-slate-50 transition-all">
                   <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-2xl bg-gold/5 flex items-center justify-center text-gold border border-gold/10 group-active:scale-95 transition-transform">
-                        <Briefcase size={22} />
-                     </div>
                      <div>
                         <h4 className="font-bold text-black-deep text-base">{service.name}</h4>
                         <div className="flex items-center gap-2 mt-0.5">

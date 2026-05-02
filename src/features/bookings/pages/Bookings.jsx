@@ -7,10 +7,11 @@ import {
 } from '@/features/bookings/services/bookingService';
 import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from '@/features/staff/services/staffService';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useBusiness } from '@/context/BusinessContext';
 
 const Bookings = () => {
   const { user, isLoading: authLoading } = useAuth();
-  const businessId = user?.businessId;
+  const { businessId, loading: businessLoading } = useBusiness();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -290,12 +291,10 @@ const Bookings = () => {
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
-            <h1 className="font-display text-4xl italic text-black-deep mb-2">Business Bookings</h1>
-            <div className="flex items-center gap-3 text-sm text-secondary font-medium tracking-wide uppercase">
-              <span>Business ID: {businessId || 'N/A'}</span>
-              <span className="w-1 h-1 rounded-full bg-gold/50"></span>
+            <h1 className="font-display text-4xl italic text-black-deep">Business Bookings</h1>
+            {/* <div className="flex items-center gap-3 text-sm text-secondary font-medium tracking-wide uppercase">
               <span>Total: {totalElements}</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -369,8 +368,8 @@ const Bookings = () => {
 
         {/* Mobile Filter Modal */}
         {isFilterMenuOpen && (
-          <div className="fixed inset-0 z-[600] bg-black/50 backdrop-blur-sm flex items-end justify-center md:hidden" onClick={() => setIsFilterMenuOpen(false)}>
-            <div className="bg-white w-full rounded-t-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-8" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 z-[600] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 md:hidden" onClick={() => setIsFilterMenuOpen(false)}>
+            <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-bold text-black-deep">Filters</h3>
                 <button onClick={() => setIsFilterMenuOpen(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200">
@@ -420,7 +419,7 @@ const Bookings = () => {
 
         {/* Bookings List - Card Layout */}
         <div className="space-y-4">
-          {(loading || authLoading) ? (
+          {(loading || authLoading || businessLoading) ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gold/10 p-20 text-center text-secondary">
               <div className="w-8 h-8 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-4"></div>
               <span>Loading bookings...</span>

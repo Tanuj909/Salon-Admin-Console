@@ -5,7 +5,7 @@ import { DollarSign, Calendar, Search, Filter, User, Users, Briefcase, Eye, X, T
 
 const BusinessSalaries = () => {
   const { businessId } = useBusiness();
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
+  const years = Array.from({ length: 2040 - 2024 + 1 }, (_, i) => 2024 + i);
   const monthsList = [
     { val: 1, name: 'January' }, { val: 2, name: 'February' }, { val: 3, name: 'March' },
     { val: 4, name: 'April' }, { val: 5, name: 'May' }, { val: 6, name: 'June' },
@@ -181,9 +181,6 @@ const BusinessSalaries = () => {
                     <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-8 py-5">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gold/5 flex items-center justify-center text-gold font-bold text-lg shrink-0 border border-gold/10 shadow-inner group-hover:bg-gold group-hover:text-white transition-all duration-300">
-                               {s.staffName?.charAt(0)}
-                            </div>
                             <div>
                                <div className="font-bold text-black-deep text-base group-hover:text-gold transition-colors">{s.staffName}</div>
                                <div className="flex items-center gap-2 mt-0.5">
@@ -224,9 +221,6 @@ const BusinessSalaries = () => {
                 filteredSalaries.map((s, i) => (
                   <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50 active:bg-slate-100 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gold/5 flex items-center justify-center text-gold font-bold border border-gold/10">
-                        {s.staffName?.charAt(0)}
-                      </div>
                       <div>
                         <h4 className="font-bold text-black-deep text-sm">{s.staffName}</h4>
                         <p className="text-[10px] text-secondary font-bold uppercase tracking-tighter italic">{s.designation}</p>

@@ -110,17 +110,11 @@ const StaffSearchBooking = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="grid grid-cols-1 gap-4 mb-8">
                                     <div className="bg-[#FDFBF7] p-4 rounded-xl border border-gold/5">
                                         <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Time Slot</p>
                                         <p className="font-bold text-sm text-black-deep">
                                             {searchedBooking.startTime?.substring(0, 5)} - {searchedBooking.endTime?.substring(0, 5)}
-                                        </p>
-                                    </div>
-                                    <div className="bg-[#FDFBF7] p-4 rounded-xl border border-gold/5">
-                                        <p className="text-[9px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Staff Member</p>
-                                        <p className="font-bold text-sm text-black-deep">
-                                            {searchedBooking.staffName || searchedBooking.staff?.fullName || "Not Assigned"}
                                         </p>
                                     </div>
                                 </div>
@@ -132,7 +126,7 @@ const StaffSearchBooking = () => {
                                         className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-emerald-600/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                         {updating && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-                                        {updating ? "Updating..." : "Start Session (IN_PROGRESS)"}
+                                        {updating ? "Updating..." : "Start Session"}
                                     </button>
                                 )}
                                 

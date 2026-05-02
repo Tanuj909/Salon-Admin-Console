@@ -448,8 +448,8 @@ const Staff = () => {
       <div className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px]">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 px-2">
           <div>
-            <h1 className="font-display text-4xl italic text-black-deep mb-2">Staff Management</h1>
-            <p className="text-secondary text-base">Manage your team of professional service providers</p>
+            <h1 className="font-display text-3xl sm:text-4xl italic text-black-deep mb-2">Staff Management</h1>
+            <p className="hidden sm:block text-secondary text-base">Manage your team of professional service providers</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
@@ -704,10 +704,10 @@ const Staff = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Work Hours</label>
-                    <div className="flex items-center gap-2">
-                      <input type="time" name="workStartTime" value={form.workStartTime} onChange={handleChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
-                      <span className="text-secondary">-</span>
-                      <input type="time" name="workEndTime" value={form.workEndTime} onChange={handleChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                      <input type="time" name="workStartTime" value={form.workStartTime} onChange={handleChange} className="w-full px-3 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
+                      <span className="hidden sm:inline text-secondary">-</span>
+                      <input type="time" name="workEndTime" value={form.workEndTime} onChange={handleChange} className="w-full px-3 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -802,10 +802,10 @@ const Staff = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Work Hours</label>
-                    <div className="flex items-center gap-2">
-                      <input type="time" name="workStartTime" value={updateForm.workStartTime} onChange={handleUpdateChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
-                      <span className="text-secondary">-</span>
-                      <input type="time" name="workEndTime" value={updateForm.workEndTime} onChange={handleUpdateChange} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                      <input type="time" name="workStartTime" value={updateForm.workStartTime} onChange={handleUpdateChange} className="w-full px-3 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
+                      <span className="hidden sm:inline text-secondary">-</span>
+                      <input type="time" name="workEndTime" value={updateForm.workEndTime} onChange={handleUpdateChange} className="w-full px-3 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 transition-all" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -936,14 +936,14 @@ const Staff = () => {
 
                 <div className="px-8 py-6 border-b border-slate-100">
                   <h4 className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4">Contact & Schedule</h4>
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                    <div className="overflow-hidden">
                       <div className="text-[10px] font-bold text-secondary tracking-widest mb-1">EMAIL</div>
-                      <div className="text-sm font-semibold text-black-deep">{profileData.userEmail || '—'}</div>
+                      <div className="text-sm font-semibold text-black-deep truncate">{profileData.userEmail || '—'}</div>
                     </div>
-                    <div>
+                    <div className="overflow-hidden">
                       <div className="text-[10px] font-bold text-secondary tracking-widest mb-1">PHONE</div>
-                      <div className="text-sm font-semibold text-black-deep">{profileData.userPhoneNumber || '—'}</div>
+                      <div className="text-sm font-semibold text-black-deep truncate">{profileData.userPhoneNumber || '—'}</div>
                     </div>
                     <div>
                       <div className="text-[10px] font-bold text-secondary tracking-widest mb-1">WORK HOURS</div>
@@ -1331,14 +1331,33 @@ const Staff = () => {
                 </div>
               </div>
               <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest block mb-2">Select Month</label>
-                  <input 
-                    type="month" 
-                    value={salaryMonth}
-                    onChange={handleSalaryMonthChange}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 font-medium"
-                  />
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest block mb-2">Month</label>
+                    <select 
+                      value={salaryMonth.split('-')[1]}
+                      onChange={(e) => {
+                        const newMonth = `${salaryMonth.split('-')[0]}-${e.target.value}`;
+                        handleSalaryMonthChange({ target: { value: newMonth } });
+                      }}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-black-deep focus:outline-none focus:border-gold/50 cursor-pointer"
+                    >
+                      {[{val:'01',name:'January'},{val:'02',name:'February'},{val:'03',name:'March'},{val:'04',name:'April'},{val:'05',name:'May'},{val:'06',name:'June'},{val:'07',name:'July'},{val:'08',name:'August'},{val:'09',name:'September'},{val:'10',name:'October'},{val:'11',name:'November'},{val:'12',name:'December'}].map(m => <option key={m.val} value={m.val}>{m.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[10px] font-bold text-secondary uppercase tracking-widest block mb-2">Year</label>
+                    <select 
+                      value={salaryMonth.split('-')[0]}
+                      onChange={(e) => {
+                        const newMonth = `${e.target.value}-${salaryMonth.split('-')[1]}`;
+                        handleSalaryMonthChange({ target: { value: newMonth } });
+                      }}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-black-deep focus:outline-none focus:border-gold/50 cursor-pointer"
+                    >
+                      {Array.from({length: 2040 - 2024 + 1}, (_, i) => 2024 + i).map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
                 </div>
 
                 {salaryLoading ? (
