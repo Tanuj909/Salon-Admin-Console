@@ -59,3 +59,7 @@ export const getMyBookingsApi = async (page = 0, size = 20, sort = 'bookingDate,
     });
     return response.data;
 };
+export const createWalkinBookingApi = async (payload) => {
+    const response = await axiosInstance.post(API_ENDPOINTS.BOOKINGS.WALKIN, payload);
+    return response.data;
+};

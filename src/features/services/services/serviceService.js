@@ -8,6 +8,11 @@ export const getServicesByBusinessApi = async (businessId, page = 0, size = 10) 
   return response.data;
 };
 
+export const getActiveServicesByBusinessApi = async (businessId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SERVICES.GET_ACTIVE_BY_BUSINESS(businessId));
+  return response.data;
+};
+
 export const createServiceApi = async (serviceData) => {
   const response = await axiosInstance.post(API_ENDPOINTS.SERVICES.BASE, serviceData);
   return response.data;

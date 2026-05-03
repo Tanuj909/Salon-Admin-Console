@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
   SERVICES: {
     BASE: "/services",
     GET_BY_BUSINESS: (businessId) => `/services/business/${businessId}`,
+    GET_ACTIVE_BY_BUSINESS: (businessId) => `/services/business/${businessId}/active`,
     UPDATE_BY_ID: (id) => `/services/${id}`,
     DELETE_BY_ID: (id) => `/services/${id}`,
   },
@@ -81,6 +82,7 @@ export const API_ENDPOINTS = {
     UPDATE_STATUS: (bookingId, status) => `/bookings/staff/${bookingId}/status?status=${status}`,
     MY: "/bookings/my",
     STAFF_MY: "/bookings/staff/my",
+    WALKIN: "/bookings/walkin",
   },
   TIMINGS: {
     GET_BY_BUSINESS: (businessId) => `/business-timings/business/${businessId}`,

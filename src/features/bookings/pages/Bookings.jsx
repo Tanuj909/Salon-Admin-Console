@@ -3,9 +3,11 @@ import {
   getBookingsByBusinessApi,
   acceptBookingApi,
   rejectBookingApi,
-  rescheduleBookingApi
+  rescheduleBookingApi,
+  createWalkinBookingApi
 } from '@/features/bookings/services/bookingService';
-import { getStaffByServiceApi, getStaffSlotsApi, getStaffByIdApi } from '@/features/staff/services/staffService';
+import { getStaffByBusinessApi, getStaffSlotsApi, getStaffByIdApi } from '@/features/staff/services/staffService';
+import { getActiveServicesByBusinessApi } from '@/features/services/services/serviceService';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useBusiness } from '@/context/BusinessContext';
 
@@ -52,6 +54,26 @@ const Bookings = () => {
   const [paymentFilter, setPaymentFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  
+  // Walk-in Booking State
+  const [isWalkinModalOpen, setIsWalkinModalOpen] = useState(false);
+  const [currentWalkinStep, setCurrentWalkinStep] = useState(1);
+  const [isCreatingWalkin, setIsCreatingWalkin] = useState(false);
+  const [businessServices, setBusinessServices] = useState([]);
+  const [businessStaff, setBusinessStaff] = useState([]);
+  const [walkinSlots, setWalkinSlots] = useState([]);
+  const [isWalkinSlotsLoading, setIsWalkinSlotsLoading] = useState(false);
+  const [walkinData, setWalkinData] = useState({
+    staffId: "",
+    bookingDate: new Date().toISOString().split('T')[0],
+    startTime: "",
+    serviceIds: [],
+    customerNotes: "",
+    paymentMethod: "CASH",
+    walkinCustomerName: "",
+    walkinPhone: "",
+    walkinEmail: ""
+  });
 
   useEffect(() => {
     if (businessId) fetchMyBusinessAndBookings();
@@ -235,6 +257,32 @@ const Bookings = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rescheduleData.alternativeStaffId, isRescheduleModalOpen]);
 
+  // Fetch Slots for Walk-in Booking
+  useEffect(() => {
+    if (!isWalkinModalOpen || !walkinData.staffId || !walkinData.bookingDate) {
+      setWalkinSlots([]);
+      return;
+    }
+
+    const fetchWalkinSlots = async () => {
+      setIsWalkinSlotsLoading(true);
+      try {
+        const slots = await getStaffSlotsApi(walkinData.staffId, walkinData.bookingDate, walkinData.bookingDate);
+        // Filter AVAILABLE slots
+        const available = (Array.isArray(slots) ? slots : [])
+          .filter(s => s.status === 'AVAILABLE')
+          .map(s => s.startTime?.substring(0, 5));
+        setWalkinSlots(available);
+      } catch (error) {
+        console.error("Error fetching walk-in slots:", error);
+      } finally {
+        setIsWalkinSlotsLoading(false);
+      }
+    };
+
+    fetchWalkinSlots();
+  }, [walkinData.staffId, walkinData.bookingDate, isWalkinModalOpen]);
+
   const handleRescheduleBooking = async (e) => {
     e.preventDefault();
     if (!selectedBooking || !rescheduleData.reason || !rescheduleData.alternativeStaffId || !rescheduleData.alternativeDate || !rescheduleData.alternativeStartTime) return;
@@ -256,6 +304,77 @@ const Bookings = () => {
       alert("Failed to reschedule booking. Please try again.");
     } finally {
       setIsRescheduling(false);
+    }
+  };
+
+  const getNext7Days = () => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      days.push({
+        fullDate: d.toISOString().split('T')[0],
+        dayName: i === 0 ? "Today" : d.toLocaleDateString('en-GB', { weekday: 'short' }),
+        dateNum: d.getDate(),
+        month: d.toLocaleDateString('en-GB', { month: 'short' })
+      });
+    }
+    return days;
+  };
+
+  const handleOpenWalkinModal = async () => {
+    setIsWalkinModalOpen(true);
+    setCurrentWalkinStep(1);
+    setLoading(true);
+    try {
+      const servicesResponse = await getActiveServicesByBusinessApi(businessId);
+      // Active services API returns the array directly
+      setBusinessServices(Array.isArray(servicesResponse) ? servicesResponse : []);
+      
+      const staffResponse = await getStaffByBusinessApi(businessId, 0, 100);
+      // Staff API response is wrapped in { body: { content: [...] } }
+      setBusinessStaff(staffResponse.body?.content || staffResponse.content || []);
+    } catch (error) {
+      console.error("Error fetching services/staff:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateWalkinBooking = async (e) => {
+    e.preventDefault();
+    if (!walkinData.staffId || walkinData.serviceIds.length === 0 || !walkinData.walkinCustomerName || !walkinData.walkinPhone) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    setIsCreatingWalkin(true);
+    try {
+      const payload = {
+        ...walkinData,
+        businessId: parseInt(businessId, 10),
+        staffId: parseInt(walkinData.staffId, 10),
+        serviceIds: walkinData.serviceIds.map(id => parseInt(id, 10))
+      };
+      await createWalkinBookingApi(payload);
+      setIsWalkinModalOpen(false);
+      setWalkinData({
+        staffId: "",
+        bookingDate: new Date().toISOString().split('T')[0],
+        startTime: "12:00",
+        serviceIds: [],
+        customerNotes: "",
+        paymentMethod: "CASH",
+        walkinCustomerName: "",
+        walkinPhone: "",
+        walkinEmail: ""
+      });
+      fetchMyBusinessAndBookings();
+    } catch (error) {
+      console.error("Error creating walk-in booking:", error);
+      alert("Failed to create walk-in booking. Please try again.");
+    } finally {
+      setIsCreatingWalkin(false);
     }
   };
 
@@ -289,13 +408,24 @@ const Bookings = () => {
     <div className="w-full font-jost min-h-[calc(100vh-80px)]">
       <main className="mx-auto px-6 lg:px-10 pb-12 pt-4 bg-transparent max-w-[1600px]">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <h1 className="font-display text-4xl italic text-black-deep">Business Bookings</h1>
             {/* <div className="flex items-center gap-3 text-sm text-secondary font-medium tracking-wide uppercase">
               <span>Total: {totalElements}</span>
             </div> */}
           </div>
+          {(user?.role === 'ADMIN' || user?.role === 'RECEPTIONIST' || user?.role === 'SUPER_ADMIN') && (
+            <button
+              onClick={handleOpenWalkinModal}
+              className="px-6 py-3 bg-gold text-black-deep rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-gold/80 transition-all shadow-lg shadow-gold/20 flex items-center gap-2 group"
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="group-hover:rotate-90 transition-transform duration-300">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Walk-in
+            </button>
+          )}
         </div>
 
         {/* Filter Bar */}
@@ -992,6 +1122,290 @@ const Bookings = () => {
           </div>
         </div>
       )} */}
+      {/* Walk-in Booking Modal */}
+      {isWalkinModalOpen && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-5 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7] shrink-0">
+              <div>
+                <h3 className="font-display text-2xl italic text-black-deep">New Walk-in Booking</h3>
+                <div className="flex gap-2 mt-2">
+                  {[1, 2, 3, 4].map(s => (
+                    <div key={s} className={`h-1 w-8 rounded-full ${currentWalkinStep >= s ? 'bg-gold' : 'bg-gold/20'}`} />
+                  ))}
+                </div>
+              </div>
+              <button
+                className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
+                onClick={() => setIsWalkinModalOpen(false)}
+              >
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+              {/* STEP 1: CUSTOMER DETAILS */}
+              {currentWalkinStep === 1 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                   <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.2em]">Step 1: Customer Details</h4>
+                   <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Customer Name *</label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all text-black-deep"
+                          placeholder="Full Name"
+                          value={walkinData.walkinCustomerName}
+                          onChange={(e) => setWalkinData({ ...walkinData, walkinCustomerName: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Phone *</label>
+                          <input
+                            type="tel"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50"
+                            placeholder="Phone Number"
+                            value={walkinData.walkinPhone}
+                            onChange={(e) => setWalkinData({ ...walkinData, walkinPhone: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Email (Optional)</label>
+                          <input
+                            type="email"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50"
+                            placeholder="Email Address"
+                            value={walkinData.walkinEmail}
+                            onChange={(e) => setWalkinData({ ...walkinData, walkinEmail: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Notes</label>
+                        <textarea
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 min-h-[100px] resize-none"
+                          placeholder="Any special requests..."
+                          value={walkinData.customerNotes}
+                          onChange={(e) => setWalkinData({ ...walkinData, customerNotes: e.target.value })}
+                        />
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              {/* STEP 2: SERVICES */}
+              {currentWalkinStep === 2 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                   <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.2em]">Step 2: Select Services</h4>
+                   <div className="grid grid-cols-1 gap-2">
+                      {businessServices.map(service => (
+                        <label 
+                          key={service.id} 
+                          className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                            walkinData.serviceIds.includes(service.id.toString())
+                              ? 'border-gold bg-gold/5'
+                              : 'border-slate-50 bg-slate-50/50 hover:border-gold/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              className="hidden"
+                              checked={walkinData.serviceIds.includes(service.id.toString())}
+                              onChange={(e) => {
+                                const ids = e.target.checked
+                                  ? [...walkinData.serviceIds, service.id.toString()]
+                                  : walkinData.serviceIds.filter(id => id !== service.id.toString());
+                                setWalkinData({ ...walkinData, serviceIds: ids });
+                              }}
+                            />
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                              walkinData.serviceIds.includes(service.id.toString()) ? 'bg-gold border-gold' : 'bg-white border-slate-300'
+                            }`}>
+                              {walkinData.serviceIds.includes(service.id.toString()) && (
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
+                              )}
+                            </div>
+                            <div>
+                               <p className="text-sm font-bold text-black-deep uppercase tracking-tight">{service.name}</p>
+                               <p className="text-[10px] text-secondary font-medium tracking-wider">{service.durationMinutes} Mins</p>
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-gold">₹{service.price}</span>
+                        </label>
+                      ))}
+                   </div>
+                </div>
+              )}
+
+              {/* STEP 3: STAFF & SLOTS */}
+              {currentWalkinStep === 3 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                   <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.2em]">Step 3: Assign Staff & Time</h4>
+                   <div className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Assign Staff Member *</label>
+                        <select
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gold/50 appearance-none"
+                          value={walkinData.staffId}
+                          onChange={(e) => setWalkinData({ ...walkinData, staffId: e.target.value, startTime: "" })}
+                          style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 1rem center`, backgroundRepeat: `no-repeat`, backgroundSize: `1.5em 1.5em` }}
+                        >
+                          <option value="">Select Staff</option>
+                          {businessStaff.map(staff => (
+                            <option key={staff.id} value={staff.id}>{staff.userFullName} ({staff.designation})</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {walkinData.staffId && (
+                        <div className="space-y-4">
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Select Date *</label>
+                              <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                                 {getNext7Days().map(day => (
+                                    <button
+                                      key={day.fullDate}
+                                      type="button"
+                                      onClick={() => setWalkinData({ ...walkinData, bookingDate: day.fullDate, startTime: "" })}
+                                      className={`shrink-0 flex flex-col items-center justify-center w-16 py-3 rounded-2xl border-2 transition-all ${
+                                        walkinData.bookingDate === day.fullDate
+                                          ? 'bg-black-deep border-black-deep text-gold shadow-lg shadow-black-deep/20'
+                                          : 'bg-white border-slate-100 text-secondary hover:border-gold/30'
+                                      }`}
+                                    >
+                                       <span className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${walkinData.bookingDate === day.fullDate ? 'text-gold/60' : 'text-slate-400'}`}>
+                                          {day.dayName}
+                                       </span>
+                                       <span className="text-sm font-bold">{day.dateNum}</span>
+                                       <span className="text-[10px] font-medium uppercase tracking-tighter">{day.month}</span>
+                                    </button>
+                                 ))}
+                              </div>
+                           </div>
+                           
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Available Slots *</label>
+                              {isWalkinSlotsLoading ? (
+                                <div className="py-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                                   <div className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto mb-2"></div>
+                                   <span className="text-xs text-secondary font-medium uppercase tracking-widest">Fetching slots...</span>
+                                </div>
+                              ) : walkinSlots.length === 0 ? (
+                                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-100 text-amber-700 text-xs text-center font-bold uppercase tracking-widest">
+                                   No available slots for this date.
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-4 gap-2">
+                                   {walkinSlots.map(time => (
+                                      <button
+                                        key={time}
+                                        type="button"
+                                        onClick={() => setWalkinData({ ...walkinData, startTime: time })}
+                                        className={`py-3 text-xs font-bold rounded-xl border-2 transition-all ${
+                                          walkinData.startTime === time
+                                            ? 'bg-gold border-gold text-black-deep shadow-lg shadow-gold/20'
+                                            : 'bg-white border-slate-100 text-slate-600 hover:border-gold/30'
+                                        }`}
+                                      >
+                                        {time}
+                                      </button>
+                                   ))}
+                                </div>
+                              )}
+                           </div>
+                        </div>
+                      )}
+                   </div>
+                </div>
+              )}
+
+              {/* STEP 4: PAYMENT */}
+              {currentWalkinStep === 4 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                   <h4 className="text-[10px] font-bold text-gold uppercase tracking-[0.2em]">Step 4: Payment Method</h4>
+                   <div className="space-y-4">
+                      {['CASH', 'UPI', 'CARD'].map(method => (
+                        <label key={method} className="block cursor-pointer">
+                           <input
+                             type="radio"
+                             name="walkinPayment"
+                             className="hidden"
+                             value={method}
+                             checked={walkinData.paymentMethod === method}
+                             onChange={(e) => setWalkinData({ ...walkinData, paymentMethod: e.target.value })}
+                           />
+                           <div className={`p-5 rounded-2xl border-2 flex items-center justify-between transition-all ${
+                             walkinData.paymentMethod === method
+                               ? 'border-gold bg-gold/5'
+                               : 'border-slate-50 bg-slate-50/50 hover:border-gold/20'
+                           }`}>
+                              <div className="flex items-center gap-4">
+                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                   walkinData.paymentMethod === method ? 'bg-gold text-black-deep' : 'bg-slate-200 text-slate-500'
+                                 }`}>
+                                    {method === 'CASH' && <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>}
+                                    {method === 'UPI' && <span className="font-bold text-[10px]">UPI</span>}
+                                    {method === 'CARD' && <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>}
+                                 </div>
+                                 <span className="font-bold text-black-deep tracking-wider">{method}</span>
+                              </div>
+                              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                walkinData.paymentMethod === method ? 'border-gold bg-gold' : 'border-slate-300 bg-white'
+                              }`}>
+                                 {walkinData.paymentMethod === method && <div className="w-2 h-2 rounded-full bg-black-deep" />}
+                              </div>
+                           </div>
+                        </label>
+                      ))}
+                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-5 bg-[#FDFBF7] border-t border-gold/10 flex justify-between items-center shrink-0">
+              <button
+                type="button"
+                className={`px-6 py-3 text-xs font-bold text-secondary bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors uppercase tracking-widest ${currentWalkinStep === 1 ? 'invisible' : ''}`}
+                onClick={() => setCurrentWalkinStep(prev => prev - 1)}
+              >
+                Back
+              </button>
+              
+              <div className="flex gap-3">
+                {currentWalkinStep < 4 ? (
+                  <button
+                    type="button"
+                    className="px-8 py-3 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-black-deep/90 transition-all disabled:opacity-50"
+                    disabled={
+                      (currentWalkinStep === 1 && (!walkinData.walkinCustomerName || !walkinData.walkinPhone)) ||
+                      (currentWalkinStep === 2 && walkinData.serviceIds.length === 0) ||
+                      (currentWalkinStep === 3 && (!walkinData.staffId || !walkinData.startTime))
+                    }
+                    onClick={() => setCurrentWalkinStep(prev => prev + 1)}
+                  >
+                    Next Step
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCreateWalkinBooking}
+                    disabled={isCreatingWalkin}
+                    className="px-8 py-3 bg-black-deep text-gold rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-black-deep/90 transition-all shadow-xl flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isCreatingWalkin ? (
+                      <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin"></div>
+                    ) : (
+                      <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    )}
+                    Complete Booking
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
