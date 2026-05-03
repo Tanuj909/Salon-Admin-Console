@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { getMyBusinessApi, updateMyBusinessApi, uploadBannerApi, uploadSalonImagesApi, deleteSalonImageApi, getSalonQrCodeApi } from "../services/salonService";
+import { getMyBusinessApi, getSalonByIdApi, updateMyBusinessApi, uploadBannerApi, uploadSalonImagesApi, deleteSalonImageApi, getSalonQrCodeApi } from "../services/salonService";
 import { getHolidaysByBusinessApi, addHolidayApi, updateHolidayApi, deleteHolidayApi } from "../services/holidayService";
 import LocationPickerMap from "../components/LocationPickerMap";
 
@@ -90,7 +90,7 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 const MyAdminSalon = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const isReadOnly = user?.role === "RECEPTIONIST";
+    const isReadOnly = user?.role === "RECEPTIONIST" || user?.role === "STAFF";
     const [salon, setSalon] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -124,12 +124,21 @@ const MyAdminSalon = () => {
     const fetchMySalon = async () => {
         try {
             setLoading(true);
-            const data = await getMyBusinessApi();
+            let data;
+            
+            // For Receptionist and Staff, we take the businessId from their profile (from /auth/me)
+            if ((user?.role === "RECEPTIONIST" || user?.role === "STAFF") && user?.businessId) {
+                data = await getSalonByIdApi(user.businessId);
+            } else {
+                // Default flow for Admin (stays same as before)
+                data = await getMyBusinessApi();
+            }
+
             setSalon(data);
             setFormData(data);
             if (data?.id) fetchHolidays(data.id);
         } catch (err) {
-            setError("Failed to fetch your salon details. Please ensure you are an authorized admin.");
+            setError("Failed to fetch salon details. Please ensure you are authorized.");
             console.error(err);
         } finally {
             setLoading(false);
@@ -1284,7 +1293,7 @@ const MyAdminSalon = () => {
             )}
 
             {/* Holiday Modal */}
-            {isAddHolidayModalOpen && (
+            {!isReadOnly && isAddHolidayModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
                     <div className="bg-white rounded-[40px] w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in duration-300">
                         {/* Header */}

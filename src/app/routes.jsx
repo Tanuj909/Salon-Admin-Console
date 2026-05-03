@@ -103,10 +103,14 @@ const AppRoutes = () => {
                 <Route path="super-admin/admins" element={<Admins />} />
               </Route>
 
+              {/* Shared Salon Profile Route */}
+              <Route element={<ProtectedRoute allowedRoles={["ADMIN", "RECEPTIONIST", "STAFF"]} />}>
+                <Route path="my-salon" element={<MyAdminSalon />} />
+              </Route>
+
               {/* Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="my-salon" element={<MyAdminSalon />} />
                 <Route path="timings" element={<BusinessTimings />} />
                 <Route path="services" element={<Services />} />
                 <Route path="staff" element={<Staff />} />

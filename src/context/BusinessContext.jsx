@@ -9,12 +9,12 @@ export const BusinessProvider = ({ children }) => {
     const [businessId, setBusinessId] = useState(null);
     const [businessData, setBusinessData] = useState(null);
     // Start loading=true for roles that need business data, so pages don't flash "no data"
-    const needsBusiness = user && user.role !== "SUPER_ADMIN" && user.role !== "STAFF";
+    const needsBusiness = user && user.role !== "SUPER_ADMIN";
     const [loading, setLoading] = useState(needsBusiness);
 
     useEffect(() => {
-        // Only fetch for roles that have a business (ADMIN, RECEPTIONIST)
-        if (!user || user.role === "SUPER_ADMIN" || user.role === "STAFF") {
+        // Only fetch for roles that have a business (ADMIN, RECEPTIONIST, STAFF)
+        if (!user || user.role === "SUPER_ADMIN") {
             setLoading(false);
             return;
         }
@@ -22,30 +22,35 @@ export const BusinessProvider = ({ children }) => {
         const fetchBusiness = async () => {
             try {
                 setLoading(true);
-                // Check if businessId is already on the user object
-                if (user?.businessId) {
-                    setBusinessId(user.businessId);
-                }
                 
-                const data = await getMyBusinessApi();
-                if (data && data.id) {
-                    setBusinessId(data.id);
-                    setBusinessData(data);
-                } else if (user?.businessId) {
-                    setBusinessId(user.businessId);
+                if (user?.role === "RECEPTIONIST" || user?.role === "STAFF") {
+                    // For Receptionist and Staff, prioritize businessId from profile
+                    if (user?.businessId) {
+                        setBusinessId(user.businessId);
+                        try {
+                            // Try to get full business data if needed
+                            const data = await getMyBusinessApi();
+                            if (data && data.id) setBusinessData(data);
+                        } catch (err) {
+                            console.warn("Could not fetch full business data for", user.role);
+                        }
+                    }
+                } else {
+                    // Admin flow remains exactly as it was
+                    const data = await getMyBusinessApi();
+                    if (data && data.id) {
+                        setBusinessId(data.id);
+                        setBusinessData(data);
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching business data", err);
-                // If API fails but we have businessId in user, use that as fallback
-                if (user?.businessId) {
-                    setBusinessId(user.businessId);
-                }
             } finally {
                 setLoading(false);
             }
         };
 
-        if (!businessId) {
+        if (!businessId || (user?.businessId && businessId !== user?.businessId)) {
             fetchBusiness();
         }
     }, [user]);

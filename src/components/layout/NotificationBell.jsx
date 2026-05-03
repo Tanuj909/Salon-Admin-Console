@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { formatDistanceToNow } from "@/features/notifications/lib/timeUtils";
 
@@ -12,6 +14,8 @@ const TYPE_DOT = {
 };
 
 const NotificationBell = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { notifications, unreadCount, wsConnected, markAsRead, markAllAsRead } =
     useNotifications();
   const [open, setOpen] = useState(false);
@@ -30,7 +34,28 @@ const NotificationBell = () => {
 
   const handleClick = async (n) => {
     if (!n.isRead) await markAsRead(n.id);
-    if (n.actionUrl) window.location.href = n.actionUrl;
+    if (n.actionUrl) {
+      let targetUrl = n.actionUrl;
+      
+      // If actionUrl starts with /admin, strip it because useNavigate with basename handles it
+      if (targetUrl.startsWith("/admin")) {
+        targetUrl = targetUrl.replace("/admin", "");
+      }
+
+      // Map "business/bookings" or generic booking URLs to role-specific routes
+      if (targetUrl.includes("bookings")) {
+        if (user?.role === "RECEPTIONIST") {
+          targetUrl = "/receptionist/bookings";
+        } else if (user?.role === "ADMIN") {
+          targetUrl = "/bookings";
+        } else if (user?.role === "STAFF") {
+          targetUrl = "/staff/my-bookings";
+        }
+      }
+      
+      navigate(targetUrl);
+      setOpen(false);
+    }
   };
 
   return (
