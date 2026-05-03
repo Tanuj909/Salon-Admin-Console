@@ -545,7 +545,7 @@ const MyAdminSalon = () => {
                                         </div>
                                         <span className="text-xs text-secondary uppercase tracking-wider">Total Bookings</span>
                                     </div>
-                                    <p className="text-3xl font-display text-black-deep font-bold">{salon.totalBookings || 0}</p>
+                                    <p className="text-3xl font-sans text-black-deep font-bold">{salon.totalBookings || 0}</p>
                                 </div>
 
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold/10 hover:border-gold/30 transition-all">
@@ -557,13 +557,13 @@ const MyAdminSalon = () => {
                                         </div>
                                         <span className="text-xs text-secondary uppercase tracking-wider">Average Rating</span>
                                     </div>
-                                    <p className="text-3xl font-display text-black-deep font-bold">{salon.averageRating?.toFixed(1) || '0.0'}</p>
+                                    <p className="text-3xl font-sans text-black-deep font-bold">{salon.averageRating?.toFixed(1) || '0.0'}</p>
                                     <div className="flex text-gold text-sm mt-2">
                                         {"★".repeat(Math.round(salon.averageRating || 0))}{"☆".repeat(5 - Math.round(salon.averageRating || 0))}
                                     </div>
                                 </div>
 
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold/10 hover:border-gold/30 transition-all">
+                                {/* <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold/10 hover:border-gold/30 transition-all">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center">
                                             <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#C8A951" strokeWidth={2}>
@@ -575,7 +575,7 @@ const MyAdminSalon = () => {
                                         <span className="text-xs text-secondary uppercase tracking-wider">QR Scans</span>
                                     </div>
                                     <p className="text-3xl font-display text-black-deep font-bold">{salon.qrCodeScanCount || 0}</p>
-                                </div>
+                                </div> */}
 
                                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold/10 hover:border-gold/30 transition-all">
                                     <div className="flex items-center justify-between mb-4">
@@ -587,7 +587,7 @@ const MyAdminSalon = () => {
                                         </div>
                                         <span className="text-xs text-secondary uppercase tracking-wider">Total Reviews</span>
                                     </div>
-                                    <p className="text-3xl font-display text-black-deep font-bold">{salon.totalReviews || 0}</p>
+                                    <p className="text-3xl font-sans text-black-deep font-bold">{salon.totalReviews || 0}</p>
                                 </div>
                             </div>
 

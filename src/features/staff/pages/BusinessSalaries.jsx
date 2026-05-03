@@ -252,14 +252,9 @@ const BusinessSalaries = () => {
             </div>
             
             <div className="p-6 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gold/5 flex items-center justify-center text-gold font-bold text-2xl border border-gold/10 shadow-inner">
-                  {selectedStaff.staffName?.charAt(0)}
-                </div>
-                <div>
-                  <h4 className="font-bold text-black-deep text-lg leading-tight">{selectedStaff.staffName}</h4>
-                  <p className="text-xs text-secondary font-medium mt-0.5">{selectedStaff.designation}</p>
-                </div>
+              <div className="flex flex-col gap-1 border-b border-gold/5 pb-4">
+                  <h4 className="font-display text-black-deep text-2xl italic leading-tight">{selectedStaff.staffName}</h4>
+                  <p className="text-[10px] text-secondary font-black uppercase tracking-widest">{selectedStaff.designation}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

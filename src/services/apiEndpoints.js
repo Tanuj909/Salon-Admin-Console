@@ -33,6 +33,8 @@ export const API_ENDPOINTS = {
 
   CATEGORIES: {
     BASE: "/categories",
+    UPDATE_BY_ID: (id) => `/categories/${id}`,
+    DELETE_BY_ID: (id) => `/categories/${id}`,
   },
 
   SERVICES: {

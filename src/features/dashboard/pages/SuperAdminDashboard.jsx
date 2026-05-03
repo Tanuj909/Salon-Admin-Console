@@ -50,6 +50,8 @@ const SuperAdminDashboard = () => {
   const [revenueSummary, setRevenueSummary] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview'); // overview, salons, revenue, regions
+  const [selectedSalon, setSelectedSalon] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -198,33 +200,25 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
         
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
             {error && (
-              <div className="px-4 py-2 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-2 text-red-600 shadow-sm animate-pulse">
+              <div className="px-4 py-2 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-2 text-red-600 shadow-sm animate-pulse w-full md:w-auto">
                 <AlertCircle size={14} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">{error}</span>
               </div>
             )}
             
-            <div className="flex bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-gold/10 shadow-inner">
+            <div className="grid grid-cols-2 md:flex bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-gold/10 shadow-inner gap-1 w-full md:w-auto">
                 {['overview', 'salons', 'revenue', 'regions'].map(tab => (
                     <button 
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${activeTab === tab ? 'bg-black-deep text-gold shadow-xl scale-105' : 'text-secondary/40 hover:text-secondary hover:bg-gold/5'}`}
+                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 w-full ${activeTab === tab ? 'bg-black-deep text-gold shadow-xl scale-105' : 'text-secondary/40 hover:text-secondary hover:bg-gold/5'}`}
                     >
                         {tab}
                     </button>
                 ))}
             </div>
-
-            <button 
-              onClick={fetchDashboardData}
-              disabled={loading}
-              className={`p-4 bg-white text-black-deep border border-gold/10 rounded-2xl hover:shadow-2xl transition-all active:scale-95 shadow-lg group ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-                <Activity size={20} className={`${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-            </button>
         </div>
       </div>
 
@@ -356,8 +350,8 @@ const SuperAdminDashboard = () => {
       {activeTab === 'salons' && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="bg-black-deep rounded-[48px] p-10 text-white shadow-2xl flex flex-col h-[700px]">
-                <div className="flex items-center justify-between mb-10">
+              <div className="bg-black-deep rounded-[32px] lg:rounded-[48px] p-6 lg:p-10 text-white shadow-2xl flex flex-col h-auto max-h-[500px] lg:max-h-none lg:h-[700px]">
+                <div className="flex items-center justify-between mb-6 lg:mb-10">
                   <div>
                     <h3 className="text-2xl font-display italic text-gold">Top Businesses</h3>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mt-2">Revenue Leaderboard</p>
@@ -390,8 +384,8 @@ const SuperAdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="lg:col-span-2 bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col h-[700px]">
-                <div className="flex items-center justify-between mb-10">
+              <div className="lg:col-span-2 bg-white rounded-[32px] lg:rounded-[48px] border border-gold/5 shadow-sm p-6 lg:p-10 flex flex-col h-auto lg:h-[700px]">
+                <div className="flex items-center justify-between mb-6 lg:mb-10">
                    <div>
                     <h3 className="text-2xl font-display italic text-black-deep">Advanced Analytics</h3>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Deep-dive salon performance</p>
@@ -399,7 +393,7 @@ const SuperAdminDashboard = () => {
                   <FileText className="text-gold" size={24} />
                 </div>
                 <div className="flex-1 overflow-hidden border border-slate-100 rounded-3xl">
-                  <div className="overflow-x-auto h-full custom-scrollbar">
+                  <div className="overflow-x-auto h-full custom-scrollbar hidden lg:block">
                     <table className="w-full text-left border-collapse">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr>
@@ -446,6 +440,32 @@ const SuperAdminDashboard = () => {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* MOBILE CARD VIEW */}
+                  <div className="lg:hidden divide-y divide-slate-50 overflow-y-auto max-h-[400px] custom-scrollbar">
+                    {topSalons.map((salon, i) => (
+                      <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-black-deep text-gold flex items-center justify-center font-black text-[10px] shadow-md shrink-0">
+                            {salon.businessName.charAt(0)}
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-bold text-[13px] text-black-deep truncate max-w-[150px] sm:max-w-[200px]">{salon.businessName}</span>
+                            <span className="text-[10px] font-bold text-secondary/60">{salon.city}</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSelectedSalon(salon);
+                            setIsDetailModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm shrink-0"
+                        >
+                          View
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
            </div>
@@ -472,25 +492,28 @@ const SuperAdminDashboard = () => {
                     </div>
                  </div>
               </div>
-              <div className="lg:col-span-3 bg-white rounded-[48px] border border-gold/5 shadow-sm p-10 flex flex-col h-[600px]">
-                 <div className="flex items-center justify-between mb-10">
+              <div className="lg:col-span-3 bg-white rounded-[32px] lg:rounded-[48px] border border-gold/5 shadow-sm p-6 lg:p-10 flex flex-col h-[400px] lg:h-[600px] w-full overflow-hidden">
+                 <div className="flex items-center justify-between mb-6 lg:mb-10">
                     <h3 className="text-2xl font-display italic text-black-deep">Daily Transaction Flow</h3>
                     <div className="flex items-center gap-3 text-[10px] font-black text-secondary/40 uppercase tracking-widest">
                        <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-gold"></div> Revenue</span>
                        <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Count</span>
                     </div>
                  </div>
-                 <div className="flex-1 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={revenueSummary?.dailyBreakdown || []}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 700, fill: '#94a3b8'}} tickFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 700, fill: '#94a3b8'}} />
-                        <Tooltip contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)' }} cursor={{ fill: 'rgba(197, 163, 88, 0.05)' }} />
-                        <Bar dataKey="revenue" name="Revenue (AED )" fill="#C5A358" radius={[6, 6, 0, 0]} barSize={20} />
-                        <Bar dataKey="transactionCount" name="Orders" fill="#10b981" radius={[6, 6, 0, 0]} barSize={20} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                 <div className="flex-1 w-full overflow-x-auto custom-scrollbar">
+                    <div className="min-w-[600px] h-[300px] lg:h-[450px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={revenueSummary?.dailyBreakdown || []}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 700, fill: '#94a3b8'}} tickFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })} />
+                            <YAxis yAxisId="left" orientation="left" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 700, fill: '#94a3b8'}} />
+                            <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 700, fill: '#94a3b8'}} />
+                            <Tooltip contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)' }} cursor={{ fill: 'rgba(197, 163, 88, 0.05)' }} />
+                            <Bar yAxisId="left" dataKey="revenue" name="Revenue (AED )" fill="#C5A358" radius={[6, 6, 0, 0]} barSize={20} />
+                            <Bar yAxisId="right" dataKey="transactionCount" name="Orders" fill="#10b981" radius={[6, 6, 0, 0]} barSize={20} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                  </div>
               </div>
            </div>
@@ -593,6 +616,51 @@ const SuperAdminDashboard = () => {
             ))}
          </div>
       </div>
+
+      {/* MOBILE DETAILS MODAL */}
+      {isDetailModalOpen && selectedSalon && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 lg:hidden">
+          <div className="bg-white rounded-[28px] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <div>
+                <h3 className="font-display text-xl italic text-black-deep">Salon Details</h3>
+              </div>
+              <button 
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-black-deep text-gold flex items-center justify-center font-bold text-xl shrink-0">
+                  {selectedSalon.businessName.charAt(0)}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-black-deep leading-tight truncate">{selectedSalon.businessName}</h4>
+                  <p className="text-sm text-secondary truncate">{selectedSalon.city}, {selectedSalon.state}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Completed</p>
+                  <p className="text-xl font-bold text-black-deep">{selectedSalon.completedBookings}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Rating</p>
+                  <p className="text-xl font-bold text-amber-500 flex items-center gap-1"><Star size={16} fill="currentColor" /> {selectedSalon.averageRating?.toFixed(1)}</p>
+                </div>
+                <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 col-span-2">
+                  <p className="text-[10px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1">Revenue</p>
+                  <p className="text-2xl font-bold text-emerald-600">AED {selectedSalon.revenue?.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

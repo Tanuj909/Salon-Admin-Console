@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVerifiedSalonsApi } from "../services/salonService";
-
+import { getVerifiedSalonsApi, verifySalonApi } from "../services/salonService";
 const VerifiedSalons = () => {
   const navigate = useNavigate();
   const [salons, setSalons] = useState([]);
@@ -16,6 +15,22 @@ const VerifiedSalons = () => {
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState("");
+  const [actionLoading, setActionLoading] = useState(null);
+
+  const handleSuspend = async (id, name) => {
+    if (window.confirm(`Are you sure you want to suspend "${name}"?`)) {
+      try {
+        setActionLoading(id);
+        await verifySalonApi(id, "SUSPENDED");
+        fetchVerifiedSalons();
+      } catch (err) {
+        alert("Failed to suspend salon. Please try again.");
+        console.error(err);
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchVerifiedSalons();
@@ -157,8 +172,12 @@ const VerifiedSalons = () => {
                           >
                             View Details
                           </button>
-                          <button className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors">
-                            Suspend
+                          <button 
+                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+                            onClick={() => handleSuspend(salon.id, salon.name)}
+                            disabled={actionLoading === salon.id}
+                          >
+                            {actionLoading === salon.id ? "..." : "Suspend"}
                           </button>
                         </div>
                       </td>
@@ -201,8 +220,12 @@ const VerifiedSalons = () => {
                           >
                             View
                           </button>
-                          <button className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all">
-                            Suspend
+                          <button 
+                            className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all disabled:opacity-50"
+                            onClick={() => handleSuspend(salon.id, salon.name)}
+                            disabled={actionLoading === salon.id}
+                          >
+                            {actionLoading === salon.id ? "..." : "Suspend"}
                           </button>
                         </div>
                       </div>

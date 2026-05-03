@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getCategoriesApi, createCategoryApi } from "../services/categoryService";
+import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from "../services/categoryService";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -13,6 +13,47 @@ const Categories = () => {
     isActive: true,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      description: "",
+      iconUrl: "",
+      displayOrder: 1,
+      isActive: true,
+    });
+    setEditingCategory(null);
+    setIsModalOpen(false);
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory(category);
+    setForm({
+      name: category.name || "",
+      description: category.description || "",
+      iconUrl: category.iconUrl || "",
+      displayOrder: category.displayOrder || 1,
+      isActive: category.isActive !== false,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`Are you sure you want to delete category "${name}"?`)) {
+      try {
+        setActionLoading(id);
+        await deleteCategoryApi(id);
+        fetchCategories();
+      } catch (err) {
+        console.error("Failed to delete category", err);
+        alert("Failed to delete category. Ensure no services are tied to it.");
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -43,22 +84,20 @@ const Categories = () => {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await createCategoryApi({
+      const data = {
         ...form,
         displayOrder: parseInt(form.displayOrder)
-      });
-      setIsModalOpen(false);
-      setForm({
-        name: "",
-        description: "",
-        iconUrl: "",
-        displayOrder: 1,
-        isActive: true,
-      });
+      };
+      if (editingCategory) {
+        await updateCategoryApi(editingCategory.id, data);
+      } else {
+        await createCategoryApi(data);
+      }
+      resetForm();
       fetchCategories();
     } catch (err) {
-      console.error("Failed to create category", err);
-      alert("Failed to create category");
+      console.error("Failed to save category", err);
+      alert("Failed to save category");
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +113,10 @@ const Categories = () => {
           </div>
           <button
             className="bg-gold text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-gold/90 hover:shadow-lg hover:shadow-gold/20 transition-all flex items-center justify-center gap-2 border-0 cursor-pointer"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              resetForm();
+              setIsModalOpen(true);
+            }}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Add Category
@@ -117,11 +159,21 @@ const Categories = () => {
                     Order: {category?.displayOrder}
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-gold hover:bg-gold/10 transition-colors">
+                    <button 
+                      onClick={() => handleEdit(category)}
+                      disabled={actionLoading === category.id}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-gold hover:bg-gold/10 transition-colors disabled:opacity-50"
+                    >
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                     </button>
-                    <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                    <button 
+                      onClick={() => handleDelete(category.id, category.name)}
+                      disabled={actionLoading === category.id}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === category.id ? "..." : (
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -142,11 +194,11 @@ const Categories = () => {
             <div className="bg-white rounded-[24px] w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               <div className="bg-[#FDFBF7] p-8 border-b border-gold/10 flex justify-between items-start">
                 <div>
-                  <h2 className="font-display text-3xl italic text-black-deep">New Category</h2>
-                  <p className="text-secondary tracking-wide text-sm mt-1">Define a new business category</p>
+                  <h2 className="font-display text-3xl italic text-black-deep">{editingCategory ? "Edit Category" : "New Category"}</h2>
+                  <p className="text-secondary tracking-wide text-sm mt-1">{editingCategory ? "Update existing category details" : "Define a new business category"}</p>
                 </div>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={resetForm}
                   className="text-slate-400 hover:text-black-deep hover:bg-slate-100 p-2 rounded-full transition-colors"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
@@ -224,7 +276,7 @@ const Categories = () => {
                 <div className="flex gap-4 pt-8">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={resetForm}
                     className="flex-1 px-6 py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-colors bg-white uppercase tracking-wider text-xs"
                   >
                     Cancel
@@ -234,7 +286,7 @@ const Categories = () => {
                     disabled={submitting}
                     className="flex-1 px-6 py-3 rounded-xl bg-gold text-white font-bold hover:bg-gold/90 transition-all shadow-lg shadow-gold/20 disabled:opacity-50 border-0 uppercase tracking-wider text-xs"
                   >
-                    {submitting ? "Saving..." : "Create Category"}
+                    {submitting ? "Saving..." : (editingCategory ? "Update Category" : "Create Category")}
                   </button>
                 </div>
               </form>

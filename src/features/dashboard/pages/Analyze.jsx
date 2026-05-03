@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Award,
   Zap,
-  Users
+  Users,
+  Star
 } from 'lucide-react';
 import {
   BarChart,
@@ -37,6 +38,8 @@ const Analyze = () => {
   const [revenueByState, setRevenueByState] = useState([]);
   const [topSalons, setTopSalons] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedSalon, setSelectedSalon] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAnalyzeData();
@@ -119,18 +122,6 @@ const Analyze = () => {
           <h1 className="text-4xl font-display text-black-deep mb-2 italic tracking-tight">Platform Analysis</h1>
           <p className="text-secondary/60 text-[10px] font-black uppercase tracking-[0.3em]">Advanced Market Data & Regional Intelligence</p>
         </div>
-        
-        <div className="flex items-center gap-3">
-            <button 
-                onClick={fetchAnalyzeData}
-                className="flex items-center gap-2 px-6 py-3 bg-white border border-gold/10 text-black-deep rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:shadow-xl transition-all active:scale-95 shadow-sm"
-            >
-                <Activity size={14} className={loading ? 'animate-spin' : ''} /> Refresh Data
-            </button>
-            <button className="px-6 py-3 bg-black-deep text-gold rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:shadow-2xl transition-all shadow-lg active:scale-95">
-                Generate Report
-            </button>
-        </div>
       </div>
 
       {/* Primary Metrics */}
@@ -159,8 +150,8 @@ const Analyze = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* City Revenue Bar Chart */}
-        <div className="bg-white p-10 rounded-[48px] border border-gold/5 shadow-sm min-h-[500px] flex flex-col">
-            <div className="flex items-center justify-between mb-10">
+        <div className="bg-white p-6 lg:p-10 rounded-[32px] lg:rounded-[48px] border border-gold/5 shadow-sm min-h-[400px] lg:min-h-[500px] flex flex-col">
+            <div className="flex items-center justify-between mb-6 lg:mb-10">
                 <div>
                     <h3 className="text-xl font-display italic text-black-deep">City Performance</h3>
                     <p className="text-[9px] text-secondary/40 font-black uppercase tracking-[0.2em] mt-1">Revenue distribution by region</p>
@@ -196,8 +187,8 @@ const Analyze = () => {
         </div>
 
         {/* State Revenue Pie Chart */}
-        <div className="bg-white p-10 rounded-[48px] border border-gold/5 shadow-sm min-h-[500px] flex flex-col">
-            <div className="flex items-center justify-between mb-10">
+        <div className="bg-white p-6 lg:p-10 rounded-[32px] lg:rounded-[48px] border border-gold/5 shadow-sm min-h-[auto] lg:min-h-[500px] flex flex-col">
+            <div className="flex flex-wrap items-center justify-between mb-6 lg:mb-10 gap-4">
                 <div>
                     <h3 className="text-xl font-display italic text-black-deep">State Contribution</h3>
                     <p className="text-[9px] text-secondary/40 font-black uppercase tracking-[0.2em] mt-1">Market share by territory</p>
@@ -206,7 +197,7 @@ const Analyze = () => {
             </div>
             
             <div className="flex-1 w-full flex flex-col md:flex-row items-center">
-                <div className="flex-1 h-[300px] w-full">
+                <div className="hidden md:block flex-1 h-[200px] md:h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -227,12 +218,12 @@ const Analyze = () => {
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="space-y-4 pr-10">
+                <div className="space-y-4 pr-0 md:pr-10 mt-6 md:mt-0 w-full md:w-auto">
                     {revenueByState.map((state, i) => (
                         <div key={i} className="flex items-center gap-4 group">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-black-deep uppercase tracking-widest">{state.regionName}</span>
+                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[10px] font-black text-black-deep uppercase tracking-widest truncate">{state.regionName}</span>
                                 <span className="text-[9px] font-bold text-secondary/40">AED {state.totalRevenue.toLocaleString()}</span>
                             </div>
                         </div>
@@ -243,21 +234,22 @@ const Analyze = () => {
       </div>
 
       {/* Advanced Analytics Table */}
-      <div className="bg-white p-10 rounded-[48px] border border-gold/5 shadow-sm">
-        <div className="flex items-center justify-between mb-10">
+      <div className="bg-white p-6 lg:p-10 rounded-[32px] lg:rounded-[48px] border border-gold/5 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 lg:mb-10 gap-4">
             <div>
-                <h3 className="text-2xl font-display italic text-black-deep">Deep Performance Matrix</h3>
+                <h3 className="text-xl sm:text-2xl font-display italic text-black-deep">Deep Performance Matrix</h3>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/30 mt-1">Cross-referencing revenue with user engagement</p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 self-start sm:self-auto">
                 <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
                     <TrendingUp size={14} /> Efficiency Index
                 </div>
             </div>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar border border-slate-50 rounded-[32px]">
-            <table className="w-full text-left border-collapse">
+        <div className="overflow-hidden border border-slate-50 rounded-[24px] lg:rounded-[32px]">
+            <div className="overflow-x-auto custom-scrollbar hidden lg:block">
+                <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50/50">
                     <tr>
                         {['Partner Salon', 'City/State', 'Completed Bookings', 'Average Rating', 'Revenue Contribution'].map((h, i) => (
@@ -302,8 +294,80 @@ const Analyze = () => {
                     ))}
                 </tbody>
             </table>
+            </div>
+
+            {/* MOBILE CARD VIEW */}
+            <div className="lg:hidden divide-y divide-slate-50 overflow-y-auto max-h-[400px] custom-scrollbar">
+                {topSalons.map((salon, i) => (
+                    <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-black-deep text-gold flex items-center justify-center font-black text-[10px] shadow-md shrink-0">
+                                {salon.businessName.charAt(0)}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="font-bold text-[13px] text-black-deep truncate max-w-[150px] sm:max-w-[200px]">{salon.businessName}</span>
+                                <span className="text-[10px] font-bold text-secondary/60 truncate max-w-[150px] sm:max-w-[200px]">{salon.city}, {salon.state}</span>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => {
+                                setSelectedSalon(salon);
+                                setIsDetailModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm shrink-0"
+                        >
+                            View
+                        </button>
+                    </div>
+                ))}
+            </div>
         </div>
       </div>
+
+      {/* MOBILE DETAILS MODAL */}
+      {isDetailModalOpen && selectedSalon && (
+        <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1001] flex items-center justify-center p-4 lg:hidden">
+          <div className="bg-white rounded-[28px] w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 border-b border-gold/10 flex justify-between items-center bg-[#FDFBF7]">
+              <div>
+                <h3 className="font-display text-xl italic text-black-deep">Salon Details</h3>
+              </div>
+              <button 
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-black-deep text-gold flex items-center justify-center font-bold text-xl shrink-0">
+                  {selectedSalon.businessName.charAt(0)}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-black-deep leading-tight truncate">{selectedSalon.businessName}</h4>
+                  <p className="text-sm text-secondary truncate">{selectedSalon.city}, {selectedSalon.state}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Completed</p>
+                  <p className="text-xl font-bold text-black-deep">{selectedSalon.completedBookings}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                  <p className="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mb-1">Rating</p>
+                  <p className="text-xl font-bold text-amber-500 flex items-center gap-1"><Star size={16} fill="currentColor" /> {selectedSalon.averageRating?.toFixed(1)}</p>
+                </div>
+                <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 col-span-2">
+                  <p className="text-[10px] font-bold text-emerald-600/60 uppercase tracking-widest mb-1">Revenue</p>
+                  <p className="text-2xl font-bold text-emerald-600">AED {selectedSalon.revenue?.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
