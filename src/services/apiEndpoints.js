@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     UPLOAD_IMAGES: "/businesses/images",
     DELETE_IMAGE: "/businesses/images",
     VERIFY: (id) => `/businesses/${id}/verify`,
+    REVERIFY: (id) => `/businesses/${id}/reverify`,
     GET_QR_CODE: (id) => `/businesses/${id}/qr-code`,
     GET_VERIFICATION_DOCUMENTS: (id) => `/businesses/verification/${id}/documents`,
     REVIEW_DOCUMENT: (documentId) => `/businesses/verification/documents/${documentId}/review`,

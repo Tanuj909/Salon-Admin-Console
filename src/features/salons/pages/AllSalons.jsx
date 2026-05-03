@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllSalonsApi } from "../services/salonService";
+import { getAllSalonsApi, verifySalonApi, reverifySuspendedBusinessApi } from "../services/salonService";
 
 const AllSalons = () => {
   const navigate = useNavigate();
@@ -17,6 +17,22 @@ const AllSalons = () => {
   // Filters state
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [actionLoading, setActionLoading] = useState(null);
+
+  const handleVerify = async (id) => {
+    if (window.confirm("Are you sure you want to verify this salon?")) {
+      try {
+        setActionLoading(id);
+        await reverifySuspendedBusinessApi(id);
+        fetchAllSalons();
+      } catch (err) {
+        alert("Failed to verify salon. Please try again.");
+        console.error(err);
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchAllSalons();
@@ -205,12 +221,23 @@ const AllSalons = () => {
                         </div>
                       </td>
                       <td className="py-4 px-4 sm:px-6 text-right">
-                        <button
-                          className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-slate-700 hover:text-gold hover:bg-gold/10 hover:border-gold/30 border border-slate-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm"
-                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
-                        >
-                          View Details
-                        </button>
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-slate-700 hover:text-gold hover:bg-gold/10 hover:border-gold/30 border border-slate-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm"
+                            onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                          >
+                            View Details
+                          </button>
+                          {salon.verificationStatus === 'SUSPENDED' && (
+                            <button
+                              className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap shadow-sm disabled:opacity-50"
+                              onClick={() => handleVerify(salon.id)}
+                              disabled={actionLoading === salon.id}
+                            >
+                              {actionLoading === salon.id ? "..." : "Verify the Salon!"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -242,12 +269,23 @@ const AllSalons = () => {
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] text-secondary font-medium truncate uppercase tracking-wider">{salon.city}</span>
-                        <button 
-                          onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
-                          className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
-                        >
-                          View Details
-                        </button>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => navigate(`/super-admin/salons/${salon.id}`)}
+                            className="px-3 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
+                          >
+                            View
+                          </button>
+                          {salon.verificationStatus === 'SUSPENDED' && (
+                            <button 
+                              className="px-3 py-1.5 bg-green-50 text-green-600 border border-green-200 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all disabled:opacity-50"
+                              onClick={() => handleVerify(salon.id)}
+                              disabled={actionLoading === salon.id}
+                            >
+                              {actionLoading === salon.id ? "..." : "Verify"}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

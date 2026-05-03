@@ -18,7 +18,7 @@ const VerifiedSalons = () => {
   const [actionLoading, setActionLoading] = useState(null);
 
   const handleSuspend = async (id, name) => {
-    if (window.confirm(`Are you sure you want to suspend "${name}"?`)) {
+    if (window.confirm("Are you sure you want to suspend the Salon?")) {
       try {
         setActionLoading(id);
         await verifySalonApi(id, "SUSPENDED");

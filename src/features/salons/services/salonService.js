@@ -74,6 +74,13 @@ export const verifySalonApi = async (id, status) => {
   return response.data;
 };
 
+export const reverifySuspendedBusinessApi = async (id, remarks = null) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.SALONS.REVERIFY(id), null, {
+    params: { remarks },
+  });
+  return response.data;
+};
+
 export const getVerificationDocumentsApi = async (businessId) => {
   const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_VERIFICATION_DOCUMENTS(businessId));
   return response.data;

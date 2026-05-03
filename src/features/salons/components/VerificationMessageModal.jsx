@@ -6,10 +6,8 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState("");
-  const [attachment, setAttachment] = useState(null);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && businessId) {
@@ -48,26 +46,18 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() && !attachment) return;
+    if (!newMessage.trim()) return;
 
     try {
       setSending(true);
-      await sendVerificationMessageApi(businessId, newMessage, attachment);
+      await sendVerificationMessageApi(businessId, newMessage);
       setNewMessage("");
-      setAttachment(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
       await fetchMessages();
     } catch (err) {
       console.error("Failed to send message", err);
       alert("Failed to send message. Please try again.");
     } finally {
       setSending(false);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAttachment(e.target.files[0]);
     }
   };
 
@@ -153,25 +143,13 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
         {/* Input Area */}
         <div className="p-4 sm:p-6 bg-white border-t border-slate-100 shrink-0">
           <form onSubmit={handleSend} className="space-y-4">
-            {attachment && (
-              <div className="flex items-center justify-between bg-gold/5 border border-gold/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl">
-                <div className="flex items-center gap-2 text-gold text-[10px] sm:text-xs font-bold truncate">
-                  <svg width="12" height="12" sm:width="14" sm:height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
-                  <span className="truncate max-w-[150px] sm:max-w-xs">{attachment.name}</span>
-                </div>
-                <button type="button" onClick={() => setAttachment(null)} className="text-red-500 hover:text-red-600 shrink-0">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
-              </div>
-            )}
-            
             <div className="flex gap-2 sm:gap-3 items-end">
               <div className="flex-1 relative">
                 <textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type message..."
-                  className="w-full bg-slate-50 border border-slate-200 text-black-deep py-2.5 px-3 sm:py-3 sm:px-4 pr-10 sm:pr-12 rounded-xl sm:rounded-2xl text-xs sm:text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 resize-none min-h-[40px] max-h-[120px]"
+                  className="w-full bg-slate-50 border border-slate-200 text-black-deep py-2.5 px-3 sm:py-3 sm:px-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all font-medium placeholder:text-slate-400 resize-none min-h-[40px] max-h-[120px]"
                   rows="1"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -180,23 +158,10 @@ const VerificationMessageModal = ({ isOpen, onClose, businessId, businessName })
                     }
                   }}
                 />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current.click()}
-                  className="absolute right-2.5 bottom-2.5 sm:right-3 sm:bottom-3 text-slate-400 hover:text-gold transition-colors"
-                >
-                  <svg width="18" height="18" sm:width="20" sm:height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
               </div>
               <button
                 type="submit"
-                disabled={sending || (!newMessage.trim() && !attachment)}
+                disabled={sending || !newMessage.trim()}
                 className="bg-gold text-white p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl hover:bg-gold/90 transition-all shadow-lg shadow-gold/20 disabled:opacity-50 disabled:shadow-none shrink-0"
               >
                 {sending ? (
