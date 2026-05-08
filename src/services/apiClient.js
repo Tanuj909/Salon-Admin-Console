@@ -45,17 +45,12 @@ apiClient.interceptors.response.use(
 
       // Handle 401 Unauthorized errors
       if (status === 401 && !isAuthRequest) {
-        console.warn(`Unauthorized! URL: ${config.url}`);
+        console.warn(`Unauthorized! URL: ${config.url}. Clearing session...`);
+        removeToken();
+        storage.remove(STORAGE_KEYS.USER);
         
-        // Only redirect of the profile check fails or if we already have no token
-        if (isMeRequest || !getToken()) {
-          console.warn("Session expired or token missing. Clearing session...");
-          removeToken();
-          storage.remove(STORAGE_KEYS.USER);
-          
-          if (window.location.pathname !== "/admin/login") {
-            window.location.href = "/admin/login";
-          }
+        if (window.location.pathname !== "/admin/login") {
+          window.location.href = "/admin/login";
         }
       }
 

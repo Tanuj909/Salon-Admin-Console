@@ -46,19 +46,12 @@ axiosInstance.interceptors.response.use(
       const isMeRequest = config.url?.includes('/auth/me');
       
       if (status === 401 && !isAuthRequest) {
-        console.warn(`Unauthorized access on URL: ${config.url}`);
+        console.warn(`Unauthorized access on URL: ${config.url}. Clearing session...`);
+        removeToken();
+        storage.remove(STORAGE_KEYS.USER);
         
-        // Only redirect of the profile check fails or if we already have no token
-        if (isMeRequest || !getToken()) {
-          console.warn("Session expired or token missing. Clearing session...");
-          removeToken();
-          storage.remove(STORAGE_KEYS.USER);
-          
-          if (window.location.pathname !== '/admin/login') {
-            window.location.href = "/admin/login";
-          }
-        } else {
-          console.warn("401 encountered but staying logged in for now...");
+        if (window.location.pathname !== '/admin/login') {
+          window.location.href = "/admin/login";
         }
       }
 
