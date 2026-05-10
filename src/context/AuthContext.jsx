@@ -4,6 +4,8 @@ import storage from "@/utils/storage";
 import { STORAGE_KEYS } from "@/utils/constants";
 import { getMeApi } from "@/services/authService";
 import { PushSubscriptionService } from "@/features/notifications/services/pushSubscriptionService";
+import { validateToken, clearAuthStorage } from "@/utils/auth";
+import { toast } from "react-toastify";
 
 export const AuthContext = createContext();
 
@@ -30,9 +32,21 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Restore session on mount
+  // Restore session on mount — validate token before fetching user
   useEffect(() => {
     if (token) {
+      const { valid, reason } = validateToken();
+      if (!valid) {
+        console.warn(`[Auth] Invalid token on load: ${reason}`);
+        clearAuthStorage();
+        setAuthToken(null);
+        setUser(null);
+        setIsLoading(false);
+        if (reason === "expired") {
+          toast.info("Session expired. Please login again.");
+        }
+        return;
+      }
       fetchUser(token);
     } else {
       setIsLoading(false);
@@ -67,11 +81,13 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
-  const logout = useCallback(() => {
-    removeToken();
-    storage.remove(STORAGE_KEYS.USER);
+  const logout = useCallback((message) => {
+    clearAuthStorage();
     setAuthToken(null);
     setUser(null);
+    if (message) {
+      toast.info(message);
+    }
     window.location.href = "/admin/login";
   }, []);
 

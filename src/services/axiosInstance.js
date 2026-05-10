@@ -1,7 +1,36 @@
 import axios from "axios";
-import { getToken, removeToken } from "../utils/token";
-import storage from "../utils/storage";
-import { STORAGE_KEYS } from "../utils/constants";
+import { getToken } from "../utils/token";
+import { clearAuthStorage } from "../utils/auth";
+import { toast } from "react-toastify";
+
+// Prevent multiple redirects from concurrent failed API calls
+let isLoggingOut = false;
+
+/**
+ * Detect if a server error (500) is caused by a bad/tampered JWT.
+ * Backend throws 500 with specific messages for malformed tokens.
+ */
+const isJwtServerError = (error) => {
+  if (error.response?.status !== 500) return false;
+  const message = error.response?.data?.message || "";
+  const jwtPatterns = [
+    "Malformed", "JWT", "token", "Signature",
+    "deserialize", "protected header", "Base64"
+  ];
+  return jwtPatterns.some((p) => message.toLowerCase().includes(p.toLowerCase()));
+};
+
+const handleForceLogout = (url) => {
+  if (isLoggingOut) return;
+  isLoggingOut = true;
+  console.warn(`[Auth] Invalid session detected on ${url}. Ending session.`);
+  clearAuthStorage();
+  toast.info("Session expired. Please login again.");
+  if (window.location.pathname !== '/admin/login') {
+    window.location.href = "/admin/login";
+  }
+  setTimeout(() => { isLoggingOut = false; }, 2000);
+};
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -43,21 +72,15 @@ axiosInstance.interceptors.response.use(
 
       // Don't do anything for auth requests to avoid loops
       const isAuthRequest = config.url?.includes('/auth/login') || config.url?.includes('/login');
-      const isMeRequest = config.url?.includes('/auth/me');
       
+      // Handle 401 Unauthorized errors
       if (status === 401 && !isAuthRequest) {
-        console.warn(`Unauthorized access on URL: ${config.url}. Clearing session...`);
-        removeToken();
-        storage.remove(STORAGE_KEYS.USER);
-        
-        if (window.location.pathname !== '/admin/login') {
-          window.location.href = "/admin/login";
-        }
+        handleForceLogout(config.url);
       }
 
-      // Forbidden
-      if (status === 403) {
-        console.error(`Access Forbidden for URL: ${config.url}`);
+      // Handle 500 errors caused by malformed/tampered JWT
+      if (!isAuthRequest && isJwtServerError(error)) {
+        handleForceLogout(config.url);
       }
     }
 
