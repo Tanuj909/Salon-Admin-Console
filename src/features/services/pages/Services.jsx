@@ -34,6 +34,8 @@ const Services = () => {
     name: "",
     description: "",
     price: 0,
+    startPrice: 0,
+    endPrice: 0,
     discountedPrice: 0,
     durationMinutes: 30,
     category: "Salon",
@@ -49,6 +51,8 @@ const Services = () => {
   const [updateForm, setUpdateForm] = useState({
     name: "",
     price: 0,
+    startPrice: 0,
+    endPrice: 0,
     discountedPrice: 0,
     durationMinutes: 30,
     category: "Salon",
@@ -114,6 +118,8 @@ const Services = () => {
         name: "",
         description: "",
         price: 0,
+        startPrice: 0,
+        endPrice: 0,
         discountedPrice: 0,
         durationMinutes: 30,
         category: "Salon",
@@ -134,6 +140,8 @@ const Services = () => {
     setUpdateForm({
       name: service.name || "",
       price: service.price || 0,
+      startPrice: service.startPrice || 0,
+      endPrice: service.endPrice || 0,
       discountedPrice: service.discountedPrice || 0,
       durationMinutes: service.durationMinutes || 30,
       category: service.category || "Salon",
@@ -334,9 +342,16 @@ const Services = () => {
                       </td>
                       <td className="px-8 py-6 text-right">
                          <div className="flex flex-col items-end">
-                            {service.discountedPrice < service.price && (
-                               <span className="text-[10px] text-slate-400 line-through font-bold">AED {service.price.toFixed(0)}</span>
-                            )}
+                            <div className="flex flex-col items-end gap-0.5">
+                               {(service.startPrice > 0 || service.endPrice > 0) && (
+                                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                                     Range: {service.startPrice?.toFixed(0)} - {service.endPrice?.toFixed(0)}
+                                  </span>
+                               )}
+                               {service.discountedPrice < service.price && (
+                                  <span className="text-[10px] text-slate-400 line-through font-bold">AED {service.price?.toFixed(0)}</span>
+                               )}
+                            </div>
                             <span className="text-lg font-display italic text-black-deep">AED {service.effectivePrice?.toFixed(0)}</span>
                          </div>
                       </td>
@@ -539,6 +554,26 @@ const Services = () => {
                           />
                        </div>
                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Start Price (AED)</label>
+                          <input 
+                            type="number" 
+                            name="startPrice"
+                            value={form.startPrice}
+                            onChange={handleChange}
+                            className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">End Price (AED)</label>
+                          <input 
+                            type="number" 
+                            name="endPrice"
+                            value={form.endPrice}
+                            onChange={handleChange}
+                            className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                          />
+                       </div>
+                       <div>
                           <label className="text-[10px] font-bold text-gold uppercase tracking-widest mb-2 block">Special Price (AED)</label>
                           <input 
                             type="number" 
@@ -547,8 +582,20 @@ const Services = () => {
                             onChange={handleChange}
                             className="w-full bg-gold/5 border border-gold/10 focus:border-gold focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-gold"
                           />
-                       </div>
-                    </div>
+                        </div>
+                        <div>
+                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Image URL</label>
+                           <input 
+                             type="text" 
+                             name="imageUrl"
+                             value={form.imageUrl}
+                             onChange={handleChange}
+                             className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                             placeholder="https://example.com/image.jpg"
+                           />
+                        </div>
+                     </div>
+
 
                     <div className="flex items-center gap-6 p-4 bg-slate-50 rounded-2xl">
                        <label className="flex items-center gap-3 cursor-pointer group">
@@ -661,6 +708,26 @@ const Services = () => {
                           />
                        </div>
                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Start Price (AED)</label>
+                          <input 
+                            type="number" 
+                            name="startPrice"
+                            value={updateForm.startPrice}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">End Price (AED)</label>
+                          <input 
+                            type="number" 
+                            name="endPrice"
+                            value={updateForm.endPrice}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                          />
+                       </div>
+                       <div>
                           <label className="text-[10px] font-bold text-gold uppercase tracking-widest mb-2 block">Special Price (AED)</label>
                           <input 
                             type="number" 
@@ -668,6 +735,17 @@ const Services = () => {
                             value={updateForm.discountedPrice}
                             onChange={handleUpdateChange}
                             className="w-full bg-gold/5 border border-gold/10 focus:border-gold focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-gold"
+                          />
+                       </div>
+                       <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Image URL</label>
+                          <input 
+                            type="text" 
+                            name="imageUrl"
+                            value={updateForm.imageUrl}
+                            onChange={handleUpdateChange}
+                            className="w-full bg-slate-50 border border-slate-100 focus:border-gold/50 focus:bg-white outline-none p-4 rounded-2xl transition-all font-bold text-black-deep"
+                            placeholder="https://example.com/image.jpg"
                           />
                        </div>
                     </div>
@@ -782,7 +860,12 @@ const Services = () => {
                     <div className="relative z-10 flex justify-between items-center">
                        <div>
                           <p className="text-gold/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Premium Pricing</p>
-                          <h3 className="text-3xl font-display italic text-white">AED {mobileServiceDetails.effectivePrice?.toFixed(0)}</h3>
+                          <div className="flex flex-col">
+                             {(mobileServiceDetails.startPrice > 0 || mobileServiceDetails.endPrice > 0) && (
+                                <span className="text-[10px] text-white/60 font-bold">Range: {mobileServiceDetails.startPrice} - {mobileServiceDetails.endPrice}</span>
+                             )}
+                             <h3 className="text-3xl font-display italic text-white">AED {mobileServiceDetails.effectivePrice?.toFixed(0)}</h3>
+                          </div>
                        </div>
                        <div className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${
                           mobileServiceDetails.isActive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
