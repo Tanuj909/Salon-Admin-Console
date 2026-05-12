@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getPendingSalonsApi, verifySalonApi } from "../services/salonService";
 import DocumentVerificationModal from "../components/DocumentVerificationModal";
 import VerificationMessageModal from "../components/VerificationMessageModal";
+import AgreementModal from "../components/AgreementModal";
 
 const PendingSalons = () => {
   const [salons, setSalons] = useState([]);
@@ -24,6 +25,7 @@ const PendingSalons = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedSalon, setSelectedSalon] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null); // { id, type, salonName }
+  const [selectedSalonForAgreement, setSelectedSalonForAgreement] = useState(null);
 
   useEffect(() => {
     fetchPendingSalons();
@@ -203,6 +205,12 @@ const PendingSalons = () => {
                             Verify Documents
                           </button>
                           <button
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gold/5 text-gold hover:bg-gold/10 border border-gold/20 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all shadow-sm"
+                            onClick={() => setSelectedSalonForAgreement(salon)}
+                          >
+                            Agreement
+                          </button>
+                          <button
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
                             onClick={() => setConfirmAction({ id: salon.id, type: 'VERIFIED', salonName: salon.name })}
                             disabled={actionLoading === salon.id}
@@ -253,6 +261,12 @@ const PendingSalons = () => {
                           className="px-3 py-1.5 bg-gold/10 text-gold border border-gold/20 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
                         >
                           View Details
+                        </button>
+                        <button 
+                          onClick={() => setSelectedSalonForAgreement(salon)}
+                          className="px-3 py-1.5 bg-gold/5 text-gold border border-gold/20 rounded-lg text-[9px] font-bold uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-sm"
+                        >
+                          Agreement
                         </button>
                       </div>
                     </div>
@@ -368,6 +382,12 @@ const PendingSalons = () => {
                   Verify Docs
                 </button>
                 <button
+                  className="px-4 py-3 bg-gold/5 text-gold border border-gold/20 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all"
+                  onClick={() => setSelectedSalonForAgreement(selectedSalon)}
+                >
+                  Agreement
+                </button>
+                <button
                   className="px-4 py-3 bg-green-50 text-green-700 border border-green-200 rounded-xl text-[10px] font-bold uppercase tracking-widest"
                   onClick={() => setConfirmAction({ id: selectedSalon.id, type: 'VERIFIED', salonName: selectedSalon.name })}
                   disabled={actionLoading === selectedSalon?.id}
@@ -437,6 +457,12 @@ const PendingSalons = () => {
             </div>
           </div>
         </div>
+      )}
+      {selectedSalonForAgreement && (
+        <AgreementModal 
+          salon={selectedSalonForAgreement} 
+          onClose={() => setSelectedSalonForAgreement(null)} 
+        />
       )}
     </div>
   );

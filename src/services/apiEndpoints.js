@@ -115,4 +115,8 @@ export const API_ENDPOINTS = {
     CUSTOMER_INSIGHTS: "/dashboard/customer-insights",
     BUSINESS_HEALTH: "/dashboard/business-health",
   },
+  AGREEMENTS: {
+    UPLOAD: "/agreements/upload",
+    GET_BY_BUSINESS: (businessId) => `/agreements/business/${businessId}`,
+  },
 };

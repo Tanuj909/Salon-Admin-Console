@@ -125,4 +125,18 @@ export const getSalonQrCodeApi = async (id) => {
   });
   return response.data;
 };
+export const uploadAgreementApi = async (formData) => {
+  const response = await axiosInstance.post(API_ENDPOINTS.AGREEMENTS.UPLOAD, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
 
+export const getAgreementsByBusinessApi = async (businessId, page = 0, size = 10) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.AGREEMENTS.GET_BY_BUSINESS(businessId), {
+    params: { page, size, sort: 'signedAt,desc' }
+  });
+  return response.data;
+};
