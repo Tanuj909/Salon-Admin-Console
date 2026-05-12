@@ -246,13 +246,9 @@ const PendingSalons = () => {
               ) : (
                 filteredSalons.map((salon) => (
                   <div key={salon.id} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors">
-                    <div className="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center font-bold text-[11px] shrink-0">
-                      {salon.name.substring(0, 2).toUpperCase()}
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-black-deep text-[13px] truncate leading-none mb-1">{salon.name}</div>
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-secondary font-medium truncate flex-1 uppercase tracking-wider">{salon.city}</span>
                         <button 
                           onClick={() => {
                             setSelectedSalon(salon);

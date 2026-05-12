@@ -30,6 +30,9 @@ export const API_ENDPOINTS = {
     REVIEW_DOCUMENT: (documentId) => `/businesses/verification/documents/${documentId}/review`,
     GET_VERIFICATION_MESSAGES: (id) => `/businesses/verification/${id}/messages`,
     SEND_VERIFICATION_MESSAGE: (id) => `/businesses/verification/${id}/messages`,
+    APPROVE: (id) => `/businesses/verification/${id}/approve`,
+    REJECT: (id) => `/businesses/verification/${id}/reject`,
+    OWNER: (id) => `/businesses/${id}/owner`,
   },
 
   CATEGORIES: {

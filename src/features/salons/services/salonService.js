@@ -140,3 +140,13 @@ export const getAgreementsByBusinessApi = async (businessId, page = 0, size = 10
   });
   return response.data;
 };
+
+export const getBusinessOwnerApi = async (businessId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.OWNER(businessId));
+  return response.data;
+};
+
+export const getBusinessDocumentsApi = async (businessId) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_VERIFICATION_DOCUMENTS(businessId));
+  return response.data;
+};
