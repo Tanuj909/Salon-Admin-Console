@@ -10,6 +10,16 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
   const [localRejectionReason, setLocalRejectionReason] = useState("");
   const [reviewLoading, setReviewLoading] = useState(null);
 
+  const isPdfUrl = (url) => {
+    if (!url) return false;
+    try {
+      const urlWithoutQuery = url.split('?')[0].toLowerCase();
+      return urlWithoutQuery.endsWith('.pdf');
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (isOpen && businessId) {
       fetchDocuments();
@@ -178,28 +188,49 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
         </div>
       </div>
 
-      {/* Inline Image Preview Modal */}
+      {/* Inline Document Preview Modal */}
       {previewUrl && (
         <div 
           className="fixed inset-0 bg-black-deep/90 backdrop-blur-md z-[1200] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200"
           onClick={() => setPreviewUrl(null)}
         >
           <div className="relative max-w-5xl w-full flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-            <button 
-              onClick={() => setPreviewUrl(null)}
-              className="absolute -top-12 sm:right-0 text-white/70 hover:text-white flex items-center gap-2 group transition-colors px-2 py-1"
-            >
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Close Preview</span>
-              <div className="p-1.5 rounded-full bg-white/10 group-hover:bg-white/20 transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </div>
-            </button>
+            <div className="absolute -top-12 sm:right-0 flex items-center gap-4">
+              <a 
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 hover:text-white flex items-center gap-2 group transition-colors px-2 py-1"
+              >
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Open in New Tab</span>
+                <div className="p-1.5 rounded-full bg-white/10 group-hover:bg-white/20 transition-all">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </div>
+              </a>
+              <button 
+                onClick={() => setPreviewUrl(null)}
+                className="text-white/70 hover:text-white flex items-center gap-2 group transition-colors px-2 py-1"
+              >
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Close Preview</span>
+                <div className="p-1.5 rounded-full bg-white/10 group-hover:bg-white/20 transition-all">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </div>
+              </button>
+            </div>
             <div className="w-full bg-white/5 rounded-[24px] p-2 sm:p-3 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-              <img 
-                src={previewUrl} 
-                alt="Document Preview" 
-                className="max-w-full max-h-[80vh] object-contain rounded-[18px] shadow-inner"
-              />
+              {isPdfUrl(previewUrl) ? (
+                <iframe 
+                  src={previewUrl} 
+                  className="w-full h-[70vh] sm:h-[80vh] rounded-[18px] bg-white border-none"
+                  title="Document Preview"
+                />
+              ) : (
+                <img 
+                  src={previewUrl} 
+                  alt="Document Preview" 
+                  className="max-w-full max-h-[80vh] object-contain rounded-[18px] shadow-inner mx-auto"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -208,7 +239,7 @@ const DocumentVerificationModal = ({ isOpen, onClose, businessId, businessName }
       {/* Confirmation Modal */}
       {confirmReview && (
         <div className="fixed inset-0 bg-black-deep/60 backdrop-blur-sm z-[1300] flex items-center justify-center p-4">
-          <div className="bg-white rounded-[24px] w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
+          <div className="bg-white rounded-[24px] w-full max-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-100">
             <div className={`p-4 sm:p-6 text-center ${confirmReview.type === 'approve' ? 'bg-green-50/30' : 'bg-red-50/30'}`}>
               <div className={`w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center ${
                 confirmReview.type === 'approve' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
