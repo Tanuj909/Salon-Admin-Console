@@ -16,6 +16,7 @@ import ReceptionistDashboard from "@/features/dashboard/pages/ReceptionistDashbo
 import PendingSalons from "@/features/salons/pages/PendingSalons";
 import AllSalons from "@/features/salons/pages/AllSalons";
 import VerifiedSalons from "@/features/salons/pages/VerifiedSalons";
+import SalonAgreements from "@/features/salons/pages/SalonAgreements";
 import SalonDetails from "@/features/salons/pages/SalonDetails";
 import Categories from "@/features/categories/pages/Categories";
 import MyAdminSalon from "@/features/salons/pages/MyAdminSalon";
@@ -96,6 +97,7 @@ const AppRoutes = () => {
                 <Route path="super-admin/dashboard" element={<SuperAdminDashboard />} />
                 <Route path="super-admin/analyze" element={<Analyze />} />
                 <Route path="super-admin/pending-salons" element={<PendingSalons />} />
+                <Route path="super-admin/agreements" element={<SalonAgreements />} />
                 <Route path="super-admin/all-salons" element={<AllSalons />} />
                 <Route path="super-admin/verified-salons" element={<VerifiedSalons />} />
                 <Route path="super-admin/salons/:id" element={<SalonDetails />} />

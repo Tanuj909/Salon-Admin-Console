@@ -121,5 +121,7 @@ export const API_ENDPOINTS = {
   AGREEMENTS: {
     UPLOAD: "/agreements/upload",
     GET_BY_BUSINESS: (businessId) => `/agreements/business/${businessId}`,
+    GET_ALL: "/agreements/all",
+    REVIEW: (id) => `/agreements/${id}/review`,
   },
 };

@@ -3,17 +3,18 @@ import {
   uploadAgreementApi, 
   getAgreementsByBusinessApi, 
   getBusinessOwnerApi, 
-  getBusinessDocumentsApi 
+  getBusinessDocumentsApi,
+  reviewAgreementApi
 } from "../services/salonService";
 import { toast } from "react-toastify";
 
-const AgreementModal = ({ salon, onClose }) => {
+const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
   const [step, setStep] = useState(0); // 0: Select Type/History, 1: Upload File, 2: Finalize
   const [agreementType, setAgreementType] = useState("");
   const [loading, setLoading] = useState(false);
   const [existingAgreements, setExistingAgreements] = useState([]);
   const [fetchingHistory, setFetchingHistory] = useState(true);
-  const [viewingAgreement, setViewingAgreement] = useState(null);
+  const [viewingAgreement, setViewingAgreement] = useState(initialAgreement);
   
   const [formData, setFormData] = useState({
     businessId: salon.id,
@@ -60,6 +61,21 @@ const AgreementModal = ({ salon, onClose }) => {
         ...prev,
         signerName: prev.signerName || salon.name || ""
       }));
+    }
+  };
+
+  const handleReviewAction = async (id, approved, rejectionReason = null) => {
+    try {
+      setLoading(true);
+      await reviewAgreementApi(id, approved, rejectionReason);
+      toast.success(`Agreement ${approved ? 'approved' : 'rejected'} successfully`);
+      fetchAgreementHistory();
+      setViewingAgreement(null);
+    } catch (error) {
+      console.error("Error reviewing agreement:", error);
+      toast.error(error.response?.data?.message || "Failed to review agreement");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -215,10 +231,42 @@ const AgreementModal = ({ salon, onClose }) => {
             </div>
           </div>
 
-          <div className="mt-10 sm:mt-16 text-right">
-             <div className="inline-block px-4 py-3 sm:px-6 sm:py-4 border-2 border-double border-black font-bold text-[10px] sm:text-[11px] uppercase tracking-[2px]">
-               Status: {agreement.status}
+          <div className="mt-10 sm:mt-16 flex flex-col sm:flex-row items-center justify-between gap-4">
+             <div className="flex flex-col gap-2">
+               <div className="px-4 py-3 border-2 border-double border-black font-bold text-[10px] sm:text-[11px] uppercase tracking-[2px]">
+                 Status: {agreement.status}
+               </div>
+               
+               {agreement.status === "PENDING" && (
+                 <span className={`text-[10px] font-bold uppercase tracking-widest ${agreement.isAcpt ? 'text-green-600' : 'text-amber-600'}`}>
+                   {agreement.isAcpt ? "● Owner has accepted the Agreement" : "● Owner has not Accepted yet!"}
+                 </span>
+               )}
              </div>
+             
+             {agreement.isAcpt && agreement.status === "PENDING" ? (
+               <div className="flex gap-3">
+                 <button
+                   onClick={() => handleReviewAction(agreement.id, true)}
+                   className="px-6 py-3 bg-green-600 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-green-600/10 hover:bg-green-700 transition-all"
+                 >
+                   Approve
+                 </button>
+                 <button
+                   onClick={() => {
+                     const reason = prompt("Enter rejection reason:");
+                     if (reason !== null) handleReviewAction(agreement.id, false, reason);
+                   }}
+                   className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-red-600/10 hover:bg-red-700 transition-all"
+                 >
+                   Reject
+                 </button>
+               </div>
+             ) : agreement.status === "APPROVED" ? (
+                <div className="px-6 py-3 bg-green-50 text-green-700 border border-green-200 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+                   Already Approved!
+                </div>
+             ) : null}
           </div>
         </div>
       </div>
@@ -237,27 +285,27 @@ const AgreementModal = ({ salon, onClose }) => {
               <p className="text-xs sm:text-sm text-secondary">Manage agreements for <span className="text-gold font-bold">{salon.name}</span></p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
               <button
                 onClick={() => {
                   setAgreementType("VENDOR");
                   setStep(1);
                 }}
-                className="p-6 sm:p-8 border-2 border-gold/10 hover:border-gold rounded-3xl bg-white hover:shadow-xl transition-all text-center group"
+                className="p-4 sm:p-5 border-2 border-gold/10 hover:border-gold rounded-2xl bg-white hover:shadow-lg transition-all text-center group"
               >
-                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
-                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M18 7a4 4 0 0 0-3-3.87"/></svg>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform">
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M18 7a4 4 0 0 0-3-3.87"/></svg>
                 </div>
-                <div className="font-bold text-base sm:text-lg text-black-deep">Vendor Agreement</div>
+                <div className="font-bold text-sm sm:text-base text-black-deep">Vendor Agreement</div>
               </button>
               <button
                 disabled
-                className="p-6 sm:p-8 border-2 border-slate-50 rounded-3xl bg-slate-50/30 transition-all text-center opacity-60 grayscale"
+                className="p-4 sm:p-5 border-2 border-slate-50 rounded-2xl bg-slate-50/30 transition-all text-center opacity-60 grayscale"
               >
-                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                 </div>
-                <div className="font-bold text-base sm:text-lg text-slate-400">Customer Agreement</div>
+                <div className="font-bold text-sm sm:text-base text-slate-400">Customer Agreement</div>
               </button>
             </div>
 
@@ -279,35 +327,81 @@ const AgreementModal = ({ salon, onClose }) => {
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-50 max-h-[250px] overflow-y-auto custom-scrollbar">
-                    {existingAgreements.map((agreement) => (
-                      <div 
-                        key={agreement.id} 
-                        onClick={() => setViewingAgreement(agreement)}
-                        className="p-4 sm:p-5 hover:bg-slate-50 transition-all flex items-center justify-between group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                          <div className={`shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-[10px] sm:text-xs ${
-                            agreement.status === 'APPROVED' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'
-                          }`}>
-                            {agreement.agreementType.substring(0, 1)}
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="font-bold text-xs sm:text-sm text-black-deep truncate group-hover:text-gold transition-colors">{agreement.signerName}</div>
-                            <div className="text-[9px] sm:text-[10px] text-secondary font-medium">
-                              {new Date(agreement.signedAt).toLocaleDateString()}
+                    {existingAgreements.map((agreement) => {
+                      const isAccepted = agreement.isAcpt;
+                      const isPending = agreement.status === "PENDING";
+                      const isApproved = agreement.status === "APPROVED";
+
+                      return (
+                        <div 
+                          key={agreement.id} 
+                          className="p-4 sm:p-5 hover:bg-slate-50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group border-b border-slate-50 last:border-0"
+                        >
+                          <div 
+                            className="flex items-center gap-3 sm:gap-4 overflow-hidden cursor-pointer flex-1"
+                            onClick={() => setViewingAgreement(agreement)}
+                          >
+                            <div className={`shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center font-bold text-[10px] sm:text-xs ${
+                              isApproved ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'
+                            }`}>
+                              {agreement.agreementType.substring(0, 1)}
+                            </div>
+                            <div className="overflow-hidden">
+                              <div className="font-bold text-xs sm:text-sm text-black-deep truncate group-hover:text-gold transition-colors">{agreement.signerName}</div>
+                              <div className="flex flex-col gap-0.5">
+                                <div className="text-[9px] sm:text-[10px] text-secondary font-medium">
+                                  {new Date(agreement.signedAt).toLocaleDateString()}
+                                </div>
+                                <span className={`text-[8px] font-bold uppercase tracking-widest ${isAccepted ? 'text-green-600' : 'text-amber-500'}`}>
+                                  {isAccepted ? "● Owner Accepted" : "● Not Accepted Yet"}
+                                </span>
+                              </div>
                             </div>
                           </div>
+
+                          <div className="flex items-center gap-3 self-end sm:self-auto">
+                            <span className={`px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-widest border ${
+                              isApproved ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100'
+                            }`}>
+                              {agreement.status}
+                            </span>
+                            
+                            {isAccepted && isPending ? (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleReviewAction(agreement.id, true);
+                                  }}
+                                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg font-bold uppercase tracking-widest text-[8px] hover:bg-green-700 transition-all shadow-md shadow-green-600/10"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const reason = prompt("Enter rejection reason:");
+                                    if (reason !== null) handleReviewAction(agreement.id, false, reason);
+                                  }}
+                                  className="px-3 py-1.5 bg-red-600 text-white rounded-lg font-bold uppercase tracking-widest text-[8px] hover:bg-red-700 transition-all shadow-md shadow-red-600/10"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : isApproved ? (
+                              <span className="text-[8px] font-bold uppercase tracking-widest text-green-600 italic">Already Approved!</span>
+                            ) : null}
+
+                            <button 
+                              onClick={() => setViewingAgreement(agreement)}
+                              className="p-1.5 hover:bg-gold/10 rounded-full text-slate-300 group-hover:text-gold transition-colors"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-1.5 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-widest ${
-                            agreement.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                          }`}>
-                            {agreement.status}
-                          </span>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-300 group-hover:text-gold transition-colors"><path d="M9 18l6-6-6-6"/></svg>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -467,7 +561,7 @@ const AgreementModal = ({ salon, onClose }) => {
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-all" onClick={onClose} />
-      <div className={`relative bg-[#FDFBF7] w-full ${(step === 2 || viewingAgreement) ? 'max-w-6xl' : 'max-w-2xl'} rounded-[32px] sm:rounded-[48px] shadow-2xl overflow-hidden border border-gold/10 transition-all duration-500 ease-in-out`}>
+      <div className={`relative bg-[#FDFBF7] w-full ${(step === 2 || viewingAgreement) ? 'max-w-7xl' : 'max-w-4xl'} rounded-[32px] sm:rounded-[48px] shadow-2xl overflow-hidden border border-gold/10 transition-all duration-500 ease-in-out`}>
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-3 hover:bg-slate-100 rounded-full transition-colors z-40"

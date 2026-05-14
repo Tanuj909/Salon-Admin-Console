@@ -328,7 +328,7 @@ const StaffDashboard = () => {
               >
                 {[5, 10, 20, 50].map(l => <option key={l} value={l}>Top {l}</option>)}
               </select>
-              <Award size={24} className="text-gold hidden sm:block" size={24} />
+              <Award size={24} className="text-gold hidden sm:block" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">

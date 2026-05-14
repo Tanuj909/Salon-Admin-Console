@@ -141,6 +141,21 @@ export const getAgreementsByBusinessApi = async (businessId, page = 0, size = 10
   return response.data;
 };
 
+export const getAllAgreementsApi = async (page = 0, size = 10) => {
+  const response = await axiosInstance.get(API_ENDPOINTS.AGREEMENTS.GET_ALL, {
+    params: { page, size, sort: 'signedAt,desc' }
+  });
+  return response.data;
+};
+
+export const reviewAgreementApi = async (id, approved, rejectionReason = null) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.AGREEMENTS.REVIEW(id), {
+    approved,
+    rejectionReason
+  });
+  return response.data;
+};
+
 export const getBusinessOwnerApi = async (businessId) => {
   const response = await axiosInstance.get(API_ENDPOINTS.SALONS.OWNER(businessId));
   return response.data;
