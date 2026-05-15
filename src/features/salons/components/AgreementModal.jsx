@@ -286,27 +286,18 @@ const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
               <p className="text-xs sm:text-sm text-secondary">Manage agreements for <span className="text-gold font-bold">{salon.name}</span></p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto">
+            <div className="flex justify-center max-w-xl mx-auto">
               <button
                 onClick={() => {
                   setAgreementType("VENDOR");
                   setStep(3);
                 }}
-                className="p-4 sm:p-5 border-2 border-gold/10 hover:border-gold rounded-2xl bg-white hover:shadow-lg transition-all text-center group"
+                className="w-full sm:w-1/2 p-4 sm:p-5 border-2 border-gold/10 hover:border-gold rounded-2xl bg-white hover:shadow-lg transition-all text-center group"
               >
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform">
                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M18 7a4 4 0 0 0-3-3.87"/></svg>
                 </div>
                 <div className="font-bold text-sm sm:text-base text-black-deep">Vendor Agreement</div>
-              </button>
-              <button
-                disabled
-                className="p-4 sm:p-5 border-2 border-slate-50 rounded-2xl bg-slate-50/30 transition-all text-center opacity-60 grayscale"
-              >
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                </div>
-                <div className="font-bold text-sm sm:text-base text-slate-400">Customer Agreement</div>
               </button>
             </div>
 
