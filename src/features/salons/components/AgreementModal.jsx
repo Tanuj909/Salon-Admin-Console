@@ -7,9 +7,10 @@ import {
   reviewAgreementApi
 } from "../services/salonService";
 import { toast } from "react-toastify";
+import VendorAgreementTemplate from "./VendorAgreementTemplate";
 
 const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
-  const [step, setStep] = useState(0); // 0: Select Type/History, 1: Upload File, 2: Finalize
+  const [step, setStep] = useState(0); // 0: Select Type/History, 1: Upload File, 2: Finalize, 3: Vendor Template
   const [agreementType, setAgreementType] = useState("");
   const [loading, setLoading] = useState(false);
   const [existingAgreements, setExistingAgreements] = useState([]);
@@ -289,7 +290,7 @@ const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
               <button
                 onClick={() => {
                   setAgreementType("VENDOR");
-                  setStep(1);
+                  setStep(3);
                 }}
                 className="p-4 sm:p-5 border-2 border-gold/10 hover:border-gold rounded-2xl bg-white hover:shadow-lg transition-all text-center group"
               >
@@ -553,6 +554,47 @@ const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
           </div>
         );
 
+      case 3:
+        return (
+          <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="text-center mb-6 sm:mb-8">
+              <h3 className="text-xl sm:text-2xl font-display italic text-black-deep mb-2">Vendor Agreement Template</h3>
+              <p className="text-xs sm:text-sm text-secondary">Review, edit & generate agreement for <span className="text-gold font-bold">{salon.name}</span></p>
+            </div>
+            <VendorAgreementTemplate
+              formData={formData}
+              loading={loading}
+              onGenerate={async (pdfFile) => {
+                const data = new FormData();
+                data.append("agreementType", "VENDOR");
+                data.append("businessId", formData.businessId);
+                data.append("signerName", formData.signerName);
+                data.append("signerEmail", formData.signerEmail);
+                data.append("signerPhone", formData.signerPhone);
+                data.append("signatureImageUrl", formData.signatureImageUrl);
+                data.append("file", pdfFile);
+                try {
+                  setLoading(true);
+                  await uploadAgreementApi(data);
+                  toast.success("Vendor Agreement submitted successfully!");
+                  fetchAgreementHistory();
+                  setStep(0);
+                } catch (error) {
+                  console.error("Error submitting agreement:", error);
+                  toast.error(error.response?.data?.message || "Failed to submit agreement");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            />
+            <div className="text-center mt-4">
+              <button onClick={() => setStep(0)} className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-secondary">
+                ← Back to Selection
+              </button>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -561,7 +603,7 @@ const AgreementModal = ({ salon, onClose, initialAgreement = null }) => {
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-all" onClick={onClose} />
-      <div className={`relative bg-[#FDFBF7] w-full ${(step === 2 || viewingAgreement) ? 'max-w-7xl' : 'max-w-4xl'} rounded-[32px] sm:rounded-[48px] shadow-2xl overflow-hidden border border-gold/10 transition-all duration-500 ease-in-out`}>
+      <div className={`relative bg-[#FDFBF7] w-full ${(step === 2 || step === 3 || viewingAgreement) ? 'max-w-7xl' : 'max-w-4xl'} rounded-[32px] sm:rounded-[48px] shadow-2xl overflow-hidden border border-gold/10 transition-all duration-500 ease-in-out`}>
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 sm:top-8 sm:right-8 p-2 sm:p-3 hover:bg-slate-100 rounded-full transition-colors z-40"

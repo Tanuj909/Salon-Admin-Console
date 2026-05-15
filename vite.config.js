@@ -16,10 +16,21 @@ export default defineConfig({
   global: 'globalThis',  // ← bas yeh ek line add karo
   },
 
+  server: {
+    proxy: {
+      '/r2-proxy': {
+        target: 'https://pub-217cdd174363465384bf5173ace8200c.r2.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/r2-proxy/, ''),
+      },
+    },
+  },
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
 })
+
 

@@ -130,6 +130,7 @@ export const uploadAgreementApi = async (formData) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    timeout: 60000, // 60s — PDF uploads can be large
   });
   return response.data;
 };
