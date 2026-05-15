@@ -124,4 +124,7 @@ export const API_ENDPOINTS = {
     GET_ALL: "/agreements/all",
     REVIEW: (id) => `/agreements/${id}/review`,
   },
+  REPORTS: {
+    GENERATE: (businessId) => `/reports/business/${businessId}`,
+  },
 };
