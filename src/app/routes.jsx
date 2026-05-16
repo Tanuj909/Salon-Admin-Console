@@ -33,6 +33,7 @@ import StaffReviews from "@/features/reviews/pages/StaffReviews";
 import BusinessSalaries from "@/features/staff/pages/BusinessSalaries";
 import MySalary from "@/features/staff/pages/MySalary";
 import BillReports from "@/features/reports/pages/BillReports";
+import PaymentsList from "@/features/payments/pages/PaymentsList";
 
 // Layouts
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -122,6 +123,7 @@ const AppRoutes = () => {
                 <Route path="complete-booking" element={<CompleteBooking />} />
                 <Route path="salaries" element={<BusinessSalaries />} />
                 <Route path="bill-reports" element={<BillReports />} />
+                <Route path="payments" element={<PaymentsList />} />
               </Route>
 
               {/* Receptionist Routes */}
@@ -132,6 +134,7 @@ const AppRoutes = () => {
                 <Route path="receptionist/bookings" element={<Bookings />} />
                 <Route path="receptionist/complete-booking" element={<CompleteBooking />} />
                 <Route path="receptionist/bill-reports" element={<BillReports />} />
+                <Route path="receptionist/payments" element={<PaymentsList />} />
               </Route>
 
               {/* Staff Routes */}

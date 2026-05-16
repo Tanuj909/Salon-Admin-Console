@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { getMyBusinessApi, getSalonByIdApi, updateMyBusinessApi, uploadBannerApi, uploadSalonImagesApi, deleteSalonImageApi, getSalonQrCodeApi } from "../services/salonService";
+import { getMyBusinessApi, getSalonByIdApi, updateMyBusinessApi, uploadBannerApi, uploadSalonImagesApi, deleteSalonImageApi, getSalonQrCodeApi, updateBusinessVatApi } from "../services/salonService";
 import { getHolidaysByBusinessApi, addHolidayApi, updateHolidayApi, deleteHolidayApi } from "../services/holidayService";
 import LocationPickerMap from "../components/LocationPickerMap";
 
@@ -118,6 +118,8 @@ const MyAdminSalon = () => {
     const [currentHolidayId, setCurrentHolidayId] = useState(null);
     const [qrCodeImage, setQrCodeImage] = useState(null);
     const [qrLoading, setQrLoading] = useState(false);
+    const [vatPercentage, setVatPercentage] = useState(0);
+    const [isUpdatingVat, setIsUpdatingVat] = useState(false);
 
     const today = DAY_NAMES[new Date().getDay()];
 
@@ -136,6 +138,7 @@ const MyAdminSalon = () => {
 
             setSalon(data);
             setFormData(data);
+            setVatPercentage(data.vatPercentage || 0);
             if (data?.id) fetchHolidays(data.id);
         } catch (err) {
             setError("Failed to fetch salon details. Please ensure you are authorized.");
@@ -303,6 +306,21 @@ const MyAdminSalon = () => {
         }
     };
 
+    const handleUpdateVat = async (e) => {
+        e.preventDefault();
+        try {
+            setIsUpdatingVat(true);
+            await updateBusinessVatApi(salon.id, vatPercentage);
+            setSalon(prev => ({ ...prev, vatPercentage }));
+            alert("VAT percentage updated successfully!");
+        } catch (err) {
+            console.error("VAT update error:", err);
+            alert("Failed to update VAT percentage.");
+        } finally {
+            setIsUpdatingVat(false);
+        }
+    };
+
     const handleDeleteHoliday = async (id) => {
         if (!window.confirm("Are you sure you want to delete this holiday? This action cannot be undone.")) return;
 
@@ -382,6 +400,7 @@ const MyAdminSalon = () => {
         { id: "business", label: "Business", icon: "💼" },
         { id: "contact", label: "Contact", icon: "📞" },
         { id: "qr", label: "My QR", icon: "📱" },
+        { id: "vat", label: "VAT", icon: "💰" },
         { id: "seo", label: "SEO", icon: "🔍" },
         { id: "holidays", label: "Holidays", icon: "🎉" },
     ];
@@ -849,6 +868,51 @@ const MyAdminSalon = () => {
                     </Reveal>
                 )}
 
+
+                {activeTab === "vat" && (
+                    <Reveal>
+                        <div className="max-w-md mx-auto">
+                            <div className="bg-white rounded-[32px] shadow-xl border border-gold/10 p-8 flex flex-col items-center">
+                                <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mb-6 text-gold">
+                                    <svg width={32} height={32} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                                        <line x1="12" y1="1" x2="12" y2="23" />
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </div>
+
+                                <form onSubmit={handleUpdateVat} className="w-full space-y-6">
+                                    <div className="bg-beige/30 p-6 rounded-2xl border border-gold/5">
+                                        <label className="block text-[10px] font-black text-black-deep uppercase tracking-widest mb-3 text-center">VAT Percentage (%)</label>
+                                        <div className="relative max-w-[160px] mx-auto">
+                                            <input 
+                                                type="number" 
+                                                value={vatPercentage}
+                                                onChange={(e) => setVatPercentage(e.target.value)}
+                                                className="w-full bg-white border border-gold/20 rounded-xl px-4 py-3 text-center text-xl font-bold text-black-deep focus:border-gold outline-none transition-all"
+                                                min="0"
+                                                max="100"
+                                                step="0.01"
+                                                disabled={isReadOnly || isUpdatingVat}
+                                                required
+                                            />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gold font-bold text-lg">%</div>
+                                        </div>
+                                    </div>
+
+                                    {!isReadOnly && (
+                                        <button 
+                                            type="submit"
+                                            disabled={isUpdatingVat}
+                                            className="w-full py-3.5 rounded-xl bg-black-deep text-gold text-xs font-bold tracking-[0.2em] uppercase transition-all hover:bg-black shadow-lg disabled:opacity-50"
+                                        >
+                                            {isUpdatingVat ? "Updating..." : "Update VAT"}
+                                        </button>
+                                    )}
+                                </form>
+                            </div>
+                        </div>
+                    </Reveal>
+                )}
 
                 {activeTab === "holidays" && (
                     <Reveal>

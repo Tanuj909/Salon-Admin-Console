@@ -24,6 +24,13 @@ const handleForceLogout = (url) => {
   if (isLoggingOut) return;
   isLoggingOut = true;
   console.warn(`[Auth] Invalid session detected on ${url}. Ending session.`);
+  
+  // Skip force logout for payments to debug 401 issue
+  if (url?.includes('payments')) {
+    console.error("[Auth] 401 error on payments endpoint. Skipping forced logout for debugging.");
+    return;
+  }
+
   clearAuthStorage();
   toast.info("Session expired. Please login again.");
   if (window.location.pathname !== '/admin/login') {

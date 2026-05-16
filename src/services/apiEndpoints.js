@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
     APPROVE: (id) => `/businesses/verification/${id}/approve`,
     REJECT: (id) => `/businesses/verification/${id}/reject`,
     OWNER: (id) => `/businesses/${id}/owner`,
+    UPDATE_VAT: (id) => `/businesses/${id}/vat`,
   },
 
   CATEGORIES: {
@@ -95,6 +96,7 @@ export const API_ENDPOINTS = {
     GET_BOOKING_DETAILS: (bookingNumber) => `/payments/booking/${bookingNumber}`,
     PROCESS: "/payments/process",
     GET_BILL: (bookingNumber) => `/payments/bill/${bookingNumber}`,
+    GET_ALL: "/payments",
   },
   SUPER_ADMIN: {
     DASHBOARD_STATS: "/superadmin/dashboard/stats",

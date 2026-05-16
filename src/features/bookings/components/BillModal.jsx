@@ -281,6 +281,10 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                                         <span className="font-mono text-red-500">- AED {billData.discount.toFixed(2)}</span>
                                     </div>
                                 )}
+                                <div className="flex justify-between items-center text-xs text-zinc-500">
+                                    <span>VAT Amount</span>
+                                    <span className="font-mono">AED {(billData.vatAmount || 0).toFixed(2)}</span>
+                                </div>
                                 <div className="flex justify-between items-center font-black text-lg text-black pt-3 border-t-[1.5px] border-black mt-2">
                                     <span>TOTAL</span>
                                     <span>AED {billData.total.toFixed(2)}</span>
@@ -413,6 +417,10 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                             <div className="flex justify-between items-center text-[13px] font-medium text-zinc-500">
                                 <span>Discount</span>
                                 <span className="text-black">- AED {billData.discount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[13px] font-medium text-zinc-500">
+                                <span>VAT Amount</span>
+                                <span className="text-black">AED {(billData.vatAmount || 0).toFixed(2)}</span>
                             </div>
                             <div className="border-t-2 border-black pt-4 mt-4 flex justify-between items-center">
                                 <span className="text-[12px] font-black uppercase tracking-widest text-black">Grand Total</span>

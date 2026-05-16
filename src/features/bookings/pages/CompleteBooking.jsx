@@ -23,6 +23,7 @@ const CompleteBooking = () => {
     const [amountPaid, setAmountPaid] = useState("");
     const [discountAmount, setDiscountAmount] = useState("");
     const [notes, setNotes] = useState("");
+    const [applyVat, setApplyVat] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(null);
 
@@ -42,6 +43,7 @@ const CompleteBooking = () => {
             setDiscountAmount(data.discountAmount?.toString() || "0");
             setPaymentMethod("CASH");
             setNotes("");
+            setApplyVat(true);
 
             // Fetch bill details
             const bill = await getBillDetailsApi(bookingNumber.trim());
@@ -66,6 +68,7 @@ const CompleteBooking = () => {
                 amountPaid: parseFloat(amountPaid),
                 discountAmount: parseFloat(discountAmount) || 0,
                 notes: notes.trim() || null,
+                applyVat: applyVat,
             };
             const result = await processPaymentApi(payload);
             setPaymentSuccess(result);
@@ -459,6 +462,21 @@ const CompleteBooking = () => {
                                             placeholder="e.g. Full payment received via UPI"
                                             disabled={processing}
                                         />
+                                    </div>
+                                    
+                                    {/* Apply VAT Toggle */}
+                                    <div className="flex items-center gap-3 px-1">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                className="sr-only peer" 
+                                                checked={applyVat}
+                                                onChange={(e) => setApplyVat(e.target.checked)}
+                                                disabled={processing}
+                                            />
+                                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gold"></div>
+                                        </label>
+                                        <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Apply VAT</span>
                                     </div>
 
                                     {/* Summary Strip */}

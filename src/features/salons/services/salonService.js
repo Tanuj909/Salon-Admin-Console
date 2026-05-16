@@ -166,3 +166,10 @@ export const getBusinessDocumentsApi = async (businessId) => {
   const response = await axiosInstance.get(API_ENDPOINTS.SALONS.GET_VERIFICATION_DOCUMENTS(businessId));
   return response.data;
 };
+
+export const updateBusinessVatApi = async (id, vatPercentage) => {
+  const response = await axiosInstance.put(API_ENDPOINTS.SALONS.UPDATE_VAT(id), null, {
+    params: { vatPercentage },
+  });
+  return response.data;
+};
