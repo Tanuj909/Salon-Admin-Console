@@ -43,7 +43,11 @@ const Login = () => {
       // Use the root redirect logic which is role-aware
       navigate("/", { replace: true });
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      if (err.message && err.message.includes("Access Denied")) {
+        setError(err.message);
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import { getToken, setToken, removeToken } from "@/utils/token";
 import storage from "@/utils/storage";
-import { STORAGE_KEYS } from "@/utils/constants";
+import { STORAGE_KEYS, ROLES } from "@/utils/constants";
 import { getMeApi } from "@/services/authService";
 import { PushSubscriptionService } from "@/features/notifications/services/pushSubscriptionService";
 import { validateToken, clearAuthStorage } from "@/utils/auth";
@@ -22,6 +22,18 @@ export const AuthProvider = ({ children }) => {
     
     try {
       const userData = await getMeApi();
+      
+      // Enforce administrative roles only in Admin Console
+      const allowedRoles = Object.values(ROLES);
+      if (!allowedRoles.includes(userData.role)) {
+        console.warn(`[Auth] Role ${userData.role} not allowed in Admin Console`);
+        clearAuthStorage();
+        setAuthToken(null);
+        setUser(null);
+        toast.error("Access Denied: You do not have permission to access the Administrative Console.");
+        return;
+      }
+
       setUser(userData);
       storage.set(STORAGE_KEYS.USER, userData);
     } catch (error) {
@@ -56,6 +68,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (data) => {
     const { accessToken, userId, role } = data;
 
+    // Enforce administrative roles only in Admin Console
+    const allowedRoles = Object.values(ROLES);
+    if (!allowedRoles.includes(role)) {
+      throw new Error("Access Denied: You do not have permission to access the Administrative Console.");
+    }
+
     // 1. Store token
     setToken(accessToken);
     setAuthToken(accessToken);
@@ -68,11 +86,20 @@ export const AuthProvider = ({ children }) => {
     // 3. Fetch full profile and update
     try {
       const fullInfo = await getMeApi();
+      
+      if (!allowedRoles.includes(fullInfo.role)) {
+        clearAuthStorage();
+        setAuthToken(null);
+        setUser(null);
+        throw new Error("Access Denied: You do not have permission to access the Administrative Console.");
+      }
+
       const updatedUser = { ...tempUserData, ...fullInfo };
       setUser(updatedUser);
       storage.set(STORAGE_KEYS.USER, updatedUser);
     } catch (error) {
       console.error("Error fetching full user info after login", error);
+      throw error;
     }
 
     // 4. Trigger push subscription (non-blocking)

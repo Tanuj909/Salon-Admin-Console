@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import MainLayout from "@/components/layout/MainLayout";
@@ -159,7 +160,13 @@ const AppRoutes = () => {
 
 // Helper component to redirect users based on their role
 const DashboardRedirect = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  
+  useEffect(() => {
+    if (user && !["SUPER_ADMIN", "ADMIN", "RECEPTIONIST", "STAFF"].includes(user.role)) {
+      logout("Access Denied: You do not have permission to access the Administrative Console.");
+    }
+  }, [user, logout]);
   
   if (!user) return <Navigate to="/login" replace />;
   
