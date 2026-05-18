@@ -49,50 +49,57 @@ const VendorAgreementTemplate = ({ formData, onGenerate, loading }) => {
       },
       {
         id: 6,
-        titleAr: "5. الإدراجات الإلكترونية ودقة المعلومات",
+        titleAr: "6. الإدراجات الإلكترونية ودقة المعلومات",
         textAr: "يجوز للمنصة إنشاء وإدارة إدراجات النشاط التجاري على مواقع وتطبيقات ومنصات خارجية باستخدام المعلومات المقدمة من مقدم الخدمة. يتحمل مقدم الخدمة المسؤولية الكاملة عن دقة وقانونية المعلومات.",
         titleEn: "Online Listings & Information Accuracy",
         textEn: "The Platform may create and manage business listings on third-party websites and apps using information provided by the service provider. The Vendor is solely responsible for the accuracy and legality of such information."
       },
       {
         id: 7,
-        titleAr: "6. دور المنصة وإخلاء المسؤولية",
+        titleAr: "7. دور المنصة وإخلاء المسؤولية",
         textAr: "تعمل خدمة فاست بوكينج كمنصة تقنية فقط لربط العملاء بمقدمي الخدمات، ولا تقدم أو تضمن أي خدمات، ولا تتحمل أي مسؤولية عن النزاعات أو الأضرار بين الأطراف.",
         titleEn: "Platform Role & Liability Disclaimer",
         textEn: "Fast Booking Service acts solely as a technology marketplace and does not provide, supervise, or guarantee services. The Platform is not liable for disputes or damages between customers and Vendors."
       },
       {
         id: 8,
-        titleAr: "7. المدفوعات والنزاعات",
+        titleAr: "8. المدفوعات والنزاعات",
         textAr: "جميع المدفوعات تكون بين مقدم الخدمة والعميل مباشرة، ولا تتحمل المنصة أي مسؤولية عن النزاعات المالية أو المبالغ المستردة.",
         titleEn: "Payments & Disputes",
         textEn: "All payments are between the Vendor and the customer. The Platform is not responsible for payment disputes, refunds, or chargebacks."
       },
       {
         id: 9,
-        titleAr: "8. الاستخدام المقبول",
+        titleAr: "9. الاستخدام المقبول",
         textAr: "يُمنع استخدام المنصة لأي أنشطة غير قانونية أو احتيالية أو مضللة أو غير مصرح بها، ويجوز للمنصة إنهاء الاتفاقية فوراً عند المخالفة.",
         titleEn: "Acceptable Use",
         textEn: "The Platform must not be used for illegal, fraudulent, misleading, or unauthorized activities. Violations may result in immediate termination."
       },
       {
         id: 10,
-        titleAr: "9. إنهاء الاتفاقية",
+        titleAr: "10. إنهاء الاتفاقية",
         textAr: "يجوز لأي طرف إنهاء هذه الاتفاقية بإشعار خطي قبل شهر واحد. ويجوز للمنصة الإنهاء الفوري في حالات الاحتيال أو المخالفات القانونية أو انتهاء الرخصة.",
         titleEn: "Termination",
         textEn: "Either party may terminate this Agreement with one (1) month prior written notice. Immediate termination may occur in cases of fraud, illegal activity, or license expiry."
       },
       {
         id: 11,
-        titleAr: "10. القانون الواجب التطبيق والاختصاص القضائي",
+        titleAr: "11. القانون الواجب التطبيق والاختصاص القضائي",
         textAr: "تخضع هذه الاتفاقية لقوانين دولة الإمارات العربية المتحدة، وتكون محاكم الدولة مختصة حصرياً بالنظر في أي نزاع.",
         titleEn: "Governing Law & Jurisdiction",
         textEn: "This Agreement is governed by the laws of the United Arab Emirates, and UAE courts shall have exclusive jurisdiction."
       },
       {
         id: 12,
-        titleAr: "11. الإقرار والموافقة",
-        textAr: "باستخدام المنصة، يقر مقدم الخدمة بموافقته الكاملة على هذه الاتفاقية.",
+        titleAr: "12. رسوم بوابة الدفع ورسائل الواتساب",
+        textAr: "سيتم تطبيق رسوم بوابة الدفع () ورسائل واتساب ()، وسيتم تحصيلها بشكل منفصل.",
+        titleEn: "Payment Gateway & WhatsApp Charges",
+        textEn: "Payment gateway () and WhatsApp messages () charges will be applied and charged separately."
+      },
+      {
+        id: 13,
+        titleAr: "13. الإقرار والموافقة",
+        textAr: "سيتم تطبيق رسوم بوابة الدفع () ورسائل واتساب ()، وسيتم تحصيلها بشكل منفصل.",
         titleEn: "Acceptance",
         textEn: "By registering on the Platform, the Vendor confirms full acceptance of this Agreement."
       }

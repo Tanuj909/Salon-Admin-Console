@@ -111,10 +111,22 @@ const Bookings = () => {
           setSelectedStaffId(staff.id.toString());
         }
       } else {
-        console.warn("No staff assigned or requested for this booking yet.", booking);
+        const bId = businessId || booking.businessId || booking.business?.id;
+        if (bId) {
+          const staffResponse = await getStaffByBusinessApi(bId, 0, 100);
+          const staffList = staffResponse.body?.content || staffResponse.content || [];
+          // Filter out staff with designation of receptionist (case-insensitive)
+          const filteredStaff = staffList.filter(
+            s => s.designation?.toLowerCase() !== 'receptionist'
+          );
+          setEligibleStaff(filteredStaff);
+          setSelectedStaffId(""); // Keep empty so user manually chooses
+        } else {
+          console.warn("No business ID found to fetch staff list.");
+        }
       }
     } catch (error) {
-      console.error("Error fetching staff by ID:", error);
+      console.error("Error fetching staff:", error);
     } finally {
       setStaffLoading(false);
     }
@@ -795,7 +807,9 @@ const Bookings = () => {
             <form onSubmit={handleAcceptBooking}>
               <div className="px-6 py-6 space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">Assigned Expert</label>
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-widest">
+                    {selectedBooking?.staff?.id || selectedBooking?.staffId ? "Assigned Expert" : "Select an Expert"}
+                  </label>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm">
                     <span className="text-secondary mr-2">Required Service:</span>
                     <span className="font-bold text-black-deep">{selectedBooking?.services?.[0]?.name || 'N/A'}</span>
@@ -804,7 +818,9 @@ const Bookings = () => {
                   {staffLoading ? (
                     <div className="py-12 text-center text-secondary text-sm flex flex-col items-center justify-center gap-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
                       <div className="w-8 h-8 border-3 border-gold/30 border-t-gold rounded-full animate-spin"></div>
-                      <span className="font-medium">Fetching assigned expert...</span>
+                      <span className="font-medium">
+                        {selectedBooking?.staff?.id || selectedBooking?.staffId ? "Fetching assigned expert..." : "Fetching experts..."}
+                      </span>
                     </div>
                   ) : eligibleStaff.length === 0 ? (
                     <div className="text-red-500 text-xs mt-2 bg-red-50 p-4 rounded-2xl border border-red-100 flex flex-col items-center text-center gap-2">
@@ -817,7 +833,8 @@ const Bookings = () => {
                       {eligibleStaff.map(staff => (
                         <div
                           key={staff.id || 'staff-assigned'}
-                          className={`group relative p-4 rounded-2xl border-2 transition-all flex gap-4 ${selectedStaffId && staff.id && selectedStaffId === staff.id.toString()
+                          onClick={() => staff.id && setSelectedStaffId(staff.id.toString())}
+                          className={`group relative p-4 rounded-2xl border-2 transition-all flex items-center gap-4 cursor-pointer ${selectedStaffId && staff.id && selectedStaffId === staff.id.toString()
                             ? 'border-gold bg-gold/5 shadow-md shadow-gold/10'
                             : 'border-slate-100 bg-white hover:border-gold/30 hover:bg-slate-50'
                             } ${!staff.isAvailable ? 'opacity-70' : ''}`}
@@ -831,49 +848,24 @@ const Bookings = () => {
                                 <span className="text-lg font-bold">{(staff.userFullName || staff.fullName)?.charAt(0)}</span>
                               )}
                             </div>
-                            {staff.isAvailable ? (
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white" title="Available"></div>
-                            ) : (
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-slate-300 border-2 border-white" title="Busy"></div>
-                            )}
                           </div>
 
                           {/* Staff Details */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="font-bold text-black-deep text-sm truncate uppercase tracking-tight">{staff.userFullName || staff.fullName}</h4>
-                                <p className="text-[11px] text-secondary font-medium uppercase tracking-wider">{staff.designation}</p>
-                              </div>
-                              {staff.averageRating && (
-                                <div className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded-lg border border-slate-100 shadow-sm shrink-0">
-                                  <span className="text-gold text-[10px]">★</span>
-                                  <span className="text-[10px] font-bold text-black-deep">{staff.averageRating}</span>
-                                </div>
-                              )}
-                            </div>
-
-                            <p className="text-[11px] text-secondary mt-2 line-clamp-1 italic">
-                              {staff.bio || 'Professional salon specialist'}
+                            <h4 className="font-bold text-black-deep text-sm truncate uppercase tracking-tight">{staff.userFullName || staff.fullName}</h4>
+                            <p className="text-[11px] text-secondary font-medium uppercase tracking-wider mt-0.5">{staff.designation}</p>
+                            <p className={`text-[10px] font-bold uppercase tracking-wider mt-1.5 flex items-center gap-1.5 ${staff.isAvailable ? 'text-green-600' : 'text-slate-500'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${staff.isAvailable ? 'bg-green-500' : 'bg-slate-400'}`}></span>
+                              Available: {staff.isAvailable ? 'Yes' : 'No'}
                             </p>
-
-                            <div className="mt-2.5 flex items-center gap-4">
-                              <div className="flex flex-col">
-                                <span className="text-[9px] uppercase tracking-widest text-secondary/70 font-bold">Bookings</span>
-                                <span className="text-xs font-bold text-black-deep">{staff.totalBookings || '0'}</span>
-                              </div>
-                              <div className="w-px h-6 bg-slate-200"></div>
-                              <div className="flex flex-col">
-                                <span className="text-[9px] uppercase tracking-widest text-secondary/70 font-bold">Services</span>
-                                <span className="text-xs font-bold text-black-deep">{staff.serviceCount || '1'}</span>
-                              </div>
-                              <div className="ml-auto">
-                                <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center">
-                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                                </div>
-                              </div>
-                            </div>
                           </div>
+
+                          {/* Selection Checkmark Icon on the Right */}
+                          {selectedStaffId && staff.id && selectedStaffId === staff.id.toString() && (
+                            <div className="shrink-0 w-6 h-6 rounded-full bg-gold flex items-center justify-center shadow-md shadow-gold/20 animate-in zoom-in-50 duration-200">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

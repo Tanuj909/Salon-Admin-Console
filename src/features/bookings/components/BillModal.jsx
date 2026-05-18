@@ -222,7 +222,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                                 <p className="text-[11px] text-zinc-500 font-medium leading-relaxed max-w-[250px] mx-auto">{billData.business.address}</p>
                                 <p className="text-[11px] text-zinc-500 font-medium mt-1">Ph: {billData.business.phone}</p>
                                 <p className="text-[11px] text-zinc-500 font-medium truncate max-w-[250px] mx-auto">{billData.business.email}</p>
-                                {billData.business.gstNumber && <p className="text-[11px] text-zinc-500 font-medium mt-0.5">GSTIN: {billData.business.gstNumber}</p>}
+                                {billData.business.gstNumber && <p className="text-[11px] text-zinc-500 font-medium mt-0.5">VAT: {billData.business.gstNumber}</p>}
                             </div>
 
                             <div className="border-t-[1.5px] border-dashed border-zinc-200 my-4"></div>
@@ -332,7 +332,7 @@ const BillModal = ({ isOpen, onClose, billData }) => {
                         <p className="text-[13px] text-zinc-600 font-medium m-0">Phone: {billData.business.phone}</p>
                         <p className="text-[13px] text-zinc-600 font-medium m-0">Email: {billData.business.email}</p>
                         {billData.business.gstNumber && (
-                            <p className="text-[13px] text-zinc-700 font-bold m-0 mt-1">GSTIN: {billData.business.gstNumber}</p>
+                            <p className="text-[13px] text-zinc-700 font-bold m-0 mt-1">VAT: {billData.business.gstNumber}</p>
                         )}
                     </div>
                     <div className="text-right">
