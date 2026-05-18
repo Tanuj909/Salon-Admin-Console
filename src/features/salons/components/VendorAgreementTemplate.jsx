@@ -235,7 +235,13 @@ const VendorAgreementTemplate = ({ formData, onGenerate, loading }) => {
         originalSrcs[idx] = src;
         if (src && !src.startsWith("data:")) {
           const dataUrl = await toDataUrl(src);
-          if (dataUrl) img.setAttribute("src", dataUrl);
+          if (dataUrl) {
+            await new Promise((resolve) => {
+              img.onload = resolve;
+              img.onerror = resolve;
+              img.setAttribute("src", dataUrl);
+            });
+          }
         }
       })
     );
@@ -254,9 +260,9 @@ const VendorAgreementTemplate = ({ formData, onGenerate, loading }) => {
     const opt = {
       margin: [8, 8, 8, 8],
       filename: `Vendor_Agreement_${formData.signerName.replace(/\s+/g, "_")}.pdf`,
-      image: { type: "jpeg", quality: 0.92 },
+      image: { type: "jpeg", quality: 0.75 },
       html2canvas: {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         logging: false,
         letterRendering: true,
@@ -267,7 +273,7 @@ const VendorAgreementTemplate = ({ formData, onGenerate, loading }) => {
         // ─── FIX: ignoreElements skips upload controls outside printable area ─
         ignoreElements: (el) => el.dataset.pdfIgnore === "true",
       },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
       pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     };
 
