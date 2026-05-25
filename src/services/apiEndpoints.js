@@ -110,6 +110,7 @@ export const API_ENDPOINTS = {
     REVENUE_BY_STATE: "/superadmin/dashboard/revenue/by-state",
     TOP_SALONS: "/superadmin/dashboard/top/salons",
     REVENUE_SUMMARY: "/superadmin/dashboard/revenue/summary",
+    BROADCAST: "/admin/broadcast",
   },
   DASHBOARD: {
     FULL: "/dashboard",
@@ -128,5 +129,13 @@ export const API_ENDPOINTS = {
   },
   REPORTS: {
     GENERATE: (businessId) => `/reports/business/${businessId}`,
+  },
+  SUPPORT: {
+    GET_ALL: (page, size) => `/contact-us/admin/all?page=${page}&size=${size}`,
+    GET_BY_ID: (id) => `/contact-us/admin/${id}`,
+    REPLY: (id) => `/contact-us/admin/${id}/reply`,
+    CREATE: "/contact-us",
+    GET_MY_QUERIES: (page, size) => `/contact-us/my-queries?page=${page}&size=${size}`,
+    DELETE: (id) => `/contact-us/admin/${id}`,
   },
 };

@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import NotificationBell from "@/components/layout/NotificationBell";
 
 const Topbar = ({ onMenuClick, isMobile }) => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -18,6 +19,9 @@ const Topbar = ({ onMenuClick, isMobile }) => {
     '/admin/super-admin/categories': 'Categories',
     '/admin/super-admin/all-salons': 'All Salons',
     '/admin/super-admin/admins': 'All Admins',
+    '/admin/super-admin/support': 'Support Queries',
+    '/admin/super-admin/broadcast': 'Broadcast Messages',
+    '/admin/support': 'Support',
     '/admin/my-salon': 'My Salon',
     '/admin/timings': 'Business Timings',
     '/admin/services': 'Services',
@@ -117,6 +121,25 @@ const Topbar = ({ onMenuClick, isMobile }) => {
                 {user?.role || "Role Not Found"}
                 </div>
             </div>
+
+            {user && (
+              <div 
+                className="dropdown-item flex items-center gap-3 p-4 rounded-2xl hover:bg-gold/10 text-black-deep text-sm transition-all cursor-pointer group"
+                onClick={() => {
+                  setDropdownOpen(false);
+                  navigate(user.role === "SUPER_ADMIN" ? "/super-admin/support" : "/support");
+                }}
+              >
+                <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-black-deep transition-all">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <span className="font-bold uppercase tracking-widest text-[10px]">
+                  {user.role === "SUPER_ADMIN" ? "Support" : "Get My Queries"}
+                </span>
+              </div>
+            )}
 
             <div className="dropdown-item flex items-center gap-3 p-4 rounded-2xl hover:bg-gold/10 text-black-deep text-sm transition-all cursor-pointer group" onClick={logout}>
               <div className="w-8 h-8 rounded-full bg-red-400/10 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all">

@@ -35,6 +35,9 @@ import BusinessSalaries from "@/features/staff/pages/BusinessSalaries";
 import MySalary from "@/features/staff/pages/MySalary";
 import BillReports from "@/features/reports/pages/BillReports";
 import PaymentsList from "@/features/payments/pages/PaymentsList";
+import SupportQueries from "@/features/support/pages/SupportQueries";
+import MySupportQueries from "@/features/support/pages/MySupportQueries";
+import BroadcastMessage from "@/features/notifications/pages/BroadcastMessage";
 
 // Layouts
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -106,11 +109,14 @@ const AppRoutes = () => {
                 <Route path="super-admin/salons/:id" element={<SalonDetails />} />
                 <Route path="super-admin/categories" element={<Categories />} />
                 <Route path="super-admin/admins" element={<Admins />} />
+                <Route path="super-admin/support" element={<SupportQueries />} />
+                <Route path="super-admin/broadcast" element={<BroadcastMessage />} />
               </Route>
 
               {/* Shared Salon Profile Route */}
               <Route element={<ProtectedRoute allowedRoles={["ADMIN", "RECEPTIONIST", "STAFF"]} />}>
                 <Route path="my-salon" element={<MyAdminSalon />} />
+                <Route path="support" element={<MySupportQueries />} />
               </Route>
 
               {/* Admin Routes */}
